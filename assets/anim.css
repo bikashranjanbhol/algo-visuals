@@ -45,3 +45,12 @@ text.p50{fill:var(--i,#4B57D1)}text.p95{fill:var(--j,#B97C06)}text.p99{fill:var(
 .an-axis{stroke:var(--line);stroke-width:2}
 .an-dot.fail{fill:var(--miss,#C2414F)}.an-dot.ok{fill:var(--hit,#14875C)}
 .anim-svg .an-label,.anim-svg .an-sub{font-family:var(--sans)}
+/* controls and legibility */
+.anim-bar{display:flex;align-items:center;gap:6px;margin-top:8px}
+.an-btn{font-family:var(--sans);font-size:.95rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;width:38px;height:32px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.an-btn:hover{border-color:var(--muted)}
+.an-btn.play{width:48px;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.an-count{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.an-packet text{font-size:11px}
+.an-node .an-badge{font-size:10.5px}
