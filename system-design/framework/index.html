@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A framework for any system design, Algo Visuals</title>
+<meta name="description" content="A seven-step framework for designing any system, shown on two worked examples.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<style>
+.wrap{padding-bottom:40px}
+h1{max-width:20ch}
+.lede{margin-bottom:28px}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.mono{font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
+
+/* big idea */
+.idea{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.idea div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.idea b{display:block;margin-bottom:4px}
+.idea p{margin:0;color:var(--muted);font-size:.93rem}
+
+/* time budget bar */
+.budget{display:flex;gap:3px;margin:12px 0 6px;height:34px}
+.budget div{flex:var(--m);background:var(--cell);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.75rem;color:var(--muted);cursor:pointer;border:2px solid transparent;transition:background .25s,border-color .25s}
+.budget div.on{background:var(--i-soft);border-color:var(--i);color:var(--i);font-weight:600}
+.budget-note{font-size:.84rem;color:var(--muted);margin:0 0 20px}
+
+/* stepper layout */
+.studio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px;align-items:start}
+@media (max-width:900px){.studio{grid-template-columns:1fr}}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.steps button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-family:var(--sans);font-weight:600;font-size:.85rem;cursor:pointer}
+.steps button[aria-current="step"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps button.done{color:var(--hit);border-color:var(--hit-soft);background:var(--hit-soft)}
+.step-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.step-head .n{font-family:var(--mono);color:var(--i);font-weight:600}
+.step-head .t{font-size:.84rem;color:var(--muted);margin-left:auto}
+.step-body h3{font-size:1rem;margin:16px 0 6px}
+.step-body p{margin:0 0 10px;max-width:62ch}
+.step-body ul{margin:0 0 10px;padding-left:1.2em;max-width:62ch}
+.step-body li{margin:3px 0}
+.ask{background:var(--cell);border-radius:12px;padding:12px 14px;margin-top:6px}
+.ask b{display:block;font-size:.88rem;margin-bottom:6px}
+.ask ul{margin:0;padding-left:1.2em;font-size:.95rem}
+.mistake{border-left:3px solid var(--miss);padding:4px 0 4px 12px;margin-top:12px;color:var(--muted);font-size:.93rem}
+.mistake b{color:var(--miss)}
+.nav{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+button.btn{font-family:var(--sans);font-size:.95rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 16px;cursor:pointer}
+button.btn:disabled{opacity:.4;cursor:default}
+button.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--i);outline-offset:2px}
+
+/* whiteboard */
+.board{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px 20px;position:sticky;top:14px}
+@media (max-width:900px){.board{position:static}}
+.board-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.board-head h2{margin:0}
+.seg{display:inline-flex;gap:4px;background:var(--cell);border-radius:12px;padding:3px}
+.seg button{border:none;background:transparent;padding:6px 12px;border-radius:9px;font-size:.86rem;font-family:var(--sans);font-weight:600;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.board .hint{font-size:.86rem;color:var(--muted);margin:0 0 12px}
+.blk{border-top:1px dashed var(--line);padding:12px 0 4px;opacity:.55;transition:opacity .3s}
+.blk.cur{opacity:1}
+.blk.pending{display:none}
+.blk h4{margin:0 0 6px;font-size:.8rem;color:var(--muted);font-weight:600;display:flex;gap:8px;align-items:center}
+.blk h4 .n{font-family:var(--mono);color:var(--i)}
+.blk ul{margin:0;padding-left:1.1em;font-size:.93rem}
+.blk li{margin:2px 0}
+.blk .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.blk .two{grid-template-columns:1fr}}
+.blk .two b{display:block;font-size:.8rem;color:var(--muted);margin-bottom:2px}
+.blk pre{margin:6px 0 0;background:var(--code-bg,#1B2233);color:#D9DFEA;border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:.8rem;overflow-x:auto;line-height:1.5}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:4px}
+.nums div{background:var(--cell);border-radius:10px;padding:8px 10px}
+.nums b{display:block;font-family:var(--mono);font-size:1rem}
+.nums span{font-size:.78rem;color:var(--muted)}
+.arch{width:100%;height:auto;display:block;margin-top:6px}
+.arch .box rect{fill:var(--cell);stroke:var(--line);stroke-width:1.5}
+.arch .box text{font-family:var(--sans);font-size:12px;font-weight:600;fill:var(--ink)}
+.arch .box .sm{font-size:10px;font-weight:400;fill:var(--muted)}
+.arch .box.new rect{stroke:var(--hit);stroke-width:2;fill:var(--hit-soft)}
+.arch .box.core rect{stroke:var(--i)}
+.arch .e{stroke:var(--muted);stroke-width:1.6;fill:none}
+.arch .e.new{stroke:var(--hit);stroke-width:2}
+.arch .ah{fill:var(--muted)} .arch .ah.new{fill:var(--hit)}
+.legend{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin:0 6px 0 0;vertical-align:-1px;background:var(--hit-soft);border:2px solid var(--hit)}
+
+/* calculator */
+.calc{margin-top:20px}
+.calc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.calc-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px;font-size:.86rem;color:var(--muted);margin-bottom:10px}
+.field input{font-family:var(--mono);font-size:1rem;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink);width:100%}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.out div{background:var(--cell);border-radius:12px;padding:12px 14px}
+.out b{display:block;font-family:var(--mono);font-size:1.3rem}
+.out span{font-size:.82rem;color:var(--muted)}
+.cheat{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:8px}
+.cheat td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.cheat td:first-child{font-family:var(--mono);white-space:nowrap}
+.cheat td:last-child{color:var(--muted)}
+
+/* template */
+.tmpl{margin-top:20px}
+.tmpl ol{margin:8px 0 0;padding-left:1.4em;max-width:70ch}
+.tmpl li{margin:0 0 10px}
+.tmpl li::marker{font-family:var(--mono);font-weight:600;color:var(--i)}
+.tmpl li b{display:block}
+.tmpl li span{color:var(--muted);font-size:.95rem}
+.quiz{display:grid;gap:8px;margin-top:12px}
+.quiz details{background:var(--cell);border-radius:12px;padding:10px 14px}
+.quiz summary{cursor:pointer;font-weight:600}
+.quiz p{margin:8px 0 2px;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Framework</p>
+  <h1>A framework for any system design</h1>
+  <p class="lede">You don't need to memorize architectures. You need one repeatable process that turns a vague prompt like "design a chat app" into a design you can defend. This is that process, in seven steps, shown on two very different systems so you can see the same steps produce different answers.</p>
+
+  <div class="idea">
+    <div><b>Requirements before boxes</b><p>Every box in a diagram should exist because a requirement or a number forced it there. If you can't say which one, remove the box.</p></div>
+    <div><b>Numbers drive decisions</b><p>Reads vs writes, data size, latency targets. A rough estimate tells you whether you need a cache, a queue, or nothing at all.</p></div>
+    <div><b>Start simple, then break it</b><p>Draw the smallest thing that works. Then ask "what breaks at 10× traffic?" and fix only that. Repeat.</p></div>
+    <div><b>Every choice is a trade-off</b><p>There's no right answer, only choices with costs. Saying what you gave up is what separates a good design from a memorized one.</p></div>
+  </div>
+
+  <section class="panel" id="studio">
+    <h2 class="big">The seven steps</h2>
+    <p class="sub">Click a step to read what to do and why. The whiteboard on the right fills in for the chosen example as you go. In a 45-minute interview, the bar shows roughly how long each step deserves.</p>
+    <div class="budget" id="budget"></div>
+    <p class="budget-note" id="budgetNote"></p>
+
+    <div class="studio">
+      <div>
+        <div class="steps" id="stepPills"></div>
+        <div class="step-head"><span class="n" id="stepN"></span><h2 id="stepTitle"></h2><span class="t" id="stepTime"></span></div>
+        <div class="step-body" id="stepBody"></div>
+        <div class="nav">
+          <button class="btn" id="prev">Previous step</button>
+          <button class="btn primary" id="next">Next step</button>
+        </div>
+      </div>
+      <div class="board">
+        <div class="board-head">
+          <h2>Whiteboard</h2>
+          <div class="seg" role="group" aria-label="Example system">
+            <button data-ex="url" aria-pressed="true">URL shortener</button>
+            <button data-ex="chat" aria-pressed="false">Chat app</button>
+          </div>
+        </div>
+        <p class="hint" id="boardHint"></p>
+        <div id="board"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel calc">
+    <h2 class="big">Back-of-the-envelope calculator</h2>
+    <p class="sub">Step 2 in practice. Rough numbers are the point: you're deciding between "a single database is fine" and "we need to spread this out", not writing a capacity plan.</p>
+    <div class="calc-grid">
+      <div>
+        <label class="field">Daily active users<input type="number" id="dau" value="10000000"></label>
+        <label class="field">Actions per user per day<input type="number" id="apu" value="10"></label>
+        <label class="field">Share of actions that are writes (%)<input type="number" id="wpct" value="10" min="0" max="100"></label>
+        <label class="field">Bytes stored per write<input type="number" id="bytes" value="500"></label>
+        <label class="field">Years to keep data<input type="number" id="years" value="5" min="1"></label>
+      </div>
+      <div>
+        <div class="out" id="calcOut"></div>
+        <p class="sub" style="margin-top:12px" id="calcSay"></p>
+        <table class="cheat">
+          <tr><td>1 day</td><td>≈ 86,400 s, round to 100,000 for mental math</td></tr>
+          <tr><td>1M per day</td><td>≈ 12 per second</td></tr>
+          <tr><td>peak</td><td>plan for 2 to 3× the average</td></tr>
+          <tr><td>1 KB × 1M</td><td>= 1 GB. 1 KB × 1B = 1 TB</td></tr>
+          <tr><td>one DB server</td><td>comfortably a few thousand simple queries/s; past that, think cache, replicas, shards</td></tr>
+          <tr><td>memory vs disk</td><td>a cache hit is ~100× faster than a disk read</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel tmpl">
+    <h2 class="big">Apply it to any system</h2>
+    <p class="sub">Next time you're asked to design something, write these seven headings down and fill them in, in order. Don't draw a box until step 5.</p>
+    <ol>
+      <li><b>Requirements</b><span>What must it do (functional)? How well must it do it (non-functional: latency, availability, consistency, scale)? What's out of scope?</span></li>
+      <li><b>Numbers</b><span>Users, requests per second, read-to-write ratio, data size per year. Which number is scary?</span></li>
+      <li><b>API</b><span>The handful of calls the client makes. Inputs, outputs, and whether each is a read or a write.</span></li>
+      <li><b>Data</b><span>What entities exist, what's the primary way you look each one up, and does that favour relational, key-value, or wide-column storage?</span></li>
+      <li><b>Simplest architecture</b><span>Client, load balancer, stateless servers, one database. Walk one read and one write through it end to end.</span></li>
+      <li><b>Break it and fix it</b><span>Where does it fall over at the numbers from step 2? Add exactly the component that fixes that: cache, replicas, queue, shards, CDN.</span></li>
+      <li><b>Trade-offs</b><span>For each addition, what did it cost? Then say what you'd tackle next with more time.</span></li>
+    </ol>
+    <h2 style="margin-top:22px">Check yourself</h2>
+    <div class="quiz">
+      <details><summary>You're asked to design a news feed. What's the very first thing you say?</summary><p>A clarifying question, not an architecture. For example: "Is the feed chronological or ranked?" and "Roughly how many users, and how many follow a typical account?" Those two answers change the whole design (fan-out on write vs on read).</p></details>
+      <details><summary>Your estimate says 50 reads for every write. What does that suggest?</summary><p>Reads are the problem to solve first. A cache in front of the database and read replicas will carry most of the load; the write path can stay simple for now.</p></details>
+      <details><summary>You added a message queue. What's the trade-off you just made?</summary><p>You gained resilience and the ability to absorb spikes, but the work is now asynchronous: the user doesn't see the result immediately, you need to handle retries and duplicates, and there's one more system to operate and monitor.</p></details>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+const STEPS = [
+  { title:'Clarify requirements', mins:5, body:`
+    <p>Every system design prompt is deliberately vague. Your first job is to shrink it into something you can actually build. Split requirements into two kinds.</p>
+    <h3>Functional: what it does</h3>
+    <p>The handful of things a user can do. Pick the 2 to 4 that matter most and explicitly park the rest ("out of scope for today").</p>
+    <h3>Non-functional: how well it does it</h3>
+    <p>Latency, availability, consistency, durability, scale. These are the ones that shape the architecture. "Must feel instant" and "must never lose a message" lead to very different designs.</p>
+    <div class="ask"><b>Ask out loud</b><ul><li>Who are the users and roughly how many?</li><li>What's the one operation that happens most?</li><li>What would be unacceptable: slow, down, or wrong data?</li><li>What can I leave out?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> jumping straight to "we'll use Kafka and Redis". You can't justify any component yet, because you don't know what it's for.</div>` },
+  { title:'Estimate the scale', mins:5, body:`
+    <p>Rough numbers tell you which problems are real. Three numbers do most of the work: requests per second, the read-to-write ratio, and how much data you store over time.</p>
+    <h3>How to do it quickly</h3>
+    <p>Start from users per day, multiply by actions per user, divide by ~100,000 seconds in a day. Round aggressively; you're after the order of magnitude, not the third digit.</p>
+    <div class="ask"><b>Ask yourself</b><ul><li>Is this read-heavy or write-heavy?</li><li>Can one database server handle the writes? (a few thousand per second is a fair ceiling)</li><li>Does the data fit in memory? On one machine's disk? In five years?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> spending ten minutes on precise arithmetic. The calculator below shows how little precision you need.</div>` },
+  { title:'Define the API', mins:5, body:`
+    <p>The API is the contract between the client and your system. Writing it down forces you to be concrete about inputs, outputs, and which calls are reads and which are writes.</p>
+    <h3>Keep it small</h3>
+    <p>One endpoint per functional requirement is usually enough. Note the shape of each request and response, and mark anything that must be fast or must be reliable.</p>
+    <div class="ask"><b>Ask yourself</b><ul><li>Is request/response enough, or does the client need to be pushed data (WebSocket, long polling)?</li><li>Which calls are idempotent (safe to retry)?</li><li>What's the one call that will be hammered?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> designing a dozen endpoints. Interviewers want to see you can find the important two.</div>` },
+  { title:'Design the data model', mins:5, body:`
+    <p>List the entities and, more importantly, how each one is looked up. The access pattern decides the storage, not the other way round.</p>
+    <h3>Pick storage by access pattern</h3>
+    <ul><li><b>Relational</b> when you need transactions and flexible queries across entities.</li><li><b>Key-value</b> when it's "give me X by id" at very high speed.</li><li><b>Wide-column</b> (Cassandra-style) when writes are heavy and reads are "give me the latest N for this key".</li><li><b>Object storage</b> for large blobs: images, video, files.</li></ul>
+    <div class="ask"><b>Ask yourself</b><ul><li>What's the primary key for each table, and will lookups by it be evenly spread?</li><li>Which field will I need to shard on later?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> choosing a database by name ("NoSQL scales") instead of by what you need to read and write.</div>` },
+  { title:'Draw the simplest architecture', mins:10, body:`
+    <p>Now, and only now, draw boxes. Start with the smallest thing that satisfies the functional requirements: clients, a load balancer, stateless application servers, one database.</p>
+    <h3>Walk a request through it</h3>
+    <p>Trace one write and one read end to end, naming what each box does. If a box does nothing in either trace, delete it.</p>
+    <div class="ask"><b>Ask yourself</b><ul><li>Where does state live? (It should be in the database, not the servers, so servers can be added freely.)</li><li>What does the client talk to first?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> drawing the final 15-box diagram up front. Interviewers want to watch you reason toward each box.</div>` },
+  { title:'Find the bottleneck and fix it', mins:10, body:`
+    <p>Take the numbers from step 2 and push them through your simple design. Something breaks: the database can't serve the reads, writes arrive in spikes, one user's data is too hot. Fix that one thing, then look again.</p>
+    <h3>The usual fixes, and what they solve</h3>
+    <ul><li><b>Cache</b>: too many repeated reads of the same data.</li><li><b>Read replicas</b>: reads outnumber writes and the cache can't hold everything.</li><li><b>Message queue</b>: write spikes, slow downstream work, or work that can happen later.</li><li><b>Sharding</b>: one database can't hold or write all the data.</li><li><b>CDN / object storage</b>: large static files served to many users.</li></ul>
+    <div class="ask"><b>Ask yourself</b><ul><li>What fails first at 10× traffic?</li><li>What happens if this component dies? Is there a copy?</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> adding every scaling tool you know. Each one must answer "which bottleneck did this remove?"</div>` },
+  { title:'Name the trade-offs', mins:5, body:`
+    <p>Close by stating what you gave up. Every component you added cost something: consistency, latency, complexity, money. Saying so shows you understand the design rather than reciting it.</p>
+    <h3>Trade-offs that come up almost every time</h3>
+    <ul><li>Strong consistency vs availability and speed.</li><li>Doing work now (synchronous) vs later (queue).</li><li>Precomputing (fast reads, expensive writes) vs computing on demand.</li><li>One big database vs many shards (simplicity vs scale).</li></ul>
+    <div class="ask"><b>Finish with</b><ul><li>"If I had more time I'd look at…" (monitoring, rate limiting, security, failure recovery).</li></ul></div>
+    <div class="mistake"><b>Common mistake:</b> presenting the design as finished and perfect. It never is, and claiming so invites the hardest follow-up questions.</div>` }
+];
+
+const EX = {
+  url: {
+    name:'URL shortener',
+    hint:'Turn a long link into a short one, and redirect anyone who opens it. Think bit.ly.',
+    blocks:[
+      `<div class="two"><div><b>Functional</b><ul><li>Shorten a long URL</li><li>Open a short URL → redirect</li><li>Optional: custom alias, expiry</li></ul></div><div><b>Non-functional</b><ul><li>Redirects must be very fast</li><li>Highly available: a dead link is a broken web page</li><li>Short codes shouldn't be guessable</li></ul></div></div><ul style="margin-top:8px"><li>Out of scope: analytics dashboard, user accounts</li></ul>`,
+      `<div class="nums"><div><b>100M</b><span>new URLs per month</span></div><div><b>~40 / s</b><span>writes (100M ÷ 2.6M s)</span></div><div><b>100 : 1</b><span>reads to writes</span></div><div><b>~4,000 / s</b><span>redirects, ~12K at peak</span></div><div><b>~3 TB</b><span>5 years × 100M × 12 × 500 B</span></div></div><ul style="margin-top:8px"><li>Verdict: very read-heavy, data is small. Reads are the problem to solve.</li></ul>`,
+      `<pre>POST /shorten
+  { longUrl, alias?, expiresAt? }
+  → { shortUrl }            (write, rare)
+
+GET  /{code}
+  → 302 Location: longUrl  (read, hot path)</pre>`,
+      `<pre>urls
+  code        PK   "aB9xQ2" (base62, 7 chars)
+  long_url
+  created_at
+  expires_at
+
+lookup: always by code  → key-value fits well</pre><ul style="margin-top:8px"><li>Key question: how to generate unique codes. Hash of the URL + base62, or a counter turned into base62.</li></ul>`,
+      `<ul><li>Write: client → LB → app server generates code → insert into DB → return short URL</li><li>Read: client → LB → app server looks up code → 302 redirect</li></ul>`,
+      `<ul><li>Bottleneck: 4,000 reads/s hitting the DB for the same hot codes</li><li>Add a cache in front of the DB (most links are opened many times; a cache holds the popular 20%)</li><li>Add read replicas for cache misses</li><li>Click events are not needed to answer the user: push them onto a queue for an analytics worker</li><li>Code generation at scale: pre-generate codes in a key service so app servers don't collide</li></ul>`,
+      `<ul><li>301 vs 302 redirect: 301 lets browsers cache (less load) but you lose click counts; 302 keeps counts but every click hits you</li><li>Cache can serve a stale target briefly after an edit: acceptable here</li><li>Availability over consistency: a redirect that works is worth more than one that is instantly consistent</li><li>Next: rate limiting and abuse, expiring old links, custom domains</li></ul>`
+    ],
+    nodes:[
+      {id:'c', l:'Clients', s:'browser / app', col:0,row:1, step:5},
+      {id:'lb', l:'Load balancer', s:'', col:1,row:1, step:5},
+      {id:'app', l:'App servers', s:'stateless', col:2,row:1, step:5},
+      {id:'db', l:'Database', s:'urls by code', col:3,row:1, step:5},
+      {id:'cache', l:'Cache', s:'hot codes', col:3,row:0, step:6},
+      {id:'rep', l:'Read replicas', s:'', col:4,row:1, step:6},
+      {id:'q', l:'Queue', s:'click events', col:2,row:2, step:6},
+      {id:'an', l:'Analytics worker', s:'', col:3,row:2, step:6},
+      {id:'kgs', l:'Key service', s:'pre-made codes', col:2,row:0, step:6}
+    ],
+    edges:[['c','lb',5],['lb','app',5],['app','db',5],['app','cache',6],['db','rep',6],['app','q',6],['q','an',6],['kgs','app',6]]
+  },
+  chat: {
+    name:'Chat app',
+    hint:'One-to-one messaging with delivery status and online presence. Think WhatsApp without groups.',
+    blocks:[
+      `<div class="two"><div><b>Functional</b><ul><li>Send and receive 1:1 messages</li><li>See sent / delivered / read</li><li>See who is online</li><li>Load message history</li></ul></div><div><b>Non-functional</b><ul><li>Real-time: well under a second</li><li>Messages are never lost</li><li>Per-conversation order is preserved</li><li>Works when the receiver is offline</li></ul></div></div><ul style="margin-top:8px"><li>Out of scope: group chats, end-to-end encryption</li></ul>`,
+      `<div class="nums"><div><b>50M</b><span>daily active users</span></div><div><b>40</b><span>messages per user per day</span></div><div><b>2B / day</b><span>≈ 23K messages / s, ~70K at peak</span></div><div><b>~200 GB</b><span>stored per day (100 B each)</span></div><div><b>~365 TB</b><span>over 5 years</span></div></div><ul style="margin-top:8px"><li>Verdict: write-heavy and huge. Writes must be cheap and the store must spread across many machines.</li></ul>`,
+      `<pre>WebSocket (persistent connection)
+  → send    { toUserId, clientMsgId, text }
+  ← receive { msgId, fromUserId, text, ts }
+  ← status  { msgId, delivered | read }
+
+REST
+GET /conversations/{id}/messages?before=msgId
+  → older history (read, paged)</pre>`,
+      `<pre>messages   partition: conversation_id
+           order:     message_id (time-sorted)
+  sender_id, body, status
+
+sessions   user_id → chat_server   (key-value, in memory)
+presence   user_id → last_seen     (key-value, TTL)</pre><ul style="margin-top:8px"><li>"Latest N for this conversation" is the hot read: a wide-column store partitioned by conversation fits that.</li></ul>`,
+      `<ul><li>Clients keep a WebSocket open to a chat server, through the load balancer</li><li>Send: A → chat server → store message → ack to A</li><li>Deliver: server finds which server B is connected to (session store) → forwards → B</li><li>History: REST call → app → message store</li></ul>`,
+      `<ul><li>Bottleneck: 70K writes/s, and users spread across many chat servers</li><li>Message store must be partitioned by conversation; a wide-column DB spreads writes across nodes</li><li>Session store (in-memory key-value) answers "which server is B on?" in microseconds</li><li>If B is offline, push the message to a queue; a notification service sends a push alert and B pulls history on return</li><li>Presence: clients send heartbeats; a TTL key expires when they stop</li><li>Images and video go to object storage behind a CDN; the message only carries a link</li></ul>`,
+      `<ul><li>At-least-once delivery plus client-side dedupe (clientMsgId) instead of chasing exactly-once</li><li>Storing before acking adds a few ms but means "never lost" is real</li><li>Wide-column store gives cheap writes and per-conversation reads but weak cross-conversation queries (search needs a separate index)</li><li>Next: group chat fan-out, end-to-end encryption, message search</li></ul>`
+    ],
+    nodes:[
+      {id:'c', l:'Clients', s:'WebSocket', col:0,row:1, step:5},
+      {id:'lb', l:'Load balancer', s:'', col:1,row:1, step:5},
+      {id:'cs', l:'Chat servers', s:'hold connections', col:2,row:1, step:5},
+      {id:'db', l:'Message store', s:'by conversation', col:3,row:1, step:5},
+      {id:'ss', l:'Session store', s:'user → server', col:2,row:0, step:6},
+      {id:'pr', l:'Presence', s:'heartbeat + TTL', col:3,row:0, step:6},
+      {id:'q', l:'Queue', s:'offline msgs', col:2,row:2, step:6},
+      {id:'push', l:'Notification svc', s:'push alerts', col:3,row:2, step:6},
+      {id:'obj', l:'Object store', s:'media, via CDN', col:0,row:2, step:6}
+    ],
+    edges:[['c','lb',5],['lb','cs',5],['cs','db',5],['cs','ss',6],['cs','pr',6],['cs','q',6],['q','push',6],['c','obj',6]]
+  }
+};
+const BLOCK_TITLES = ['Requirements','Numbers','API','Data model','Simplest architecture','Bottlenecks and fixes','Trade-offs'];
+
+const $ = id => document.getElementById(id);
+let step = 0, ex = 'url';
+
+// budget bar
+$('budget').innerHTML = STEPS.map((s,i)=>`<div style="--m:${s.mins}" data-i="${i}" title="${s.title}">${s.mins} min</div>`).join('');
+$('budget').querySelectorAll('div').forEach(d=>d.onclick=()=>{ step=+d.dataset.i; render(); });
+$('stepPills').innerHTML = STEPS.map((s,i)=>`<button data-i="${i}">${i+1}. ${s.title}</button>`).join('');
+$('stepPills').querySelectorAll('button').forEach(b=>b.onclick=()=>{ step=+b.dataset.i; render(); });
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+  ex = b.dataset.ex;
+  document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  render();
+});
+$('prev').onclick = ()=>{ if(step>0){step--;render();} };
+$('next').onclick = ()=>{ if(step<STEPS.length-1){step++;render();} };
+document.addEventListener('keydown', e=>{
+  if (e.target.matches('input,textarea')) return;
+  if (e.key==='ArrowRight') $('next').click();
+  if (e.key==='ArrowLeft') $('prev').click();
+});
+
+function arch(E, upto){
+  const COL=136, ROW=84, W=118, H=50, X0=10, Y0=10;
+  const pos = n => ({x:X0+n.col*COL, y:Y0+n.row*ROW});
+  const vis = E.nodes.filter(n=>n.step<=upto);
+  const byId = Object.fromEntries(E.nodes.map(n=>[n.id,n]));
+  let s = `<svg class="arch" viewBox="0 0 ${X0*2+COL*4+W} ${Y0*2+ROW*2+H}" role="img" aria-label="Architecture diagram"><defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 10 5 0 10z" class="ah"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 10 5 0 10z" class="ah new"/></marker></defs>`;
+  for (const [a,b,st] of E.edges){
+    if (st>upto) continue;
+    const A=byId[a], B=byId[b], pa=pos(A), pb=pos(B), isNew = st===upto && upto===6;
+    let d;
+    if (A.row===B.row){ const fwd = B.col>A.col; d = fwd ? `M${pa.x+W} ${pa.y+H/2} L${pb.x} ${pb.y+H/2}` : `M${pa.x} ${pa.y+H/2} L${pb.x+W} ${pb.y+H/2}`; }
+    else if (A.col===B.col){ const down = B.row>A.row; d = down ? `M${pa.x+W/2} ${pa.y+H} L${pb.x+W/2} ${pb.y}` : `M${pa.x+W/2} ${pa.y} L${pb.x+W/2} ${pb.y+H}`; }
+    else { // diagonal: leave from right/left edge, arrive at left/top/bottom edge
+      const fwd = B.col>A.col;
+      const sx = fwd ? pa.x+W : pa.x, sy = pa.y+H/2;
+      const tx = fwd ? pb.x : pb.x+W, ty = pb.y+H/2;
+      const mx = (sx+tx)/2;
+      d = `M${sx} ${sy} C ${mx} ${sy}, ${mx} ${ty}, ${tx} ${ty}`;
+    }
+    s += `<path class="e ${isNew?'new':''}" d="${d}" marker-end="url(#${isNew?'a2':'a1'})"/>`;
+  }
+  for (const n of vis){
+    const p = pos(n), isNew = n.step===upto && upto===6;
+    s += `<g class="box ${isNew?'new':''} ${n.step===5?'core':''}"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="10"/>
+      <text x="${p.x+W/2}" y="${p.y+(n.s?22:30)}" text-anchor="middle">${n.l}</text>
+      ${n.s?`<text class="sm" x="${p.x+W/2}" y="${p.y+38}" text-anchor="middle">${n.s}</text>`:''}</g>`;
+  }
+  return s + '</svg>';
+}
+
+function render(){
+  const S = STEPS[step], E = EX[ex];
+  $('budget').querySelectorAll('div').forEach((d,i)=>d.classList.toggle('on', i===step));
+  const before = STEPS.slice(0,step).reduce((a,s)=>a+s.mins,0);
+  $('budgetNote').textContent = `Step ${step+1} of 7. In a 45-minute interview you'd be at roughly minute ${before} to ${before+S.mins}.`;
+  $('stepPills').querySelectorAll('button').forEach((b,i)=>{ b.setAttribute('aria-current', i===step?'step':'false'); b.classList.toggle('done', i<step); });
+  $('stepN').textContent = `Step ${step+1}`;
+  $('stepTitle').textContent = S.title;
+  $('stepTime').textContent = `about ${S.mins} minutes`;
+  $('stepBody').innerHTML = S.body;
+  $('prev').disabled = step===0;
+  $('next').disabled = step===STEPS.length-1;
+
+  $('boardHint').textContent = E.hint;
+  let h = '';
+  for (let i=0;i<STEPS.length;i++){
+    const cls = i<step ? 'blk' : i===step ? 'blk cur' : 'blk pending';
+    let inner = E.blocks[i];
+    if (i===4 && step>=4) inner += arch(E, 5);
+    if (i===5 && step>=5) inner += arch(E, 6) + `<p class="legend"><i></i>added in this step</p>`;
+    h += `<div class="${cls}"><h4><span class="n">${i+1}</span>${BLOCK_TITLES[i]}</h4>${inner}</div>`;
+  }
+  $('board').innerHTML = h;
+  const cur = $('board').querySelector('.blk.cur');
+  if (cur && window.innerWidth <= 900) cur.scrollIntoView({block:'nearest'});
+}
+
+// calculator
+function fmt(n){ if(n>=1e12) return (n/1e12).toFixed(1)+' T'; if(n>=1e9) return (n/1e9).toFixed(1)+' B'; if(n>=1e6) return (n/1e6).toFixed(1)+' M'; if(n>=1e3) return (n/1e3).toFixed(1)+' K'; return Math.round(n).toString(); }
+function bytesFmt(b){ const u=['B','KB','MB','GB','TB','PB']; let i=0; while(b>=1024&&i<u.length-1){b/=1024;i++;} return b.toFixed(b<10?1:0)+' '+u[i]; }
+function calc(){
+  const dau=+$('dau').value||0, apu=+$('apu').value||0, w=(+$('wpct').value||0)/100, bytes=+$('bytes').value||0, years=+$('years').value||1;
+  const perDay = dau*apu, qps = perDay/86400, wqps = qps*w, rqps = qps-wqps;
+  const perYear = perDay*w*365*bytes, total = perYear*years;
+  $('calcOut').innerHTML = `
+    <div><b>${fmt(qps)}</b><span>requests / s (avg)</span></div>
+    <div><b>${fmt(qps*3)}</b><span>requests / s (peak, ×3)</span></div>
+    <div><b>${fmt(wqps)}</b><span>writes / s</span></div>
+    <div><b>${fmt(rqps)}</b><span>reads / s</span></div>
+    <div><b>${bytesFmt(perYear)}</b><span>new data per year</span></div>
+    <div><b>${bytesFmt(total)}</b><span>stored after ${years} year${years==1?'':'s'}</span></div>`;
+  const ratio = wqps>0 ? Math.round(rqps/wqps) : 0;
+  let say;
+  if (qps < 1000) say = `At this scale a single well-tuned database handles everything. Spend your design time on correctness, not scaling.`;
+  else if (wqps < 2000) say = `Reads outnumber writes about ${ratio}:1. A cache plus read replicas will absorb the reads; one primary database can still take the writes.`;
+  else say = `Writes alone are ${fmt(wqps)}/s, past what one database comfortably handles. You'll need to partition (shard) the data and probably buffer writes with a queue.`;
+  if (total > 1e13) say += ` And ${bytesFmt(total)} won't sit on one machine: plan for distributed storage from the start.`;
+  $('calcSay').textContent = say;
+}
+['dau','apu','wpct','bytes','years'].forEach(id=>$(id).addEventListener('input', calc));
+calc();
+render();
+</script>
+</body>
+</html>
