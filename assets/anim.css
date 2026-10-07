@@ -46,7 +46,8 @@ text.p50{fill:var(--i,#4B57D1)}text.p95{fill:var(--j,#B97C06)}text.p99{fill:var(
 .an-dot.fail{fill:var(--miss,#C2414F)}.an-dot.ok{fill:var(--hit,#14875C)}
 .anim-svg .an-label,.anim-svg .an-sub{font-family:var(--sans)}
 /* controls and legibility */
-.anim-bar{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.anim-bar{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+@media (max-width:520px){.an-btn span{display:none}.an-btn{padding:0 12px}.an-btn.play{min-width:0}}
 .an-btn{font-family:var(--sans);font-size:.86rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;height:34px;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1}
 .an-btn svg{width:12px;height:12px;fill:currentColor;flex:none}
 .an-btn:hover{border-color:var(--muted);background:var(--cell)}
