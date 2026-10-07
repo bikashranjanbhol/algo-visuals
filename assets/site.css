@@ -1,4 +1,5 @@
 /* Shared header and footer. Page-level tokens (--bg, --ink, ...) come from each page. */
+header.site-header{max-width:none;margin:0;width:100%}
 .site-header{background:var(--surface);border-bottom:1px solid var(--line)}
 .site-header .in,.site-footer .in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:20px}
 .site-header .in{height:60px}
