@@ -24,11 +24,12 @@ window.SITE = SITE;
   if (section && section.access === 'premium' && path !== section.href) {
     document.documentElement.classList.add('gated');
   }
+  const extra = `<a href="/concepts"${path === '/concepts' || path.startsWith('/concepts/') ? ' aria-current="page"' : ''}>Visual library</a>`;
   const nav = SITE.sections.map(s => {
     const here = section === s;
     const lock = s.access === 'premium' ? '<span class="lock" title="Members only" aria-hidden="true"></span>' : '';
     return `<a href="${s.href}"${here ? ' aria-current="page"' : ''}>${s.label}${lock}</a>`;
-  }).join('');
+  }).join('') + extra;
   const header = document.createElement('header');
   header.className = 'site-header';
   header.innerHTML = `<div class="in"><a class="site-title" href="/"><span class="mark">{}</span>${SITE.title}</a><nav class="site-nav" aria-label="Main menu">${nav}</nav><div class="site-auth" id="siteAuth"></div></div>`;
