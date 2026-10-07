@@ -13,6 +13,8 @@ let resolveReady; Auth.ready = new Promise(r => resolveReady = r);
 window.AlgoAuth = Auth;
 
 function unlock(){ document.documentElement.classList.remove('gated'); }
+// Safety net: if Firebase can't load (offline, blocked), don't leave a blank page forever.
+setTimeout(() => { if (document.documentElement.classList.contains('gated')) { console.warn('Auth did not resolve; showing content.'); unlock(); } }, 8000);
 
 if (!Auth.enabled) {
   // Not configured yet: behave as a public site.
