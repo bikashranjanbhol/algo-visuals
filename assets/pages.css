@@ -1,0 +1,26 @@
+:root{--bg:#EDF0F5;--surface:#FFFFFF;--cell:#F5F7FA;--ink:#18202E;--muted:#5B6577;--line:#D5DBE5;--i:#4B57D1;--i-soft:#E3E6FB;--hit:#14875C;--hit-soft:#D6F2E5;--j:#B97C06;--j-soft:#FBEFD3;--miss:#C2414F;--miss-soft:#F8DDE0;
+  --sans:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root{--bg:#121826;--surface:#1A2232;--cell:#212B3D;--ink:#E8ECF4;--muted:#98A2B5;--line:#2C3649;--i:#949EFF;--i-soft:#272E58;--hit:#4FD19A;--hit-soft:#173A2D;--j:#F2BE4A;--j-soft:#3B3120;--miss:#F27885;--miss-soft:#3D1F27}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1}
+.wrap{max-width:1120px;margin:0 auto;padding:40px 20px 24px}
+h1{font-size:clamp(2.2rem,5.5vw,3.6rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px;max-width:18ch}
+.lede{color:var(--muted);max-width:62ch;margin:0 0 36px;font-size:1.1rem}
+.crumb{font-size:.9rem;color:var(--muted);margin:0 0 14px}
+.crumb a{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;text-decoration:none;color:inherit;transition:border-color .2s}
+a.card:hover{border-color:var(--muted)}
+.card .num{font-family:var(--mono);color:var(--muted);font-size:.85rem}
+.card h2{margin:4px 0 8px;font-size:1.4rem;font-weight:800;letter-spacing:-.01em}
+.card p{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.card .diff,.card .soon{display:inline-block;font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:999px}
+.diff.easy{background:var(--hit-soft);color:var(--hit)} .diff.medium{background:var(--j-soft);color:var(--j)} .diff.hard{background:var(--miss-soft);color:var(--miss)}
+.soon{background:var(--cell);color:var(--muted)}
+.card ul{margin:12px 0 0;padding-left:1.2em;font-size:.92rem;color:var(--muted)}
+.card li{margin:2px 0}
+.card .go{display:block;margin-top:16px;font-weight:600;color:var(--i)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:20px;padding:28px;max-width:60ch}
+.empty h2{margin:0 0 6px;font-size:1.2rem}
+.empty p{margin:0;color:var(--muted)}

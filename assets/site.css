@@ -1,15 +1,16 @@
 /* Shared header and footer. Page-level tokens (--bg, --ink, ...) come from each page. */
 header.site-header{max-width:none;margin:0;width:100%}
-.site-header{background:var(--surface);border-bottom:1px solid var(--line)}
+.site-header{background:var(--surface);border-bottom:1px solid var(--line);position:relative;z-index:20}
 .site-header .in,.site-footer .in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:20px}
-.site-header .in{height:60px}
-.site-title{font-family:var(--sans);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.site-header .in{min-height:60px}
+.site-title{font-family:var(--sans);font-weight:800;font-size:1.15rem;letter-spacing:-.01em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap;flex:none}
 .site-title .mark{width:26px;height:26px;border-radius:8px;background:var(--i,#4B57D1);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:.85rem;font-weight:600}
-.site-nav{margin-left:auto;display:flex;gap:4px;overflow-x:auto}
-.site-nav a{font-family:var(--sans);font-size:.92rem;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:10px;white-space:nowrap}
+.site-nav{margin-left:auto;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding:8px 0}
+.site-nav::-webkit-scrollbar{display:none}
+.site-nav a{font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none;padding:7px 11px;border-radius:10px;white-space:nowrap}
 .site-nav a:hover{color:var(--ink);background:var(--cell)}
 .site-nav a[aria-current="page"]{color:var(--ink);background:var(--cell)}
 .site-footer{margin-top:40px;border-top:1px solid var(--line);background:var(--surface)}
 .site-footer .in{padding:22px 20px;flex-wrap:wrap;justify-content:space-between;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
 .site-footer b{color:var(--ink)}
-@media (max-width:600px){.site-header .in{gap:10px}.site-nav a{padding:7px 9px}}
+@media (max-width:900px){.site-header .in{flex-wrap:wrap;gap:4px 12px;padding-top:10px}.site-nav{margin-left:-6px;width:100%;padding:2px 0 8px}}

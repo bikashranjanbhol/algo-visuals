@@ -1,4 +1,8 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/two-sum", "destination": "/algo-dsa/two-sum", "permanent": true },
+    { "source": "/add-two-numbers", "destination": "/algo-dsa/add-two-numbers", "permanent": true }
+  ]
 }
