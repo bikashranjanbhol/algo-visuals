@@ -111,6 +111,32 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
 .quiz details{background:var(--cell);border-radius:12px;padding:10px 14px}
 .quiz summary{cursor:pointer;font-weight:600}
 .quiz p{margin:8px 0 2px;font-size:.95rem}
+
+/* guide document */
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin:0 0 24px}
+.toc summary{cursor:pointer;font-weight:600}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 18px;margin-top:12px}
+.toc-grid a{font-size:.9rem;color:var(--muted);text-decoration:none;padding:3px 0}
+.toc-grid a:hover{color:var(--ink)}
+.doc{max-width:none}
+.doc h2{font-size:clamp(1.35rem,3vw,1.8rem);font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:40px 0 10px;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+.doc h3{font-size:1.1rem;font-weight:700;margin:20px 0 6px}
+.doc p{max-width:72ch;margin:0 0 12px}
+.doc ul,.doc ol{max-width:72ch;margin:0 0 12px;padding-left:1.4em}
+.doc li{margin:3px 0}
+.doc blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--p);background:var(--p-soft);border-radius:0 12px 12px 0;max-width:72ch}
+.doc blockquote p{margin:0}
+.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
+.doc pre code{background:transparent;padding:0;font-size:inherit;color:inherit}
+.doc code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
+.doc table{border-collapse:collapse;font-size:.92rem;margin:10px 0 14px;max-width:72ch}
+.doc th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:8px 10px;border-bottom:1px solid var(--line)}
+.doc td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.doc td:first-child{font-weight:600;white-space:nowrap}
+.doc hr{display:none}
+.widget{margin:18px 0 8px}
+.widget .panel{margin-bottom:0}
+.try-note{font-weight:600;color:var(--p);margin:0 0 8px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -118,26 +144,402 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
 <main>
 <div class="wrap">
   <p class="crumb"><a href="/">Home</a> / <a href="/algo-dsa">Algo &amp; DSA</a> / Prefix and suffix</p>
-  <h1>Prefix and suffix techniques</h1>
-  <p class="lede">Array problems keep asking the same two questions: "what happened before this index?" and "what remains after it?" Instead of rescanning every time, sweep once in each direction and remember. That one habit turns O(n²) into O(n) and turns range queries into a subtraction.</p>
+  <h1>Prefix and Suffix Techniques: A Complete Beginner-Friendly Guide</h1>
+  <p class="lede">The full guide, all 61 sections, with interactive explorers placed right after the sections they illustrate. Read it top to bottom, or jump in from the contents.</p>
+  <details class="toc"><summary>Contents (61 sections)</summary><div class="toc-grid"><a href="#s1">1. What Does "Prefix" Mean?</a><a href="#s2">2. What Does "Suffix" Mean?</a><a href="#s3">3. Prefix Sum</a><a href="#s4">4. The Most Useful Prefix Sum Version</a><a href="#s5">5. Range Sum Using Prefix Sum</a><a href="#s6">6. Why Prefix Sum Is Powerful</a><a href="#s7">7. Suffix Sum</a><a href="#s8">8. Prefix Maximum</a><a href="#s9">9. Suffix Maximum</a><a href="#s10">10. Prefix Minimum</a><a href="#s11">11. Suffix Minimum</a><a href="#s12">12. The General Prefix Formula</a><a href="#s13">13. Prefix XOR</a><a href="#s14">14. Prefix Frequency / Prefix Count</a><a href="#s15">15. Prefix Count for Characters</a><a href="#s16">16. Prefix GCD</a><a href="#s17">17. Prefix Product</a><a href="#s18">18. Product of Array Except Self</a><a href="#s19">19. The "Everything Except Me" Pattern</a><a href="#s20">20. Including the Current Element vs Excluding It</a><a href="#s21">21. Prefix Maximum + Suffix Maximum Example</a><a href="#s22">22. Prefix Min + Suffix Max Pattern</a><a href="#s23">23. Prefix Boolean Information</a><a href="#s24">24. Prefix OR and Prefix AND</a><a href="#s25">25. Running Count Is Also a Prefix Concept</a><a href="#s26">26. Prefix Balance</a><a href="#s27">27. Difference Arrays and Prefix Sums</a><a href="#s28">28. Difference Array for Range Updates</a><a href="#s29">29. Prefix Sum in Two Dimensions</a><a href="#s30">30. Prefix Max Cannot Be Used Like Prefix Sum for Arbitrary Range Maximum</a><a href="#s31">31. Which Operations Support Easy Range Queries?</a><a href="#s32">32. Common Prefix/Suffix Template</a><a href="#s33">33. A Helpful Mental Model</a><a href="#s34">34. Example: Find an Index Where Left Sum Equals Right Sum</a><a href="#s35">35. When Do We Actually Need the Full Prefix Array?</a><a href="#s36">36. Prefix/Suffix Without Extra Arrays</a><a href="#s37">37. Prefix Best + Current + Suffix Best</a><a href="#s38">38. Prefix Best Is Not Always Prefix Maximum</a><a href="#s39">39. Prefix and Kadane's Algorithm</a><a href="#s40">40. Prefix/Suffix in String Problems</a><a href="#s41">41. Prefix Hashing</a><a href="#s42">42. Prefix and Suffix in Trapping Rain Water</a><a href="#s43">43. Prefix/Suffix in Partition Problems</a><a href="#s44">44. Example: Find a Valid Split Using Prefix Max and Suffix Min</a><a href="#s45">45. Common Mistake: Wrong Suffix Loop Direction</a><a href="#s46">46. Common Mistake: Out-of-Bounds Access</a><a href="#s47">47. Common Mistake: Integer Overflow</a><a href="#s48">48. Common Mistake: Confusing Indexing Conventions</a><a href="#s49">49. Recommended Prefix Sum Template</a><a href="#s50">50. Recommended Prefix Maximum Template</a><a href="#s51">51. Recommended Suffix Maximum Template</a><a href="#s52">52. Recommended Prefix/Suffix Min Template</a><a href="#s53">53. A Table of Common Prefix/Suffix Concepts</a><a href="#s54">54. How to Recognize Prefix/Suffix Problems</a><a href="#s55">55. A Step-by-Step Strategy</a><a href="#s56">56. Prefix/Suffix vs Brute Force</a><a href="#s57">57. Prefix/Suffix Is a Form of Precomputation</a><a href="#s58">58. Prefix/Suffix as Dynamic Programming</a><a href="#s59">59. Final Example</a><a href="#s60">60. Cheat Sheet</a><a href="#s61">61. The Most Important Idea to Remember</a></div></details>
+  <div class="doc">
+<p>When solving array problems, we often need information about:</p>
+<ul>
+<li>everything <strong>before</strong> a position,</li>
+<li>everything <strong>after</strong> a position,</li>
+<li>the sum of a range,</li>
+<li>the maximum element seen so far,</li>
+<li>the minimum element remaining on the right,</li>
+<li>the XOR of a subarray,</li>
+<li>how many times something has appeared up to a point,</li>
+<li>or some combination of left-side and right-side information.</li>
+</ul>
+<p>A very common mistake is to recalculate this information again and again.</p>
+<p>For example, suppose we have:</p>
+<pre><code class="language-text">Array = [2, 4, 1, 7, 3]
+</code></pre>
+<p>If we repeatedly ask:</p>
+<pre><code class="language-text">What is the sum from index 0 to index 3?
+What is the sum from index 0 to index 2?
+What is the maximum from index 0 to index 4?
+What is the maximum from index 0 to index 2?
+</code></pre>
+<p>we could scan the array every time.</p>
+<p>But that becomes inefficient.</p>
+<p>Instead, we can <strong>precompute information while moving from left to right or right to left</strong>.</p>
+<p>That is the main idea behind <strong>prefix and suffix techniques</strong>.</p>
 
-  <div class="idea">
-    <div><b>Prefix = left to right</b><p>Information accumulated over <span class="cp">A[0 … i]</span>. "What have I seen so far?"</p></div>
-    <div><b>Suffix = right to left</b><p>Information accumulated over <span class="cs">A[i … n−1]</span>. "What is still ahead of me?"</p></div>
-    <div><b>Any operation works</b><p>Sum is the famous one, but max, min, XOR, GCD, product and counts all follow the same recurrence.</p></div>
-    <div><b>Both sides at once</b><p>prefix[i−1] and suffix[i+1] describe everything except index i. That pattern solves a whole family of problems.</p></div>
-  </div>
+<h2 id="s1">1. What Does "Prefix" Mean?</h2>
+<p>A <strong>prefix</strong> of an array is a portion starting from the beginning.</p>
+<p>Consider:</p>
+<pre><code class="language-text">A = [5, 2, 8, 3]
+</code></pre>
+<p>Its prefixes are:</p>
+<pre><code class="language-text">[5]
+[5, 2]
+[5, 2, 8]
+[5, 2, 8, 3]
+</code></pre>
+<p>So when we say:</p>
+<pre><code class="language-text">prefix information at index i
+</code></pre>
+<p>we usually mean information about:</p>
+<pre><code class="language-text">A[0 ... i]
+</code></pre>
+<p>For example:</p>
+<pre><code class="language-text">Prefix Sum[i]
+Prefix Maximum[i]
+Prefix Minimum[i]
+Prefix XOR[i]
+</code></pre>
+<p>all describe some property of the elements from index <code>0</code> through index <code>i</code>.</p>
 
-  <div class="divider"><h2>What prefix and suffix mean</h2></div>
-  <section class="panel">
+
+<h2 id="s2">2. What Does "Suffix" Mean?</h2>
+<p>A <strong>suffix</strong> is the opposite.</p>
+<p>A suffix ends at the end of the array.</p>
+<p>For:</p>
+<pre><code class="language-text">A = [5, 2, 8, 3]
+</code></pre>
+<p>the suffixes are:</p>
+<pre><code class="language-text">[5, 2, 8, 3]
+   [2, 8, 3]
+      [8, 3]
+         [3]
+</code></pre>
+<p>So:</p>
+<pre><code class="language-text">suffix information at index i
+</code></pre>
+<p>usually describes:</p>
+<pre><code class="language-text">A[i ... n-1]
+</code></pre>
+<p>Examples include:</p>
+<pre><code class="language-text">Suffix Sum[i]
+Suffix Maximum[i]
+Suffix Minimum[i]
+Suffix XOR[i]
+</code></pre>
+
+
+<div class="widget"><p class="try-note">Try it: the explorer below shows both definitions on one array.</p><section class="panel">
     <p class="sub">Drag the slider. The blue cells are the prefix that ends at i; the purple cells are the suffix that starts at i. Index i belongs to both.</p>
     <div class="rows" id="defRows"></div>
     <div class="slider">i = <b id="defI">2</b><input type="range" id="defSlider" min="0" max="4" value="2" aria-label="index i"></div>
     <p class="say" id="defSay"></p>
-  </section>
+  </section></div>
+<h2 id="s3">3. Prefix Sum</h2>
+<p>Prefix Sum is probably the most common prefix technique.</p>
+<p>Suppose:</p>
+<pre><code class="language-text">A = [2, 4, 1, 7, 3]
+</code></pre>
+<p>We define:</p>
+<pre><code class="language-text">prefixSum[i] = sum of A[0] through A[i]
+</code></pre>
+<p>Therefore:</p>
+<pre><code class="language-text">Index:        0   1   2   3   4
+Array:        2   4   1   7   3
+Prefix Sum:   2   6   7  14  17
+</code></pre>
+<p>Explanation:</p>
+<pre><code class="language-text">prefixSum[0] = 2
 
-  <div class="divider"><h2>Build one, step by step</h2></div>
-  <section class="panel">
+prefixSum[1] = 2 + 4
+             = 6
+
+prefixSum[2] = 2 + 4 + 1
+             = 7
+
+prefixSum[3] = 2 + 4 + 1 + 7
+             = 14
+
+prefixSum[4] = 2 + 4 + 1 + 7 + 3
+             = 17
+</code></pre>
+<p>But we do not need to recalculate everything.</p>
+<p>Notice:</p>
+<pre><code class="language-text">prefixSum[i] = prefixSum[i - 1] + A[i]
+</code></pre>
+<p>So the implementation is:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefix(n);
+
+prefix[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefix[i] = prefix[i - 1] + a[i];
+}
+</code></pre>
+<p>Time complexity:</p>
+<pre><code class="language-text">O(n)
+</code></pre>
+
+
+<h2 id="s4">4. The Most Useful Prefix Sum Version</h2>
+<p>There is another version that is often even easier to use.</p>
+<p>Instead of creating a prefix array of size <code>n</code>, create one of size:</p>
+<pre><code class="language-text">n + 1
+</code></pre>
+<p>Define:</p>
+<pre><code class="language-text">prefix[0] = 0
+</code></pre>
+<p>and:</p>
+<pre><code class="language-text">prefix[i + 1] = prefix[i] + A[i]
+</code></pre>
+<p>Example:</p>
+<pre><code class="language-text">A = [2, 4, 1, 7, 3]
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">prefix = [0, 2, 6, 7, 14, 17]
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;long long&gt; prefix(n + 1, 0);
+
+for (int i = 0; i &lt; n; i++) {
+    prefix[i + 1] = prefix[i] + a[i];
+}
+</code></pre>
+<p>This version makes range sum calculations especially clean.</p>
+
+
+<h2 id="s5">5. Range Sum Using Prefix Sum</h2>
+<p>Suppose we want the sum of:</p>
+<pre><code class="language-text">A[L ... R]
+</code></pre>
+<p>With normal iteration, this takes:</p>
+<pre><code class="language-text">O(R - L + 1)
+</code></pre>
+<p>But with prefix sums, it becomes:</p>
+<pre><code class="language-text">O(1)
+</code></pre>
+<p>Using the <code>n + 1</code> version:</p>
+<pre><code class="language-text">sum(L, R) = prefix[R + 1] - prefix[L]
+</code></pre>
+<p>For example:</p>
+<pre><code class="language-text">A = [2, 4, 1, 7, 3]
+</code></pre>
+<p>Find sum from index <code>1</code> to index <code>3</code>.</p>
+<p>The elements are:</p>
+<pre><code class="language-text">4 + 1 + 7 = 12
+</code></pre>
+<p>Prefix array:</p>
+<pre><code class="language-text">[0, 2, 6, 7, 14, 17]
+</code></pre>
+<p>Therefore:</p>
+<pre><code class="language-text">prefix[4] - prefix[1]
+
+= 14 - 2
+= 12
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">long long rangeSum(int l, int r) {
+    return prefix[r + 1] - prefix[l];
+}
+</code></pre>
+<p>This is one of the most important formulas in array problems.</p>
+
+
+<h2 id="s6">6. Why Prefix Sum Is Powerful</h2>
+<p>Imagine:</p>
+<pre><code class="language-text">n = 100000
+q = 100000
+</code></pre>
+<p>You receive <code>100000</code> range-sum queries.</p>
+<p>If you calculate each range manually, the worst case can be approximately:</p>
+<pre><code class="language-text">O(n × q)
+</code></pre>
+<p>which could mean around:</p>
+<pre><code class="language-text">10^10 operations
+</code></pre>
+<p>That is too slow.</p>
+<p>Using Prefix Sum:</p>
+<pre><code class="language-text">Build prefix array: O(n)
+Each query:          O(1)
+
+Total: O(n + q)
+</code></pre>
+<p>This is a huge improvement.</p>
+
+
+<div class="widget"><p class="try-note">Try it: pick L and R and watch which two prefix cells are used, then see the n × q difference with your own numbers.</p><section class="panel">
+    <p class="sub">Use an array of size n+1 with <code>prefix[0] = 0</code>. Then the sum of any range A[L … R] is <code>prefix[R+1] − prefix[L]</code>: the unwanted left part is subtracted away. Pick L and R and watch which two cells are used.</p>
+    <div class="ctrl">
+      <div class="seg" id="qSeg" role="group" aria-label="Operation"><button data-op="sum" aria-pressed="true">Sum</button><button data-op="xor" aria-pressed="false">XOR</button><button data-op="count" aria-pressed="false">Count of odd</button><button data-op="max" aria-pressed="false">Max (why not?)</button></div>
+      <label class="f">L<input type="number" id="qL" value="1" min="0"></label>
+      <label class="f">R<input type="number" id="qR" value="3" min="0"></label>
+    </div>
+    <div class="rows" id="qRows"></div>
+    <div class="formula" id="qFormula"></div>
+    <p class="say" id="qSay"></p>
+    <h3>Why it matters at scale</h3>
+    <p class="sub">n elements, q range queries. Rescanning costs about n per query; prefix sums cost n once, then 1 per query.</p>
+    <div class="ctrl">
+      <label class="f">n<input type="number" id="cN" value="100000"></label>
+      <label class="f">q<input type="number" id="cQ" value="100000"></label>
+    </div>
+    <div class="out" id="cOut"></div>
+  </section></div>
+<h2 id="s7">7. Suffix Sum</h2>
+<p>Suffix Sum is the same idea, but we calculate from right to left.</p>
+<p>Define:</p>
+<pre><code class="language-text">suffixSum[i] = sum of A[i ... n-1]
+</code></pre>
+<p>Consider:</p>
+<pre><code class="language-text">A = [2, 4, 1, 7, 3]
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">Index:        0   1   2   3   4
+Array:        2   4   1   7   3
+Suffix Sum:  17  15  11  10   3
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">suffix[i] = A[i] + suffix[i + 1]
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;long long&gt; suffix(n);
+
+suffix[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffix[i] = a[i] + suffix[i + 1];
+}
+</code></pre>
+
+
+<h2 id="s8">8. Prefix Maximum</h2>
+<p>Prefix techniques are not limited to sums.</p>
+<p>We can store the maximum value seen so far.</p>
+<p>Define:</p>
+<pre><code class="language-text">prefixMax[i] = maximum value in A[0 ... i]
+</code></pre>
+<p>Example:</p>
+<pre><code class="language-text">A = [3, 1, 5, 2, 8, 4]
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">Index:        0   1   2   3   4   5
+Array:        3   1   5   2   8   4
+Prefix Max:   3   3   5   5   8   8
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">prefixMax[i] = max(prefixMax[i - 1], A[i])
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixMax(n);
+
+prefixMax[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixMax[i] = max(prefixMax[i - 1], a[i]);
+}
+</code></pre>
+<p>Think of it as asking:</p>
+<blockquote>
+<p>What is the largest number I have seen so far?</p>
+</blockquote>
+
+
+<h2 id="s9">9. Suffix Maximum</h2>
+<p>Similarly:</p>
+<pre><code class="language-text">suffixMax[i] = maximum value in A[i ... n-1]
+</code></pre>
+<p>For:</p>
+<pre><code class="language-text">A = [3, 1, 5, 2, 8, 4]
+</code></pre>
+<p>we get:</p>
+<pre><code class="language-text">Index:        0   1   2   3   4   5
+Array:        3   1   5   2   8   4
+Suffix Max:   8   8   8   8   8   4
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">suffixMax[i] = max(A[i], suffixMax[i + 1])
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; suffixMax(n);
+
+suffixMax[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffixMax[i] = max(a[i], suffixMax[i + 1]);
+}
+</code></pre>
+
+
+<h2 id="s10">10. Prefix Minimum</h2>
+<p>We can do exactly the same thing with minimum values.</p>
+<p>Define:</p>
+<pre><code class="language-text">prefixMin[i] = minimum of A[0 ... i]
+</code></pre>
+<p>Example:</p>
+<pre><code class="language-text">A = [8, 5, 9, 3, 6, 1]
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">Array:        8   5   9   3   6   1
+Prefix Min:   8   5   5   3   3   1
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">prefixMin[i] = min(prefixMin[i - 1], A[i])
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixMin(n);
+
+prefixMin[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixMin[i] = min(prefixMin[i - 1], a[i]);
+}
+</code></pre>
+
+
+<h2 id="s11">11. Suffix Minimum</h2>
+<p>Define:</p>
+<pre><code class="language-text">suffixMin[i] = minimum of A[i ... n-1]
+</code></pre>
+<p>Example:</p>
+<pre><code class="language-text">A = [4, 7, 2, 9, 5]
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">Array:        4   7   2   9   5
+Suffix Min:   2   2   2   5   5
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; suffixMin(n);
+
+suffixMin[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffixMin[i] = min(a[i], suffixMin[i + 1]);
+}
+</code></pre>
+
+
+<h2 id="s12">12. The General Prefix Formula</h2>
+<p>Many prefix arrays follow this structure:</p>
+<pre><code class="language-text">prefix[i] = combine(prefix[i - 1], A[i])
+</code></pre>
+<p>where <code>combine</code> could be:</p>
+<pre><code class="language-text">+
+max
+min
+XOR
+GCD
+AND
+OR
+count
+</code></pre>
+<p>So prefix techniques are really about:</p>
+<blockquote>
+<p>Accumulating information from left to right.</p>
+</blockquote>
+<p>Suffix techniques are:</p>
+<blockquote>
+<p>Accumulating information from right to left.</p>
+</blockquote>
+
+
+<div class="widget"><p class="try-note">Try it: pick any combine operation and direction and watch the recurrence fill the array one cell at a time.</p><section class="panel">
     <p class="sub">Every prefix array comes from one recurrence: <code>prefix[i] = combine(prefix[i−1], A[i])</code>. Pick the operation and the direction, then watch it fill in. The code updates to match.</p>
     <div class="ctrl">
       <div class="seg" id="opSeg" role="group" aria-label="Operation"></div>
@@ -161,30 +563,202 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
         <p class="sub" style="margin-top:8px">Time: one pass, O(n). Each cell costs one combine, which is why rescanning is never needed.</p>
       </div>
     </div>
-  </section>
+  </section></div>
+<h2 id="s13">13. Prefix XOR</h2>
+<p>XOR is another popular prefix operation.</p>
+<p>Define:</p>
+<pre><code class="language-text">prefixXor[i] = A[0] ^ A[1] ^ ... ^ A[i]
+</code></pre>
+<p>Using the <code>n + 1</code> style:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixXor(n + 1, 0);
 
-  <div class="divider"><h2>The range-query trick</h2></div>
-  <section class="panel">
-    <p class="sub">Use an array of size n+1 with <code>prefix[0] = 0</code>. Then the sum of any range A[L … R] is <code>prefix[R+1] − prefix[L]</code>: the unwanted left part is subtracted away. Pick L and R and watch which two cells are used.</p>
-    <div class="ctrl">
-      <div class="seg" id="qSeg" role="group" aria-label="Operation"><button data-op="sum" aria-pressed="true">Sum</button><button data-op="xor" aria-pressed="false">XOR</button><button data-op="count" aria-pressed="false">Count of odd</button><button data-op="max" aria-pressed="false">Max (why not?)</button></div>
-      <label class="f">L<input type="number" id="qL" value="1" min="0"></label>
-      <label class="f">R<input type="number" id="qR" value="3" min="0"></label>
-    </div>
-    <div class="rows" id="qRows"></div>
-    <div class="formula" id="qFormula"></div>
-    <p class="say" id="qSay"></p>
-    <h3>Why it matters at scale</h3>
-    <p class="sub">n elements, q range queries. Rescanning costs about n per query; prefix sums cost n once, then 1 per query.</p>
-    <div class="ctrl">
-      <label class="f">n<input type="number" id="cN" value="100000"></label>
-      <label class="f">q<input type="number" id="cQ" value="100000"></label>
-    </div>
-    <div class="out" id="cOut"></div>
-  </section>
+for (int i = 0; i &lt; n; i++) {
+    prefixXor[i + 1] = prefixXor[i] ^ a[i];
+}
+</code></pre>
+<p>Now we can calculate XOR of:</p>
+<pre><code class="language-text">A[L ... R]
+</code></pre>
+<p>using:</p>
+<pre><code class="language-text">prefixXor[R + 1] ^ prefixXor[L]
+</code></pre>
+<p>Why does this work?</p>
+<p>Because:</p>
+<pre><code class="language-text">x ^ x = 0
+</code></pre>
+<p>and:</p>
+<pre><code class="language-text">x ^ 0 = x
+</code></pre>
 
-  <div class="divider"><h2>Everything except me</h2></div>
-  <section class="panel">
+
+<h2 id="s14">14. Prefix Frequency / Prefix Count</h2>
+<p>Sometimes we want to know how many times something has appeared up to an index.</p>
+<p>For example:</p>
+<pre><code class="language-text">A = [1, 0, 1, 1, 0, 1]
+</code></pre>
+<p>Suppose we want to know:</p>
+<pre><code class="language-text">How many 1s are there from index L to R?
+</code></pre>
+<p>Create:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixOnes(n + 1, 0);
+
+for (int i = 0; i &lt; n; i++) {
+    prefixOnes[i + 1] = prefixOnes[i] + (a[i] == 1);
+}
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">number of ones in [L, R]
+=
+prefixOnes[R + 1] - prefixOnes[L]
+</code></pre>
+<p>The expression:</p>
+<pre><code class="language-cpp">(a[i] == 1)
+</code></pre>
+<p>is:</p>
+<pre><code class="language-text">1 if true
+0 if false
+</code></pre>
+<p>So we are effectively prefix-summing a condition.</p>
+
+
+<h2 id="s15">15. Prefix Count for Characters</h2>
+<p>The same idea works with strings.</p>
+<p>Suppose:</p>
+<pre><code class="language-text">s = &quot;abacaba&quot;
+</code></pre>
+<p>We may want queries such as:</p>
+<pre><code class="language-text">How many 'a' characters exist between L and R?
+</code></pre>
+<p>Create:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixA(n + 1, 0);
+
+for (int i = 0; i &lt; n; i++) {
+    prefixA[i + 1] = prefixA[i] + (s[i] == 'a');
+}
+</code></pre>
+<p>Query:</p>
+<pre><code class="language-cpp">int countA = prefixA[r + 1] - prefixA[l];
+</code></pre>
+<p>For all lowercase characters:</p>
+<pre><code class="language-cpp">vector&lt;array&lt;int, 26&gt;&gt; prefix(n + 1);
+
+for (int i = 0; i &lt; n; i++) {
+    prefix[i + 1] = prefix[i];
+    prefix[i + 1][s[i] - 'a']++;
+}
+</code></pre>
+<p>Then character frequency in <code>[L, R]</code> is:</p>
+<pre><code class="language-cpp">prefix[r + 1][c - 'a'] - prefix[l][c - 'a'];
+</code></pre>
+
+
+<h2 id="s16">16. Prefix GCD</h2>
+<p>We can store the GCD of everything seen so far.</p>
+<p>Define:</p>
+<pre><code class="language-text">prefixGcd[i] = gcd(A[0], A[1], ..., A[i])
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixGcd(n);
+
+prefixGcd[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixGcd[i] = gcd(prefixGcd[i - 1], a[i]);
+}
+</code></pre>
+<p>Similarly:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; suffixGcd(n);
+
+suffixGcd[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffixGcd[i] = gcd(a[i], suffixGcd[i + 1]);
+}
+</code></pre>
+<p>Suppose we want the GCD of the entire array <strong>after removing index <code>i</code></strong>.</p>
+<p>Everything before <code>i</code> is represented by:</p>
+<pre><code class="language-text">prefixGcd[i - 1]
+</code></pre>
+<p>Everything after <code>i</code> is represented by:</p>
+<pre><code class="language-text">suffixGcd[i + 1]
+</code></pre>
+<p>Therefore:</p>
+<pre><code class="language-text">answer = gcd(prefixGcd[i - 1], suffixGcd[i + 1])
+</code></pre>
+
+
+<h2 id="s17">17. Prefix Product</h2>
+<p>We can also store products.</p>
+<pre><code class="language-text">prefixProduct[i]
+=
+A[0] × A[1] × ... × A[i]
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">prefixProduct[i]
+=
+prefixProduct[i - 1] × A[i]
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;long long&gt; prefixProduct(n);
+
+prefixProduct[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixProduct[i] = prefixProduct[i - 1] * a[i];
+}
+</code></pre>
+<p>Be careful because products can become very large and cause integer overflow.</p>
+<p>Sometimes problems use:</p>
+<pre><code class="language-text">product modulo M
+</code></pre>
+<p>In that case:</p>
+<pre><code class="language-cpp">prefixProduct[i] =
+    (prefixProduct[i - 1] * a[i]) % MOD;
+</code></pre>
+<p>Unlike sums, range-product queries are not always safely computed by division because:</p>
+<ul>
+<li>values may contain zero,</li>
+<li>modular division is different,</li>
+<li>modular inverse may not exist.</li>
+</ul>
+
+
+<h2 id="s18">18. Product of Array Except Self</h2>
+<p>A famous prefix/suffix problem is:</p>
+<blockquote>
+<p>For every index, return the product of all elements except the current one.</p>
+</blockquote>
+<p>Example:</p>
+<pre><code class="language-text">A = [1, 2, 3, 4]
+</code></pre>
+<p>Answer:</p>
+<pre><code class="language-text">[24, 12, 8, 6]
+</code></pre>
+<p>We can calculate:</p>
+<pre><code class="language-text">prefix product to the left
+×
+suffix product to the right
+</code></pre>
+<p>Create:</p>
+<pre><code class="language-cpp">vector&lt;long long&gt; left(n, 1);
+vector&lt;long long&gt; right(n, 1);
+</code></pre>
+<p>Build left product:</p>
+<pre><code class="language-cpp">for (int i = 1; i &lt; n; i++) {
+    left[i] = left[i - 1] * a[i - 1];
+}
+</code></pre>
+<p>Now build right product:</p>
+<pre><code class="language-cpp">for (int i = n - 2; i &gt;= 0; i--) {
+    right[i] = right[i + 1] * a[i + 1];
+}
+</code></pre>
+<p>Finally:</p>
+<pre><code class="language-cpp">answer[i] = left[i] * right[i];
+</code></pre>
+
+
+<div class="widget"><p class="try-note">Try it: the three passes animated.</p><section class="panel">
     <p class="sub">The most important prefix + suffix pattern: for each index, combine what's strictly to its left with what's strictly to its right. Product of Array Except Self is the classic. Watch the two passes build <code>left</code> and <code>right</code>, then multiply.</p>
     <div class="rows" id="eRows"></div>
     <div class="formula" id="eFormula"></div>
@@ -205,32 +779,235 @@ left[0] = 1;  <span class="kw">for</span> (i = 1 … n−1)  left[i]  = left[i�
 right[n−1] = 1; <span class="kw">for</span> (i = n−2 … 0) right[i] = right[i+1] * A[i+1];</div>
       <div class="card2 bad"><h4>Including vs excluding the current element</h4><p>A prefix that <b>includes</b> i is <code>prefix[i]</code>. "Strictly before i" is <code>prefix[i−1]</code>, and "strictly after i" is <code>suffix[i+1]</code>. Most bugs in this pattern come from mixing those up, and from forgetting that i = 0 has nothing to its left and i = n−1 has nothing to its right. Use an identity value (0 for sum, 1 for product, −∞ for max) at the edges.</p></div>
     </div>
-  </section>
+  </section></div>
+<h2 id="s19">19. The "Everything Except Me" Pattern</h2>
+<p>One of the most important prefix/suffix patterns is:</p>
+<pre><code class="language-text">information before index i
++
+information after index i
+</code></pre>
+<p>Conceptually:</p>
+<pre><code class="language-text">LEFT SIDE | current element | RIGHT SIDE
+</code></pre>
+<p>For every position, we may want to know something about:</p>
+<pre><code class="language-text">A[0 ... i-1]
+</code></pre>
+<p>and:</p>
+<pre><code class="language-text">A[i+1 ... n-1]
+</code></pre>
+<p>Prefix and suffix arrays make both sides available instantly.</p>
+<p>For example:</p>
+<pre><code class="language-text">prefixMax[i - 1]
+suffixMax[i + 1]
+</code></pre>
+<p>give the maximum values strictly before and after <code>i</code>.</p>
 
-  <div class="divider"><h2>The same idea in famous problems</h2></div>
-  <section class="panel">
-    <h2>Pivot index: left sum equals right sum</h2>
-    <p class="sub">Move i. Left is the sum strictly before i, right is the sum strictly after. You don't even need an array here: a running total is enough, because right = total − left − A[i].</p>
-    <div class="rows" id="pvRows"></div>
-    <div class="slider">i = <b id="pvI">0</b><input type="range" id="pvSlider" min="0" max="5" value="0" aria-label="index"></div>
-    <p class="say" id="pvSay"></p>
-  </section>
-  <section class="panel">
+
+<h2 id="s20">20. Including the Current Element vs Excluding It</h2>
+<p>This distinction is extremely important.</p>
+<p>Suppose:</p>
+<pre><code class="language-text">prefixMax[i]
+</code></pre>
+<p>is defined as:</p>
+<pre><code class="language-text">maximum of A[0 ... i]
+</code></pre>
+<p>Then it <strong>includes</strong> <code>A[i]</code>.</p>
+<p>But sometimes we need:</p>
+<pre><code class="language-text">maximum strictly before i
+</code></pre>
+<p>That is:</p>
+<pre><code class="language-text">prefixMax[i - 1]
+</code></pre>
+<p>Similarly:</p>
+<pre><code class="language-text">suffixMax[i]
+</code></pre>
+<p>includes <code>A[i]</code>.</p>
+<p>The maximum strictly after <code>i</code> is:</p>
+<pre><code class="language-text">suffixMax[i + 1]
+</code></pre>
+<p>Many bugs happen because programmers accidentally include the current element when they need to exclude it.</p>
+
+
+<h2 id="s21">21. Prefix Maximum + Suffix Maximum Example</h2>
+<p>Suppose:</p>
+<pre><code class="language-text">A = [2, 7, 3, 5, 4]
+</code></pre>
+<p>Prefix maximum:</p>
+<pre><code class="language-text">[2, 7, 7, 7, 7]
+</code></pre>
+<p>Suffix maximum:</p>
+<pre><code class="language-text">[7, 7, 5, 5, 4]
+</code></pre>
+<p>Suppose we want:</p>
+<blockquote>
+<p>For every index, what is the largest value anywhere except at this index?</p>
+</blockquote>
+<p>For index <code>i</code>, use:</p>
+<pre><code class="language-text">max(
+    prefixMax[i - 1],
+    suffixMax[i + 1]
+)
+</code></pre>
+<p>with special handling for the first and last positions.</p>
+
+
+<h2 id="s22">22. Prefix Min + Suffix Max Pattern</h2>
+<p>Sometimes the left and right sides store different kinds of information.</p>
+<p>For example, consider the classic stock-profit problem:</p>
+<blockquote>
+<p>Buy a stock on one day and sell it later. Find maximum profit.</p>
+</blockquote>
+<p>Suppose:</p>
+<pre><code class="language-text">prices = [7, 1, 5, 3, 6, 4]
+</code></pre>
+<p>A prefix minimum array is:</p>
+<pre><code class="language-text">[7, 1, 1, 1, 1, 1]
+</code></pre>
+<p>A suffix maximum array is:</p>
+<pre><code class="language-text">[7, 6, 6, 6, 6, 4]
+</code></pre>
+<p>For every possible boundary:</p>
+<pre><code class="language-text">profit = future maximum - past minimum
+</code></pre>
+<p>The broader lesson is:</p>
+<blockquote>
+<p>Prefix and suffix arrays do not need to contain the same type of information.</p>
+</blockquote>
+
+
+<div class="widget"><p class="try-note">Try it: move the sell day and see prefix min pick the buy day.</p><section class="panel">
     <h2>Stock profit: prefix min meets suffix max</h2>
     <p class="sub">Buy low on an earlier day, sell high on a later day. Prefix min answers "cheapest so far", suffix max answers "best price still coming". The two sides store different things, which is allowed.</p>
     <div class="rows" id="stRows"></div>
     <div class="slider">sell on day <b id="stI">1</b><input type="range" id="stSlider" min="1" max="5" value="4" aria-label="sell day"></div>
     <p class="say" id="stSay"></p>
-  </section>
-  <section class="panel">
-    <h2>Trapping rain water: prefix max and suffix max</h2>
-    <p class="sub">Water above a bar is held in by the tallest wall on each side: <code>water[i] = min(leftMax[i], rightMax[i]) − height[i]</code>. Move i to see the two walls that matter for that column.</p>
-    <svg class="rain" id="rain" viewBox="0 0 640 220"></svg>
-    <div class="rows" id="rwRows"></div>
-    <div class="slider">i = <b id="rwI">5</b><input type="range" id="rwSlider" min="0" max="11" value="5" aria-label="column"></div>
-    <p class="say" id="rwSay"></p>
-  </section>
-  <section class="panel">
+  </section></div>
+<h2 id="s23">23. Prefix Boolean Information</h2>
+<p>Prefix values do not need to be numbers.</p>
+<p>Suppose we want to know:</p>
+<blockquote>
+<p>Are all values up to index <code>i</code> positive?</p>
+</blockquote>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;bool&gt; prefixValid(n);
+
+prefixValid[0] = (a[0] &gt; 0);
+
+for (int i = 1; i &lt; n; i++) {
+    prefixValid[i] =
+        prefixValid[i - 1] &amp;&amp; (a[i] &gt; 0);
+}
+</code></pre>
+<p>Similarly we can build a suffix Boolean state.</p>
+
+
+<h2 id="s24">24. Prefix OR and Prefix AND</h2>
+<p>Prefix OR:</p>
+<pre><code class="language-cpp">prefixOr[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixOr[i] = prefixOr[i - 1] | a[i];
+}
+</code></pre>
+<p>Prefix AND:</p>
+<pre><code class="language-cpp">prefixAnd[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixAnd[i] = prefixAnd[i - 1] &amp; a[i];
+}
+</code></pre>
+<p>Suffix versions work exactly the same way, but iterate backward.</p>
+
+
+<h2 id="s25">25. Running Count Is Also a Prefix Concept</h2>
+<p>Suppose:</p>
+<pre><code class="language-text">A = [4, -1, 8, -3, -6, 9]
+</code></pre>
+<p>We want:</p>
+<pre><code class="language-text">number of negative elements up to every index
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-text">Array:            4  -1   8  -3  -6   9
+Negative Count:   0   1   1   2   3   3
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; countNegative(n);
+
+countNegative[0] = (a[0] &lt; 0);
+
+for (int i = 1; i &lt; n; i++) {
+    countNegative[i] =
+        countNegative[i - 1] + (a[i] &lt; 0);
+}
+</code></pre>
+
+
+<h2 id="s26">26. Prefix Balance</h2>
+<p>Prefix techniques are often hidden inside problems involving balances.</p>
+<p>Consider:</p>
+<pre><code class="language-text">&quot;(()())&quot;
+</code></pre>
+<p>Assign:</p>
+<pre><code class="language-text">'(' = +1
+')' = -1
+</code></pre>
+<p>Then calculate prefix sum.</p>
+<pre><code class="language-text">Character:      (   (   )   (   )   )
+Value:          1   1  -1   1  -1  -1
+Prefix Balance: 1   2   1   2   1   0
+</code></pre>
+<p>For a valid parentheses sequence:</p>
+<ol>
+<li>Prefix balance must never become negative.</li>
+<li>Final balance must be zero.</li>
+</ol>
+
+
+<h2 id="s27">27. Difference Arrays and Prefix Sums</h2>
+<p>Suppose:</p>
+<pre><code class="language-text">A = [5, 8, 10, 7]
+</code></pre>
+<p>The difference array is:</p>
+<pre><code class="language-text">[5, 3, 2, -3]
+</code></pre>
+<p>because:</p>
+<pre><code class="language-text">diff[0] = 5
+diff[1] = 8 - 5 = 3
+diff[2] = 10 - 8 = 2
+diff[3] = 7 - 10 = -3
+</code></pre>
+<p>If we take prefix sums of the difference array, we reconstruct the original array.</p>
+<p>So:</p>
+<blockquote>
+<p>A difference array and a prefix sum are inverse-like concepts.</p>
+</blockquote>
+
+
+<h2 id="s28">28. Difference Array for Range Updates</h2>
+<p>Suppose we repeatedly need to perform:</p>
+<pre><code class="language-text">Add x to every element in A[L ... R]
+</code></pre>
+<p>Instead of updating every element, use:</p>
+<pre><code class="language-cpp">diff[L] += x;
+
+if (R + 1 &lt; n) {
+    diff[R + 1] -= x;
+}
+</code></pre>
+<p>After all updates, calculate the prefix sum of <code>diff</code>.</p>
+<p>Example:</p>
+<pre><code class="language-text">A = [0, 0, 0, 0, 0]
+</code></pre>
+<p>Add <code>3</code> to indices <code>1</code> through <code>3</code>.</p>
+<p>Then:</p>
+<pre><code class="language-text">diff = [0, 3, 0, 0, -3]
+</code></pre>
+<p>Its prefix sum is:</p>
+<pre><code class="language-text">[0, 3, 3, 3, 0]
+</code></pre>
+
+
+<div class="widget"><p class="try-note">Try it: add range updates and watch one prefix sum rebuild the array.</p><section class="panel">
     <h2>Difference array: range updates in O(1)</h2>
     <p class="sub">The inverse trick. To add x to every element in A[L … R], write <code>+x</code> at L and <code>−x</code> at R+1 in a difference array. One prefix sum at the end rebuilds the real values, no matter how many updates you made.</p>
     <div class="ctrl">
@@ -242,59 +1019,760 @@ right[n−1] = 1; <span class="kw">for</span> (i = n−2 … 0) right[i] = right
     </div>
     <div class="rows" id="dRows"></div>
     <p class="say" id="dSay"></p>
-  </section>
-  <section class="panel">
-    <h2>More places it hides</h2>
-    <div class="cards">
-      <div class="card2"><h4>Valid split</h4><p>Split so that everything on the left ≤ everything on the right. That's <code>prefixMax[i] ≤ suffixMin[i+1]</code>, checked for every i in one pass.</p></div>
-      <div class="card2"><h4>Parentheses balance</h4><p>Treat ( as +1 and ) as −1. The prefix sum is the running balance. Valid means it never dips below 0 and ends at exactly 0.</p><pre>( ( ) ( ) )
-1 2 1 2 1 0  ✓</pre></div>
-      <div class="card2"><h4>Prefix count</h4><p>"How many 1s between L and R?" is a prefix sum of a condition: <code>prefix[i+1] = prefix[i] + (A[i] == 1)</code>, then subtract. Same for letters in a string.</p></div>
-      <div class="card2"><h4>GCD except me</h4><p>GCD of the array after removing index i is <code>gcd(prefixGcd[i−1], suffixGcd[i+1])</code>. Same shape as product-except-self.</p></div>
-      <div class="card2"><h4>2D prefix sums</h4><p>Rectangle sums on a grid: <code>P[i+1][j+1] = M[i][j] + P[i][j+1] + P[i+1][j] − P[i][j]</code>. Add the two overlapping rectangles, subtract the corner counted twice.</p></div>
-      <div class="card2"><h4>Kadane, viewed as a prefix</h4><p><code>bestEnding[i] = max(A[i], bestEnding[i−1] + A[i])</code> is a left-to-right recurrence too. "Prefix" is about direction, not about sums.</p></div>
-    </div>
-  </section>
+  </section></div>
+<h2 id="s29">29. Prefix Sum in Two Dimensions</h2>
+<p>Prefix sums are not limited to one-dimensional arrays.</p>
+<p>Suppose we have:</p>
+<pre><code class="language-text">1 2 3
+4 5 6
+7 8 9
+</code></pre>
+<p>A 2D prefix sum stores the sum of the rectangle from <code>(0, 0)</code> to <code>(i, j)</code>.</p>
+<p>A common formula is:</p>
+<pre><code class="language-text">prefix[i + 1][j + 1]
+=
+matrix[i][j]
++ prefix[i][j + 1]
++ prefix[i + 1][j]
+- prefix[i][j]
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">vector&lt;vector&lt;long long&gt;&gt; prefix(
+    rows + 1,
+    vector&lt;long long&gt;(cols + 1, 0)
+);
 
-  <div class="divider"><h2>Which operations can answer any range?</h2></div>
-  <section class="panel">
-    <p class="sub">Subtraction only works when the operation has an inverse. Without one, prefix arrays still answer "from the start up to i", but not arbitrary L … R.</p>
-    <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Operation</th><th>Range L … R from prefix?</th><th>Why</th></tr></thead>
-      <tbody>
-        <tr><td>sum</td><td class="yes">yes</td><td>prefix[R+1] − prefix[L]: subtraction undoes addition</td></tr>
-        <tr><td>xor</td><td class="yes">yes</td><td>prefix[R+1] ^ prefix[L]: x ^ x = 0, so XOR undoes itself</td></tr>
-        <tr><td>count</td><td class="yes">yes</td><td>a count is a sum of 0s and 1s</td></tr>
-        <tr><td>product</td><td class="maybe">sometimes</td><td>division works unless there are zeros or you're working modulo M</td></tr>
-        <tr><td>max / min</td><td class="no">no</td><td>there's no "un-max"; use a sparse table, segment tree, or a sliding-window deque</td></tr>
-        <tr><td>gcd / and / or</td><td class="no">no</td><td>no inverse either; prefix versions are still great when the range starts at 0 or for "except me"</td></tr>
-      </tbody>
-    </table></div>
-  </section>
+for (int i = 0; i &lt; rows; i++) {
+    for (int j = 0; j &lt; cols; j++) {
+        prefix[i + 1][j + 1] =
+            matrix[i][j]
+            + prefix[i][j + 1]
+            + prefix[i + 1][j]
+            - prefix[i][j];
+    }
+}
+</code></pre>
 
-  <div class="divider"><h2>Mistakes everyone makes once</h2></div>
-  <section class="panel">
-    <div class="cards">
-      <div class="card2 bad"><h4>Wrong loop direction for suffix</h4><p>suffix[i] depends on suffix[i+1], so the loop must run from n−2 down to 0. Starting at 0 reads cells you haven't filled yet.</p></div>
-      <div class="card2 bad"><h4>Off the end of the array</h4><p>prefix[i−1] at i = 0 and suffix[i+1] at i = n−1 don't exist. Guard them with an identity value or use the n+1 layout with a leading 0.</p></div>
-      <div class="card2 bad"><h4>Integer overflow</h4><p>10⁵ values up to 10⁹ sum to about 10¹⁴, far past 32-bit. Use 64-bit integers for prefix sums; in Python this isn't an issue, in C++ and Java it is.</p></div>
-      <div class="card2 bad"><h4>Mixing indexing styles</h4><p>Style 1: prefix[i] = sum of A[0 … i], range = prefix[R] − prefix[L−1], with a special case at L = 0. Style 2: leading 0, range = prefix[R+1] − prefix[L], no special case. Pick style 2 and stick with it.</p></div>
-    </div>
-  </section>
 
-  <div class="divider"><h2>Spot it, then solve it</h2></div>
-  <section class="panel">
-    <h2>Phrases that give it away</h2>
-    <div class="chips"><span class="chip">sum up to index i</span><span class="chip">maximum before i</span><span class="chip">minimum after i</span><span class="chip">everything to the left</span><span class="chip">all elements except the current one</span><span class="chip">split the array</span><span class="chip">remove one element</span><span class="chip">many range queries</span><span class="chip">occurrences between L and R</span><span class="chip">best seen so far</span></div>
-    <h3>A short strategy</h3>
-    <ol class="steps-list">
-      <li>Am I rescanning the same left or right portion over and over?</li>
-      <li>What single piece of information do I need from that side: sum, max, min, count, XOR, GCD, a boolean?</li>
-      <li>Is it about the left side (prefix), the right side (suffix), or both sides of every index (prefix + suffix)?</li>
-      <li>Do I need all the values later (keep the array), or just the running value as I sweep (keep one variable)?</li>
-      <li>Check the edges: what's the identity value when there's nothing to the left or right?</li>
-    </ol>
-    <h3>Templates</h3>
+<h2 id="s30">30. Prefix Max Cannot Be Used Like Prefix Sum for Arbitrary Range Maximum</h2>
+<p>With sums:</p>
+<pre><code class="language-text">sum(L, R)
+=
+prefixSum[R + 1] - prefixSum[L]
+</code></pre>
+<p>because subtraction removes the unwanted prefix.</p>
+<p>But maximum has no simple inverse.</p>
+<p>There is no equivalent:</p>
+<pre><code class="language-text">prefixMax[R] - prefixMax[L - 1]
+</code></pre>
+<p>For general range maximum queries, common tools include:</p>
+<ul>
+<li>Segment Tree</li>
+<li>Sparse Table</li>
+<li>Deque for sliding-window maximum</li>
+<li>Other problem-specific structures</li>
+</ul>
+<p>Prefix Max is still extremely useful when the range always starts at index <code>0</code>.</p>
+
+
+<h2 id="s31">31. Which Operations Support Easy Range Queries?</h2>
+<h3>Sum</h3>
+<p>Yes.</p>
+<pre><code class="language-text">rangeSum = prefix[R + 1] - prefix[L]
+</code></pre>
+<h3>XOR</h3>
+<p>Yes.</p>
+<pre><code class="language-text">rangeXor = prefixXor[R + 1] ^ prefixXor[L]
+</code></pre>
+<h3>Count</h3>
+<p>Yes, because count is basically sum.</p>
+<pre><code class="language-text">rangeCount = prefixCount[R + 1] - prefixCount[L]
+</code></pre>
+<h3>Product</h3>
+<p>Sometimes, but division, zeros, and modulo can make it difficult.</p>
+<h3>Maximum</h3>
+<p>Not directly.</p>
+<h3>Minimum</h3>
+<p>Not directly.</p>
+<h3>GCD</h3>
+<p>Not directly through simple subtraction.</p>
+
+
+<h2 id="s32">32. Common Prefix/Suffix Template</h2>
+<p>Generic prefix template:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefix(n);
+
+prefix[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefix[i] = combine(prefix[i - 1], a[i]);
+}
+</code></pre>
+<p>Generic suffix template:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; suffix(n);
+
+suffix[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffix[i] = combine(a[i], suffix[i + 1]);
+}
+</code></pre>
+
+
+<h2 id="s33">33. A Helpful Mental Model</h2>
+<p>Imagine standing at index <code>i</code>.</p>
+<pre><code class="language-text">0 1 2 3 4 5 6
+      ↑
+      i
+</code></pre>
+<p>Everything on your left:</p>
+<pre><code class="language-text">0 ... i-1
+</code></pre>
+<p>can often be summarized by a prefix array.</p>
+<p>Everything on your right:</p>
+<pre><code class="language-text">i+1 ... n-1
+</code></pre>
+<p>can often be summarized by a suffix array.</p>
+<p>So instead of repeatedly scanning:</p>
+<pre><code class="language-text">← ← ← i → → →
+</code></pre>
+<p>you precompute both directions once.</p>
+
+
+<h2 id="s34">34. Example: Find an Index Where Left Sum Equals Right Sum</h2>
+<p>Suppose:</p>
+<pre><code class="language-text">A = [1, 7, 3, 6, 5, 6]
+</code></pre>
+<p>We want an index where:</p>
+<pre><code class="language-text">sum before i = sum after i
+</code></pre>
+<p>At index <code>3</code>:</p>
+<pre><code class="language-text">Left:
+1 + 7 + 3 = 11
+
+Right:
+5 + 6 = 11
+</code></pre>
+<p>Code:</p>
+<pre><code class="language-cpp">long long total = 0;
+
+for (int x : a) {
+    total += x;
+}
+
+long long left = 0;
+
+for (int i = 0; i &lt; n; i++) {
+    long long right = total - left - a[i];
+
+    if (left == right) {
+        return i;
+    }
+
+    left += a[i];
+}
+</code></pre>
+<p>Sometimes we only need a <strong>running prefix value</strong>, not the whole array.</p>
+
+
+<div class="widget"><p class="try-note">Try it: slide i until the left and right sums match.</p><section class="panel">
+    <h2>Pivot index: left sum equals right sum</h2>
+    <p class="sub">Move i. Left is the sum strictly before i, right is the sum strictly after. You don't even need an array here: a running total is enough, because right = total − left − A[i].</p>
+    <div class="rows" id="pvRows"></div>
+    <div class="slider">i = <b id="pvI">0</b><input type="range" id="pvSlider" min="0" max="5" value="0" aria-label="index"></div>
+    <p class="say" id="pvSay"></p>
+  </section></div>
+<h2 id="s35">35. When Do We Actually Need the Full Prefix Array?</h2>
+<p>Use a full prefix array when you need to access prefix information for many different indices later.</p>
+<p>For example, many range queries need stored prefix sums.</p>
+<p>But if you process the array only once from left to right, you may only need:</p>
+<pre><code class="language-cpp">long long runningSum = 0;
+</code></pre>
+<p>instead of:</p>
+<pre><code class="language-cpp">vector&lt;long long&gt; prefix(n);
+</code></pre>
+
+
+<h2 id="s36">36. Prefix/Suffix Without Extra Arrays</h2>
+<p>Consider Product of Array Except Self.</p>
+<pre><code class="language-cpp">vector&lt;int&gt; productExceptSelf(vector&lt;int&gt;&amp; nums) {
+    int n = nums.size();
+
+    vector&lt;int&gt; ans(n, 1);
+
+    int prefix = 1;
+
+    for (int i = 0; i &lt; n; i++) {
+        ans[i] = prefix;
+        prefix *= nums[i];
+    }
+
+    int suffix = 1;
+
+    for (int i = n - 1; i &gt;= 0; i--) {
+        ans[i] *= suffix;
+        suffix *= nums[i];
+    }
+
+    return ans;
+}
+</code></pre>
+<p>This gives:</p>
+<pre><code class="language-text">O(n) time
+O(1) extra space
+</code></pre>
+<p>excluding the output array.</p>
+
+
+<h2 id="s37">37. Prefix Best + Current + Suffix Best</h2>
+<p>Some problems ask us to choose something from:</p>
+<pre><code class="language-text">left side
+current position
+right side
+</code></pre>
+<p>For example:</p>
+<pre><code class="language-text">best value before i
++
+A[i]
++
+best value after i
+</code></pre>
+<p>This might become:</p>
+<pre><code class="language-cpp">answer = max(
+    answer,
+    prefixBest[i - 1]
+    + a[i]
+    + suffixBest[i + 1]
+);
+</code></pre>
+<p>The meaning of "best" depends on the problem.</p>
+
+
+<h2 id="s38">38. Prefix Best Is Not Always Prefix Maximum</h2>
+<p>Suppose we are solving a maximum-subarray-related problem.</p>
+<p>The prefix information may store:</p>
+<pre><code class="language-text">best subarray ending before i
+</code></pre>
+<p>rather than just:</p>
+<pre><code class="language-text">largest single value before i
+</code></pre>
+<p>Similarly, suffix information may store:</p>
+<pre><code class="language-text">best subarray starting after i
+</code></pre>
+<p>So "prefix" and "suffix" describe <strong>direction</strong>, not the specific operation.</p>
+
+
+<h2 id="s39">39. Prefix and Kadane's Algorithm</h2>
+<p>Kadane's Algorithm can also be viewed as a directional dynamic-programming idea.</p>
+<p>For each index:</p>
+<pre><code class="language-text">bestEnding[i]
+=
+maximum subarray sum ending exactly at i
+</code></pre>
+<p>Formula:</p>
+<pre><code class="language-text">bestEnding[i]
+=
+max(
+    A[i],
+    bestEnding[i - 1] + A[i]
+)
+</code></pre>
+<p>This is calculated from left to right.</p>
+<p>Similarly we could calculate <code>bestStarting[i]</code> from right to left.</p>
+
+
+<h2 id="s40">40. Prefix/Suffix in String Problems</h2>
+<p>Prefix and suffix concepts are extremely common with strings.</p>
+<p>Examples include:</p>
+<ul>
+<li>character counts,</li>
+<li>validity of prefixes,</li>
+<li>prefix hashes,</li>
+<li>KMP prefix function,</li>
+<li>Z-function.</li>
+</ul>
+<p>The underlying idea is still efficient reuse of information about prefixes or suffixes.</p>
+
+
+<h2 id="s41">41. Prefix Hashing</h2>
+<p>A prefix hash stores the hash of:</p>
+<pre><code class="language-text">s[0 ... i]
+</code></pre>
+<p>With the right mathematical adjustment, it lets us derive the hash of:</p>
+<pre><code class="language-text">s[L ... R]
+</code></pre>
+<p>efficiently.</p>
+<p>This is useful for:</p>
+<ul>
+<li>substring comparison,</li>
+<li>palindrome algorithms,</li>
+<li>duplicate substring detection,</li>
+<li>pattern matching.</li>
+</ul>
+
+
+<h2 id="s42">42. Prefix and Suffix in Trapping Rain Water</h2>
+<p>For every index <code>i</code>, the amount of trapped water depends on:</p>
+<pre><code class="language-text">maximum wall on the left
+</code></pre>
+<p>and:</p>
+<pre><code class="language-text">maximum wall on the right
+</code></pre>
+<p>The formula is:</p>
+<pre><code class="language-text">water[i]
+=
+min(leftMax[i], rightMax[i]) - height[i]
+</code></pre>
+<p>if the result is positive.</p>
+<p>This is one of the most famous applications of prefix and suffix maximums.</p>
+
+
+<div class="widget"><p class="try-note">Try it: move i and see the two walls that decide the water level.</p><section class="panel">
+    <h2>Trapping rain water: prefix max and suffix max</h2>
+    <p class="sub">Water above a bar is held in by the tallest wall on each side: <code>water[i] = min(leftMax[i], rightMax[i]) − height[i]</code>. Move i to see the two walls that matter for that column.</p>
+    <svg class="rain" id="rain" viewBox="0 0 640 220"></svg>
+    <div class="rows" id="rwRows"></div>
+    <div class="slider">i = <b id="rwI">5</b><input type="range" id="rwSlider" min="0" max="11" value="5" aria-label="column"></div>
+    <p class="say" id="rwSay"></p>
+  </section></div>
+<h2 id="s43">43. Prefix/Suffix in Partition Problems</h2>
+<p>Suppose we split an array between <code>i</code> and <code>i + 1</code>.</p>
+<pre><code class="language-text">LEFT | RIGHT
+</code></pre>
+<p>Then we may want:</p>
+<pre><code class="language-text">sum(left)
+sum(right)
+</code></pre>
+<p>or:</p>
+<pre><code class="language-text">max(left)
+min(right)
+</code></pre>
+<p>or:</p>
+<pre><code class="language-text">GCD(left)
+GCD(right)
+</code></pre>
+<p>Prefix and suffix arrays are perfect for this.</p>
+
+
+<h2 id="s44">44. Example: Find a Valid Split Using Prefix Max and Suffix Min</h2>
+<p>Suppose we want to split an array so that:</p>
+<pre><code class="language-text">every value on the left
+&lt;=
+every value on the right
+</code></pre>
+<p>That condition becomes:</p>
+<pre><code class="language-text">maximum(left)
+&lt;=
+minimum(right)
+</code></pre>
+<p>So calculate:</p>
+<pre><code class="language-text">prefixMax[i]
+</code></pre>
+<p>and:</p>
+<pre><code class="language-text">suffixMin[i]
+</code></pre>
+<p>Then test:</p>
+<pre><code class="language-cpp">if (prefixMax[i] &lt;= suffixMin[i + 1]) {
+    // valid split after index i
+}
+</code></pre>
+
+
+<h2 id="s45">45. Common Mistake: Wrong Suffix Loop Direction</h2>
+<p>Prefix usually goes:</p>
+<pre><code class="language-cpp">for (int i = 1; i &lt; n; i++)
+</code></pre>
+<p>Suffix usually goes backward:</p>
+<pre><code class="language-cpp">for (int i = n - 2; i &gt;= 0; i--)
+</code></pre>
+<p>This is because <code>suffix[i]</code> often depends on <code>suffix[i + 1]</code>.</p>
+
+
+<h2 id="s46">46. Common Mistake: Out-of-Bounds Access</h2>
+<p>Suppose you write:</p>
+<pre><code class="language-cpp">prefixMax[i - 1]
+</code></pre>
+<p>when:</p>
+<pre><code class="language-text">i = 0
+</code></pre>
+<p>That is invalid.</p>
+<p>Similarly:</p>
+<pre><code class="language-cpp">suffixMax[i + 1]
+</code></pre>
+<p>is invalid when:</p>
+<pre><code class="language-text">i = n - 1
+</code></pre>
+<p>Handle boundaries carefully:</p>
+<pre><code class="language-cpp">int left = (i &gt; 0)
+    ? prefixMax[i - 1]
+    : INT_MIN;
+
+int right = (i + 1 &lt; n)
+    ? suffixMax[i + 1]
+    : INT_MIN;
+</code></pre>
+
+
+<h2 id="s47">47. Common Mistake: Integer Overflow</h2>
+<p>Suppose:</p>
+<pre><code class="language-text">A[i] &lt;= 10^9
+n &lt;= 10^5
+</code></pre>
+<p>Then the total sum may be roughly:</p>
+<pre><code class="language-text">10^14
+</code></pre>
+<p>which does not fit in a 32-bit <code>int</code>.</p>
+<p>Use:</p>
+<pre><code class="language-cpp">long long
+</code></pre>
+<p>for prefix sums.</p>
+
+
+<h2 id="s48">48. Common Mistake: Confusing Indexing Conventions</h2>
+<p>Two popular definitions exist.</p>
+<h3>Style 1</h3>
+<pre><code class="language-text">prefix[i] = sum A[0 ... i]
+</code></pre>
+<p>Range sum:</p>
+<pre><code class="language-text">prefix[R] - prefix[L - 1]
+</code></pre>
+<p>with special handling for <code>L = 0</code>.</p>
+<h3>Style 2</h3>
+<pre><code class="language-text">prefix[0] = 0
+prefix[i + 1] = prefix[i] + A[i]
+</code></pre>
+<p>Range sum:</p>
+<pre><code class="language-text">prefix[R + 1] - prefix[L]
+</code></pre>
+<p>The second style usually produces cleaner code and fewer edge cases.</p>
+
+
+<h2 id="s49">49. Recommended Prefix Sum Template</h2>
+<pre><code class="language-cpp">int n;
+cin &gt;&gt; n;
+
+vector&lt;long long&gt; a(n);
+
+for (auto &amp;x : a) {
+    cin &gt;&gt; x;
+}
+
+vector&lt;long long&gt; prefix(n + 1, 0);
+
+for (int i = 0; i &lt; n; i++) {
+    prefix[i + 1] = prefix[i] + a[i];
+}
+</code></pre>
+<p>Range sum:</p>
+<pre><code class="language-cpp">long long sum = prefix[r + 1] - prefix[l];
+</code></pre>
+
+
+<h2 id="s50">50. Recommended Prefix Maximum Template</h2>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixMax(n);
+
+prefixMax[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixMax[i] =
+        max(prefixMax[i - 1], a[i]);
+}
+</code></pre>
+
+
+<h2 id="s51">51. Recommended Suffix Maximum Template</h2>
+<pre><code class="language-cpp">vector&lt;int&gt; suffixMax(n);
+
+suffixMax[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffixMax[i] =
+        max(a[i], suffixMax[i + 1]);
+}
+</code></pre>
+
+
+<h2 id="s52">52. Recommended Prefix/Suffix Min Template</h2>
+<p>Prefix:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; prefixMin(n);
+
+prefixMin[0] = a[0];
+
+for (int i = 1; i &lt; n; i++) {
+    prefixMin[i] =
+        min(prefixMin[i - 1], a[i]);
+}
+</code></pre>
+<p>Suffix:</p>
+<pre><code class="language-cpp">vector&lt;int&gt; suffixMin(n);
+
+suffixMin[n - 1] = a[n - 1];
+
+for (int i = n - 2; i &gt;= 0; i--) {
+    suffixMin[i] =
+        min(a[i], suffixMin[i + 1]);
+}
+</code></pre>
+
+
+<h2 id="s53">53. A Table of Common Prefix/Suffix Concepts</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Meaning at index <code>i</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prefix Sum</td>
+<td>Sum of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix Sum</td>
+<td>Sum of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix Max</td>
+<td>Maximum of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix Max</td>
+<td>Maximum of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix Min</td>
+<td>Minimum of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix Min</td>
+<td>Minimum of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix XOR</td>
+<td>XOR of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix XOR</td>
+<td>XOR of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix GCD</td>
+<td>GCD of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix GCD</td>
+<td>GCD of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix Product</td>
+<td>Product of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix Product</td>
+<td>Product of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix Count</td>
+<td>Number of matching elements in <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix Count</td>
+<td>Number of matching elements in <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix AND</td>
+<td>Bitwise AND of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix AND</td>
+<td>Bitwise AND of <code>A[i ... n-1]</code></td>
+</tr>
+<tr>
+<td>Prefix OR</td>
+<td>Bitwise OR of <code>A[0 ... i]</code></td>
+</tr>
+<tr>
+<td>Suffix OR</td>
+<td>Bitwise OR of <code>A[i ... n-1]</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="s54">54. How to Recognize Prefix/Suffix Problems</h2>
+<p>Look for phrases such as:</p>
+<pre><code class="language-text">sum up to index i
+maximum before i
+minimum after i
+elements to the left
+elements to the right
+all elements except current
+split the array
+remove one element
+many range queries
+number of occurrences between L and R
+best value seen so far
+maximum remaining on the right
+</code></pre>
+<p>These are strong signs that prefix or suffix preprocessing may help.</p>
+
+
+<h2 id="s55">55. A Step-by-Step Strategy</h2>
+<p>When facing a new problem, ask:</p>
+<ol>
+<li>Am I repeatedly scanning the same left or right portion?</li>
+<li>What information do I actually need?</li>
+<li>Is the information about the left side?</li>
+<li>Is it about the right side?</li>
+<li>Does the problem ask about both sides of every index?</li>
+<li>Can I replace an entire array with a running variable?</li>
+</ol>
+<p>Possible information includes:</p>
+<pre><code class="language-text">sum
+maximum
+minimum
+count
+XOR
+GCD
+product
+Boolean state
+</code></pre>
+
+
+<h2 id="s56">56. Prefix/Suffix vs Brute Force</h2>
+<p>Brute force example:</p>
+<pre><code class="language-cpp">for (int i = 0; i &lt; n; i++) {
+    int mx = INT_MIN;
+
+    for (int j = 0; j &lt;= i; j++) {
+        mx = max(mx, a[j]);
+    }
+}
+</code></pre>
+<p>Complexity:</p>
+<pre><code class="language-text">O(n²)
+</code></pre>
+<p>Using a prefix maximum:</p>
+<pre><code class="language-text">O(n)
+</code></pre>
+<p>The core optimization is:</p>
+<blockquote>
+<p>Do not repeatedly recompute information that can be carried forward.</p>
+</blockquote>
+
+
+<h2 id="s57">57. Prefix/Suffix Is a Form of Precomputation</h2>
+<p>Prefix and suffix techniques belong to a larger idea called <strong>precomputation</strong>.</p>
+<p>Instead of repeatedly doing expensive work during queries or iterations, we calculate useful information once.</p>
+<p>We spend:</p>
+<pre><code class="language-text">O(n)
+</code></pre>
+<p>upfront so later operations become:</p>
+<pre><code class="language-text">O(1)
+</code></pre>
+<p>or much cheaper.</p>
+<p>The same mindset appears in:</p>
+<ul>
+<li>dynamic programming,</li>
+<li>sparse tables,</li>
+<li>factorial precomputation,</li>
+<li>sieve algorithms,</li>
+<li>hashing,</li>
+<li>lookup tables.</li>
+</ul>
+
+
+<h2 id="s58">58. Prefix/Suffix as Dynamic Programming</h2>
+<p>Consider:</p>
+<pre><code class="language-text">prefixMax[i]
+=
+max(prefixMax[i - 1], A[i])
+</code></pre>
+<p>This is a recurrence relation.</p>
+<p>The answer at position <code>i</code> depends on the answer at <code>i - 1</code>.</p>
+<p>Similarly:</p>
+<pre><code class="language-text">suffixMin[i]
+=
+min(A[i], suffixMin[i + 1])
+</code></pre>
+<p>builds answers backward.</p>
+<p>So prefix/suffix techniques can also be viewed as:</p>
+<blockquote>
+<p>One-dimensional dynamic programming where state flows in one direction.</p>
+</blockquote>
+
+
+<h2 id="s59">59. Final Example</h2>
+<p>Consider:</p>
+<pre><code class="language-text">A = [5, 2, 8, 1, 7]
+</code></pre>
+<h3>Prefix Sum</h3>
+<pre><code class="language-text">5  7  15  16  23
+</code></pre>
+<h3>Suffix Sum</h3>
+<pre><code class="language-text">23  18  16  8  7
+</code></pre>
+<h3>Prefix Maximum</h3>
+<pre><code class="language-text">5  5  8  8  8
+</code></pre>
+<h3>Suffix Maximum</h3>
+<pre><code class="language-text">8  8  8  7  7
+</code></pre>
+<h3>Prefix Minimum</h3>
+<pre><code class="language-text">5  2  2  1  1
+</code></pre>
+<h3>Suffix Minimum</h3>
+<pre><code class="language-text">1  1  1  1  7
+</code></pre>
+<p>Each structure answers a different type of question instantly.</p>
+
+
+<h2 id="s60">60. Cheat Sheet</h2>
+<h3>Prefix Sum</h3>
+<pre><code class="language-cpp">prefix[i + 1] = prefix[i] + a[i];
+</code></pre>
+<p>Range:</p>
+<pre><code class="language-cpp">prefix[r + 1] - prefix[l]
+</code></pre>
+<h3>Prefix Maximum</h3>
+<pre><code class="language-cpp">prefixMax[i] =
+    max(prefixMax[i - 1], a[i]);
+</code></pre>
+<h3>Suffix Maximum</h3>
+<pre><code class="language-cpp">suffixMax[i] =
+    max(a[i], suffixMax[i + 1]);
+</code></pre>
+<h3>Prefix Minimum</h3>
+<pre><code class="language-cpp">prefixMin[i] =
+    min(prefixMin[i - 1], a[i]);
+</code></pre>
+<h3>Suffix Minimum</h3>
+<pre><code class="language-cpp">suffixMin[i] =
+    min(a[i], suffixMin[i + 1]);
+</code></pre>
+<h3>Prefix XOR</h3>
+<pre><code class="language-cpp">prefixXor[i + 1] =
+    prefixXor[i] ^ a[i];
+</code></pre>
+<p>Range XOR:</p>
+<pre><code class="language-cpp">prefixXor[r + 1] ^ prefixXor[l]
+</code></pre>
+<h3>Prefix Count</h3>
+<pre><code class="language-cpp">prefix[i + 1] =
+    prefix[i] + condition(a[i]);
+</code></pre>
+<h3>Prefix GCD</h3>
+<pre><code class="language-cpp">prefixGcd[i] =
+    gcd(prefixGcd[i - 1], a[i]);
+</code></pre>
+<h3>Suffix GCD</h3>
+<pre><code class="language-cpp">suffixGcd[i] =
+    gcd(a[i], suffixGcd[i + 1]);
+</code></pre>
+
+
+<div class="widget"><section class="panel"><h2>Templates in three languages</h2><p class="sub">The same three snippets from the cheat sheet, in whichever language you use.</p>
     <div class="seg" id="langSeg" role="group" aria-label="Language"><button data-lang="js" aria-pressed="true">JavaScript</button><button data-lang="py" aria-pressed="false">Python</button><button data-lang="cpp" aria-pressed="false">C++</button></div>
     <div class="code" id="tmplCode"></div>
     <h3>Check yourself</h3>
@@ -304,10 +1782,57 @@ right[n−1] = 1; <span class="kw">for</span> (i = n−2 … 0) right[i] = right
       <details><summary>For "product except self", what should left[0] and right[n−1] be?</summary><p><b>1</b>, the identity for multiplication: there's nothing to the left of index 0 and nothing to the right of the last index, and multiplying by 1 changes nothing.</p></details>
       <details><summary>You add 5 to A[2 … 4] and 2 to A[0 … 1] using a difference array of length 6. What does diff look like?</summary><p>diff = [2, 0, 3, 0, 0, −5]. Start +2 at 0, cancel with −2 at 2, start +5 at 2 (so index 2 nets +3), cancel with −5 at 5. Prefix-summing gives [2, 2, 5, 5, 5, 0].</p></details>
     </div>
-  </section>
+  </section></div>
+<h2 id="s61">61. The Most Important Idea to Remember</h2>
+<p>Do not memorize prefix sum as only a formula.</p>
+<p>Understand the broader pattern:</p>
+<pre><code class="language-text">PREFIX
+=
+information accumulated from left to right
+
+SUFFIX
+=
+information accumulated from right to left
+</code></pre>
+<p>The accumulated information could be:</p>
+<pre><code class="language-text">sum
+maximum
+minimum
+XOR
+GCD
+product
+frequency
+count
+Boolean state
+hash
+DP state
+</code></pre>
+<p>Whenever you repeatedly ask:</p>
+<pre><code class="language-text">&quot;What happened before this index?&quot;
+</code></pre>
+<p>think:</p>
+<pre><code class="language-text">PREFIX
+</code></pre>
+<p>Whenever you repeatedly ask:</p>
+<pre><code class="language-text">&quot;What remains after this index?&quot;
+</code></pre>
+<p>think:</p>
+<pre><code class="language-text">SUFFIX
+</code></pre>
+<p>And whenever you need both:</p>
+<pre><code class="language-text">LEFT INFORMATION
+       +
+CURRENT POSITION
+       +
+RIGHT INFORMATION
+</code></pre>
+<p>think:</p>
+<pre><code class="language-text">PREFIX + SUFFIX
+</code></pre>
+<p>That simple mental model is one of the most useful tools in Data Structures and Algorithms.</p>
+  </div>
 </div>
 </main>
-
 <script>
 const $ = id => document.getElementById(id);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
