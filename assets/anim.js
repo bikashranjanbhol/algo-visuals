@@ -28,11 +28,10 @@
     btn('play').onclick = () => { if (playing) { setPlaying(false); userPaused = true; } else { userPaused = false; setPlaying(true); show(i < 0 ? 0 : i + 1, true); } };
     btn('next').onclick = () => { setPlaying(false); userPaused = true; show(i + 1, true); };
     btn('back').onclick = () => { setPlaying(false); userPaused = true; show(i - 1, true); };
-    const start = () => { if (!playing && !userPaused) { setPlaying(true); show(0, true); } };
-    const stop = () => { if (playing) setPlaying(false); };
+    // Diagrams start paused on step 1; the reader presses Play or Next. If one is playing and scrolls off screen, it pauses.
     if (reduce) { show(ctl.count - 1, false); return; }
     show(0, false);
-    if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { threshold: 0.25 }).observe(root); else start();
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting && playing) { setPlaying(false); userPaused = true; } }), { threshold: 0.1 }).observe(root);
   }
 
   /* ---------- flow ---------- */
