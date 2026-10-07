@@ -103,7 +103,7 @@
         if (!e) { const [d] = edgePath(byId[path[i]], byId[path[i + 1]]); e = el('path', { d, class: 'an-edge temp' }, gE); }
         legs.push({ e, rev });
       }
-      if (!animate) return 0;
+      if (!animate) { const ne = nodeEls[path[path.length - 1]]; if (ne) ne.classList.add('got'); return 0; }
       const g = el('g', { class: 'an-packet ' + (route.color || '') }, gP);
       el('circle', { r: 7 }, g);
       const t = el('text', { y: -13, 'text-anchor': 'middle', class: 'halo' }, g); t.textContent = route.label || '';
@@ -114,7 +114,7 @@
         const leg = legs[legIdx], L = leg.e.getTotalLength(), t0 = start + legIdx * dur, k = Math.min(1, (now - t0) / dur);
         const pt = leg.e.getPointAtLength(leg.rev ? L * (1 - k) : L * k);
         g.setAttribute('transform', `translate(${pt.x} ${pt.y})`);
-        if (k >= 1) { const ne = nodeEls[path[legIdx + 1]]; if (ne) { ne.classList.add('pulse'); setTimeout(() => ne.classList.remove('pulse'), 350); } legIdx++; if (legIdx >= legs.length) { setTimeout(() => g.remove(), 150); return; } }
+        if (k >= 1) { const ne = nodeEls[path[legIdx + 1]]; if (ne) { ne.classList.add('got'); ne.classList.remove('pop'); void ne.getBoundingClientRect(); ne.classList.add('pop'); } legIdx++; if (legIdx >= legs.length) { setTimeout(() => g.remove(), 150); return; } }
         rafs.push(requestAnimationFrame(step));
       }
       rafs.push(requestAnimationFrame(step));
@@ -133,7 +133,7 @@
       return longest;
     }
     function reset() {
-      for (const id in nodeEls) { const g = nodeEls[id], n = byId[id]; g.classList.remove('ok', 'fail', 'off', 'on', 'warn', 'pulse'); g.classList.toggle('hidden', !!n.hidden); g.querySelector('.an-badge').textContent = ''; g.querySelector('.an-label').textContent = n.label; }
+      for (const id in nodeEls) { const g = nodeEls[id], n = byId[id]; g.classList.remove('ok', 'fail', 'off', 'on', 'warn', 'pulse', 'got', 'pop'); g.classList.toggle('hidden', !!n.hidden); g.querySelector('.an-badge').textContent = ''; g.querySelector('.an-label').textContent = n.label; }
       (spec.edges || []).forEach(e => { const p = edgeEls[e[0] + '>' + e[1]]; const hid = !!(e[2] && e[2].hidden); p.classList.toggle('hidden', hid); p._label && p._label.classList.toggle('hidden', hid); });
     }
     // one step per packet hop, so Next/Back walk the request one arrow at a time
@@ -156,7 +156,8 @@
         if (st.si < 0) return 0;
         const r = f.send[st.si];
         // packets of earlier sends in this frame have already arrived: mark their last node
-        for (let k = 0; k < st.si; k++) { const last = nodeEls[f.send[k].path[f.send[k].path.length - 1]]; if (last) last.classList.add('pulse'); }
+        for (let k = 0; k < st.si; k++) f.send[k].path.slice(1).forEach(id => nodeEls[id] && nodeEls[id].classList.add('got'));
+        r.path.slice(1, st.leg + 1).forEach(id => nodeEls[id] && nodeEls[id].classList.add('got'));
         return sendPacket({ path: [r.path[st.leg], r.path[st.leg + 1]], label: r.label, color: r.color, dur: r.dur ? Math.min(r.dur, 900) : 700 }, 0, animate);
       },
       hold: i => { const st = steps[i]; if (!st || st.si < 0) { const f = frames[st ? st.fi : 0]; return f && f.t ? Math.min(f.t, 2400) : 1400; } const r = frames[st.fi].send[st.si]; const lastLeg = st.leg === r.path.length - 2; const lastSend = st.si === frames[st.fi].send.length - 1; return lastLeg && lastSend ? 1200 : 350; }

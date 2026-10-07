@@ -54,3 +54,11 @@ text.p50{fill:var(--i,#4B57D1)}text.p95{fill:var(--j,#B97C06)}text.p99{fill:var(
 .halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .an-packet text{font-size:11px}
 .an-node .an-badge{font-size:10.5px}
+
+/* node that has received a request in the current step */
+.an-node.got rect{stroke:var(--i,#4B57D1);stroke-width:3;fill:var(--i-soft,#E3E6FB)}
+.an-node.fail.got rect{stroke:var(--miss,#C2414F);fill:var(--miss-soft,#F8DDE0)}
+.an-node.ok.got rect{stroke:var(--hit,#14875C);fill:var(--hit-soft,#D6F2E5)}
+.an-node.pop rect{animation:an-pop .45s ease;transform-box:fill-box;transform-origin:center}
+@keyframes an-pop{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.an-node.pop rect{animation:none}}
