@@ -3,7 +3,7 @@
 // Every diagram exposes steps and gets Back / Play-Pause / Next controls.
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
-  const ROWH = 92, NH = 50, PAD = 16, GAP = 40, MINW = 110;
+  const ROWH = 100, NH = 50, PAD = 16, GAP = 84, MINW = 110;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
   const textW = (s, size = 12.5) => (String(s || '').length * size * 0.6);
@@ -136,16 +136,30 @@
       for (const id in nodeEls) { const g = nodeEls[id], n = byId[id]; g.classList.remove('ok', 'fail', 'off', 'on', 'warn', 'pulse'); g.classList.toggle('hidden', !!n.hidden); g.querySelector('.an-badge').textContent = ''; g.querySelector('.an-label').textContent = n.label; }
       (spec.edges || []).forEach(e => { const p = edgeEls[e[0] + '>' + e[1]]; const hid = !!(e[2] && e[2].hidden); p.classList.toggle('hidden', hid); p._label && p._label.classList.toggle('hidden', hid); });
     }
+    // one step per packet hop, so Next/Back walk the request one arrow at a time
+    const steps = [];
+    frames.forEach((f, fi) => {
+      const sends = f.send || [];
+      if (!sends.length) { steps.push({ fi, si: -1, leg: -1 }); return; }
+      sends.forEach((r, si) => { for (let leg = 0; leg < r.path.length - 1; leg++) steps.push({ fi, si, leg }); });
+    });
+    function applyStatic(f) { const sends = f.send; f.send = null; apply(f, false); f.send = sends; }
     const ctl = {
-      count: Math.max(1, frames.length),
+      count: Math.max(1, steps.length),
       show(i, animate) {
         gP.innerHTML = ''; rafs.forEach(cancelAnimationFrame); rafs = []; gE.querySelectorAll('.temp').forEach(x => x.remove());
         reset();
-        for (let k = 0; k < i; k++) apply(frames[k], false);
-        const f = frames[i] || {}; cap.textContent = f.cap || (frames.slice(0, i).map(x => x.cap).filter(Boolean).pop()) || spec.cap || '';
-        return apply(f, animate);
+        const st = steps[i] || { fi: 0, si: -1 };
+        for (let k = 0; k < st.fi; k++) applyStatic(frames[k]);
+        const f = frames[st.fi] || {}; applyStatic(f);
+        cap.textContent = f.cap || (frames.slice(0, st.fi).map(x => x.cap).filter(Boolean).pop()) || spec.cap || '';
+        if (st.si < 0) return 0;
+        const r = f.send[st.si];
+        // packets of earlier sends in this frame have already arrived: mark their last node
+        for (let k = 0; k < st.si; k++) { const last = nodeEls[f.send[k].path[f.send[k].path.length - 1]]; if (last) last.classList.add('pulse'); }
+        return sendPacket({ path: [r.path[st.leg], r.path[st.leg + 1]], label: r.label, color: r.color, dur: r.dur ? Math.min(r.dur, 900) : 700 }, 0, animate);
       },
-      hold: i => (frames[i] && frames[i].t) ? Math.max(0, frames[i].t - 900) + 400 : 900
+      hold: i => { const st = steps[i]; if (!st || st.si < 0) { const f = frames[st ? st.fi : 0]; return f && f.t ? Math.min(f.t, 2400) : 1400; } const r = frames[st.fi].send[st.si]; const lastLeg = st.leg === r.path.length - 2; const lastSend = st.si === frames[st.fi].send.length - 1; return lastLeg && lastSend ? 1200 : 350; }
     };
     if (!frames.length) { cap.textContent = spec.cap || ''; return; }
     attachControls(root, ctl);
