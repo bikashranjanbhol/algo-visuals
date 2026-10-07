@@ -33,6 +33,14 @@ window.CONCEPTS = [
   ]},
   { id: 'lld', label: 'LLD', concepts: [] },
   { id: 'gen-ai', label: 'Gen AI', concepts: [] },
-  { id: 'frontend-system-design', label: 'Frontend System Design', concepts: [] },
+  { id: 'frontend-system-design', label: 'Frontend System Design', concepts: [
+    { slug: 'virtual-dom', title: 'Virtual DOM', summary: 'A lightweight in-memory copy of the UI, diffed and patched.', slides: [
+      { src: '/concepts/frontend-system-design/virtual-dom/1-what-is-virtual-dom.png', caption: 'What is the Virtual DOM: change the state, not the whole page. A lightweight copy of the real DOM kept in memory.' },
+      { src: '/concepts/frontend-system-design/virtual-dom/2-real-dom-vs-virtual-dom.png', caption: 'Real DOM vs Virtual DOM: direct updates can touch many nodes; the Virtual DOM diffs first and patches only what changed.' },
+      { src: '/concepts/frontend-system-design/virtual-dom/3-how-it-works.png', caption: 'How it works in six steps: state change, render new tree, compare, find differences, patch the real DOM, browser repaints.' },
+      { src: '/concepts/frontend-system-design/virtual-dom/4-in-memory.png', caption: 'How it looks in memory: a tree of plain JavaScript objects with type, props and children.' },
+      { src: '/concepts/frontend-system-design/virtual-dom/5-code-it-in-javascript.png', caption: 'How to code one: h() creates virtual nodes, render() makes real elements, diff() and patch() apply minimal updates.' }
+    ]}
+  ]},
   { id: 'frontend-lld', label: 'Frontend LLD', concepts: [] }
 ];
