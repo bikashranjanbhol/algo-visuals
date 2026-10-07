@@ -3,33 +3,46 @@
 // Every diagram exposes steps and gets Back / Play-Pause / Next controls.
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
-  const ROWH = 100, NH = 50, PAD = 16, GAP = 84, MINW = 110;
+  const ROWH = 108, NH = 60, PAD = 16, GAP = 76, MINW = 132;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
-  const textW = (s, size = 12.5) => (String(s || '').length * size * 0.6);
+  const textW = (s, size = 15) => (String(s || '').length * size * 0.6);
 
   /* ---------- controls shared by every kind ---------- */
   // ctl: { count, show(i, animate) -> ms, hold(i) -> ms } ; engine handles the play loop, visibility and buttons
   function attachControls(root, ctl) {
+    root._speed = 1;
+    const I = { back: '<svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>', next: '<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg>', play: '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>', pause: '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>', replay: '<svg viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.6 3.1l-1.8-.8A7 7 0 1 0 8 1V-1L4 2.5 8 6z"/></svg>', reset: '<svg viewBox="0 0 16 16"><path d="M2 2h3v12H2zm4 6 8-6v12z"/></svg>', expand: '<svg viewBox="0 0 16 16"><path d="M2 2h5v2H4v3H2zm12 0v5h-2V4h-3V2zM2 14V9h2v3h3v2zm12 0H9v-2h3V9h2z"/></svg>' };
+    // caption sits between the picture and the controls and is tied to the current step
+    const cap = root.querySelector('.anim-cap');
+    cap.innerHTML = '<b class="an-stepname"></b><span class="an-captext"></span>';
+    const tools = document.createElement('div'); tools.className = 'anim-tools';
+    tools.innerHTML = `<button type="button" class="an-icon" data-a="expand" aria-label="Expand diagram" title="Expand">${I.expand}</button>`;
+    root.insertBefore(tools, root.firstChild);
     const bar = document.createElement('div'); bar.className = 'anim-bar';
-    const I = { back: '<svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>', next: '<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg>', play: '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>', pause: '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>', replay: '<svg viewBox="0 0 16 16"><path d="M8 3a5 5 0 1 1-4.6 3.1l-1.8-.8A7 7 0 1 0 8 1V-1L4 2.5 8 6z"/></svg>', reset: '<svg viewBox="0 0 16 16"><path d="M3 3h10v10H3z"/></svg>' };
-    bar.innerHTML = `<button type="button" class="an-btn" data-a="reset" aria-label="Reset to the first step" title="Reset to step 1">${I.reset}<span>Reset</span></button><button type="button" class="an-btn" data-a="back" aria-label="Back">${I.back}<span>Back</span></button><button type="button" class="an-btn play" data-a="play" aria-label="Play">${I.play}<span>Play</span></button><button type="button" class="an-btn" data-a="next" aria-label="Next"><span>Next</span>${I.next}</button><button type="button" class="an-btn" data-a="replay" aria-label="Replay this step" title="Replay this step">${I.replay}<span>Replay step</span></button><span class="an-count"></span>`;
+    bar.innerHTML = `<button type="button" class="an-btn" data-a="back" aria-label="Previous step">${I.back}<span>Previous</span></button><button type="button" class="an-btn play" data-a="play" aria-label="Play">${I.play}<span>Play</span></button><button type="button" class="an-btn" data-a="next" aria-label="Next step"><span>Next</span>${I.next}</button><span class="an-count"></span><span class="an-sec"><button type="button" class="an-icon" data-a="replay" aria-label="Replay this step" title="Replay this step">${I.replay}</button><button type="button" class="an-icon" data-a="reset" aria-label="Back to step 1" title="Back to step 1">${I.reset}</button><span class="an-speed" role="group" aria-label="Playback speed"><button type="button" data-s="0.5">0.5×</button><button type="button" data-s="1" aria-pressed="true">1×</button><button type="button" data-s="1.5">1.5×</button></span></span>`;
     root.appendChild(bar);
-    const btn = a => bar.querySelector(`[data-a="${a}"]`), count = bar.querySelector('.an-count');
+    const btn = a => root.querySelector(`[data-a="${a}"]`), count = bar.querySelector('.an-count');
     let i = -1, playing = false, timer = null, userPaused = false;
     function show(k, animate) {
       i = (k + ctl.count) % ctl.count;
       clearTimeout(timer);
-      const ms = ctl.show(i, animate && !reduce) || 0;
-      count.textContent = `${i + 1} / ${ctl.count}`;
-      if (playing) timer = setTimeout(() => show(i + 1, true), Math.max(ms, 0) + (ctl.hold ? ctl.hold(i) : 900));
+      const ms = (ctl.show(i, animate && !reduce) || 0);
+      count.textContent = `Step ${i + 1} of ${ctl.count}`;
+      const name = ctl.title ? ctl.title(i) : '';
+      cap.querySelector('.an-stepname').textContent = `Step ${i + 1}` + (name ? ` · ${name}` : '');
+      if (playing) timer = setTimeout(() => show(i + 1, true), (Math.max(ms, 0) + (ctl.hold ? ctl.hold(i) : 900)) / root._speed);
     }
+    ctl.setCaption = t => { cap.querySelector('.an-captext').textContent = t || ''; };
     function setPlaying(p) { playing = p; btn('play').innerHTML = (p ? I.pause : I.play) + `<span>${p ? 'Pause' : 'Play'}</span>`; btn('play').setAttribute('aria-label', p ? 'Pause' : 'Play'); if (!p) clearTimeout(timer); }
-    btn('play').onclick = () => { if (playing) { setPlaying(false); userPaused = true; } else { userPaused = false; setPlaying(true); show(i < 0 ? 0 : i + 1, true); } };
+    btn('play').onclick = () => { if (playing) { setPlaying(false); userPaused = true; } else { userPaused = false; setPlaying(true); show(i < 0 || i >= ctl.count - 1 ? 0 : i + 1, true); } };
     btn('next').onclick = () => { setPlaying(false); userPaused = true; show(i + 1, true); };
     btn('back').onclick = () => { setPlaying(false); userPaused = true; show(i - 1, true); };
     btn('replay').onclick = () => { setPlaying(false); userPaused = true; show(i < 0 ? 0 : i, true); };
     btn('reset').onclick = () => { setPlaying(false); userPaused = true; show(0, false); };
+    bar.querySelectorAll('.an-speed button').forEach(b => b.onclick = () => { root._speed = +b.dataset.s; bar.querySelectorAll('.an-speed button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+    btn('expand').onclick = () => { const on = root.classList.toggle('anim-full'); document.body.classList.toggle('anim-full-open', on); btn('expand').setAttribute('aria-label', on ? 'Close expanded diagram' : 'Expand diagram'); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && root.classList.contains('anim-full')) btn('expand').click(); });
     // Diagrams start paused on step 1; the reader presses Play or Next. If one is playing and scrolls off screen, it pauses.
     if (reduce) { show(ctl.count - 1, false); return; }
     show(0, false);
@@ -42,7 +55,7 @@
     let maxC = 0, maxR = 0;
     nodes.forEach(n => { byId[n.id] = n; n.w = n.w || 1; maxC = Math.max(maxC, n.c + n.w - 1); maxR = Math.max(maxR, n.r); });
     const colW = []; for (let c = 0; c <= maxC; c++) colW[c] = MINW;
-    nodes.forEach(n => { if (n.kind === 'group' || n.w > 1) return; const w = Math.max(textW(n.label) + 28, textW(n.sub, 10.5) + 24, MINW); colW[n.c] = Math.max(colW[n.c], Math.ceil(w)); });
+    nodes.forEach(n => { if (n.kind === 'group' || n.w > 1) return; const w = Math.max(textW(n.label) + 32, textW(n.sub, 12) + 28, MINW); colW[n.c] = Math.max(colW[n.c], Math.ceil(w)); });
     const colX = []; let x = PAD; for (let c = 0; c <= maxC; c++) { colX[c] = x; x += colW[c] + GAP; }
     const TOP = nodes.some(n => n.kind === 'group' && n.r === 0) ? 30 : 10;
     const W = x - GAP + PAD, H = PAD + TOP + maxR * ROWH + NH + 16;
@@ -63,8 +76,8 @@
     nodes.filter(n => n.kind !== 'group').forEach(n => {
       const p = pos(n); const g = el('g', { class: 'an-node ' + (n.kind || 'box'), 'data-id': n.id }, gN);
       el('rect', { x: p.x, y: p.y, width: p.w, height: p.h, rx: n.kind === 'client' ? p.h / 2 : 12 }, g);
-      const t = el('text', { x: p.x + p.w / 2, y: p.y + (n.sub ? p.h / 2 - 3 : p.h / 2 + 5), 'text-anchor': 'middle', class: 'an-label' }, g); t.textContent = n.label;
-      if (n.sub) { const s = el('text', { x: p.x + p.w / 2, y: p.y + p.h / 2 + 14, 'text-anchor': 'middle', class: 'an-sub' }, g); s.textContent = n.sub; }
+      const t = el('text', { x: p.x + p.w / 2, y: p.y + (n.sub ? p.h / 2 - 2 : p.h / 2 + 6), 'text-anchor': 'middle', class: 'an-label' }, g); t.textContent = n.label;
+      if (n.sub) { const s = el('text', { x: p.x + p.w / 2, y: p.y + p.h / 2 + 17, 'text-anchor': 'middle', class: 'an-sub' }, g); s.textContent = n.sub; }
       const badge = el('text', { x: p.x + p.w / 2, y: p.y - 7, 'text-anchor': 'middle', class: 'an-badge halo' }, g); badge.textContent = '';
       nodeEls[n.id] = g; if (n.hidden) g.classList.add('hidden');
     });
@@ -98,7 +111,7 @@
     const frames = spec.frames || (spec.routes || []).map(r => ({ send: [r], cap: r.cap }));
     let rafs = [];
     function sendPacket(route, delay, animate) {
-      const path = route.path, dur = route.dur || 650, legs = [];
+      const path = route.path, dur = (route.dur || 650) / (root._speed || 1), legs = [];
       for (let i = 0; i < path.length - 1; i++) {
         let e = edgeEls[path[i] + '>' + path[i + 1]], rev = false;
         if (e && e.rev) { e = e.rev; rev = true; }
@@ -154,7 +167,7 @@
         const st = steps[i] || { fi: 0, si: -1 };
         for (let k = 0; k < st.fi; k++) applyStatic(frames[k]);
         const f = frames[st.fi] || {}; applyStatic(f);
-        cap.textContent = f.cap || (frames.slice(0, st.fi).map(x => x.cap).filter(Boolean).pop()) || spec.cap || '';
+        ctl.setCaption(f.cap || (frames.slice(0, st.fi).map(x => x.cap).filter(Boolean).pop()) || spec.cap || '');
         if (st.si < 0) return 0;
         const r = f.send[st.si];
         // packets of earlier sends in this frame have already arrived: mark their last node
@@ -162,6 +175,7 @@
         r.path.slice(1, st.leg + 1).forEach(id => nodeEls[id] && nodeEls[id].classList.add('got'));
         return sendPacket({ path: [r.path[st.leg], r.path[st.leg + 1]], label: r.label, color: r.color, dur: r.dur ? Math.min(r.dur, 900) : 700 }, 0, animate);
       },
+      title: i => { const st = steps[i]; if (!st || st.si < 0) return ''; const r = frames[st.fi].send[st.si]; return byId[r.path[st.leg + 1]].label; },
       hold: i => { const st = steps[i]; if (!st || st.si < 0) { const f = frames[st ? st.fi : 0]; return f && f.t ? Math.min(f.t, 2400) : 1400; } const r = frames[st.fi].send[st.si]; const lastLeg = st.leg === r.path.length - 2; const lastSend = st.si === frames[st.fi].send.length - 1; return lastLeg && lastSend ? 1200 : 350; }
     };
     if (!frames.length) { cap.textContent = spec.cap || ''; return; }
@@ -188,7 +202,7 @@
     function slide(g, from, to) { let end = to; if (end < from) end += 360; const t0 = performance.now(), dur = 900; (function step(now) { const u = Math.min(1, (now - t0) / dur); const p = pt(from + (end - from) * u); g.setAttribute('transform', `translate(${p.x} ${p.y})`); if (u < 1) requestAnimationFrame(step); })(t0); return dur; }
     const caps = ['Four servers sit on a hash ring.', 'user:7 hashes to 30° and walks clockwise to Server B.', 'user:42 → Server C.', 'user:19 → Server A (wrapping past 360°).', 'user:88 → Server A as well.', 'Add Server E at 330°, between D and A.', 'Only keys in the slice between D and E move to E: user:19 and user:88. user:7 and user:42 stay put. With hash(key) % n, most keys would have moved.'];
     const ctl = { count: caps.length, show(i, animate) {
-      gK.innerHTML = ''; const servers = base.slice(); if (i >= 5) servers.push({ id: 'E', a: 330 }); drawServers(servers, i === 5 ? 'E' : null); cap.textContent = caps[i];
+      gK.innerHTML = ''; const servers = base.slice(); if (i >= 5) servers.push({ id: 'E', a: 330 }); drawServers(servers, i === 5 ? 'E' : null); ctl.setCaption(caps[i]);
       const nKeys = Math.min(4, Math.max(0, i)); let ms = 0;
       for (let k = 0; k < nKeys; k++) {
         const [a, label] = KEYS[k]; const own = i >= 6 ? owner(servers, a) : owner(base, a);
@@ -218,7 +232,7 @@
       { cap: 'Time passes: tokens refill at a steady rate (here 5 are back).', do: s => { s.tokens = Math.min(CAP, s.tokens + 5); } },
       { cap: 'A burst of 3 is allowed again. Bursts are fine; a sustained flood is not.', do: s => req(s, 3) }
     ];
-    const ctl = { count: STEPS.length, show(i) { const s = { tokens: CAP, allowed: 0, rejected: 0 }; for (let k = 0; k <= i; k++) STEPS[k].do(s); draw(s); capEl.textContent = STEPS[i].cap; return 0; }, hold: () => 2000 };
+    const ctl = { count: STEPS.length, show(i) { const s = { tokens: CAP, allowed: 0, rejected: 0 }; for (let k = 0; k <= i; k++) STEPS[k].do(s); draw(s); ctl.setCaption(STEPS[i].cap); return 0; }, hold: () => 2000 };
     attachControls(root, ctl);
   }
 
@@ -235,7 +249,7 @@
     const avg = Math.round(vals.reduce((a, b) => a + b) / n);
     const marks = [[50, 'P50 = 100 ms', 'p50', 70], [95, 'P95 = 190 ms', 'p95', 52], [99, 'P99 = 2.4 s', 'p99', 34]];
     const caps = [`The average is about ${avg} ms, which looks fine. It hides the slow tail.`, 'P50: half of all requests are faster than this.', 'P95: 95% are faster. Still looks healthy.', 'P99: the slowest 1% wait over two seconds. That is what your unhappiest users feel.'];
-    const ctl = { count: 4, show(i) { gM.innerHTML = ''; for (let k = 1; k <= i; k++) { const [p, label, cls, y] = marks[k - 1], x = x0 + p * bw; el('line', { x1: x, y1: 30, x2: x, y2: base, class: 'an-mark ' + cls }, gM); const t = el('text', { x: x - 6, y, 'text-anchor': 'end', class: 'an-sub halo ' + cls }, gM); t.textContent = label; } capEl.textContent = caps[i]; return 0; }, hold: () => 1900 };
+    const ctl = { count: 4, show(i) { gM.innerHTML = ''; for (let k = 1; k <= i; k++) { const [p, label, cls, y] = marks[k - 1], x = x0 + p * bw; el('line', { x1: x, y1: 30, x2: x, y2: base, class: 'an-mark ' + cls }, gM); const t = el('text', { x: x - 6, y, 'text-anchor': 'end', class: 'an-sub halo ' + cls }, gM); t.textContent = label; } ctl.setCaption(caps[i]); return 0; }, hold: () => 1900 };
     attachControls(root, ctl);
   }
 
@@ -248,8 +262,8 @@
     const bars = rows.map((r, i) => { const y = 20 + i * 36; const t = el('text', { x: x0 - 10, y: y + 17, 'text-anchor': 'end', class: 'an-label' }, svg); t.textContent = r.label; const bx = x0 + acc / total * span; const b = el('rect', { x: bx, y, width: 0, height: 24, rx: 6, class: 'an-wbar' + (r.hot ? ' hot' : '') }, svg); const v = el('text', { x: bx + 6, y: y + 17, class: 'an-wval' }, svg); v.textContent = ''; const full = r.ms / total * span; acc += r.ms; return { b, v, full, r }; });
     const ctl = { count: rows.length + 1, show(i, animate) {
       bars.forEach((bar, k) => { bar.b.setAttribute('width', k < i ? bar.full : 0); bar.v.textContent = k < i ? bar.r.text : ''; });
-      if (i === rows.length) { capEl.textContent = spec.cap1 || ''; return 0; }
-      capEl.textContent = i === 0 ? (spec.cap0 || '') : `${rows[i].label}…`;
+      if (i === rows.length) { ctl.setCaption(spec.cap1 || ''); return 0; }
+      ctl.setCaption(i === 0 ? (spec.cap0 || '') : `${rows[i].label}…`);
       const bar = bars[i], dur = animate ? Math.max(250, Math.min(1100, bar.full * 2.5)) : 0;
       if (!animate) { bar.b.setAttribute('width', bar.full); bar.v.textContent = bar.r.text; return 0; }
       const t0 = performance.now(); (function step(now) { const u = Math.min(1, (now - t0) / dur); bar.b.setAttribute('width', bar.full * u); if (u < 1) requestAnimationFrame(step); else bar.v.textContent = bar.r.text; })(t0); return dur;
@@ -271,7 +285,7 @@
     function draw(tNow) { gD.innerHTML = ''; naive.filter(s => s <= tNow).forEach(s => el('circle', { cx: x0 + s / T * span, cy: 60, r: 5, class: 'an-dot fail' }, gD)); expo.filter(s => s <= tNow).forEach(s => el('circle', { cx: x0 + s / T * span, cy: 130, r: 6, class: 'an-dot ok' }, gD)); el('line', { x1: x0 + tNow / T * span, y1: 30, x2: x0 + tNow / T * span, y2: 150, class: 'an-mark p50' }, gD); }
     const stops = [1, 2, 4, 8, 16], caps = ['First failure at 0 s. Naive retries immediately; backoff waits 1 s.', 'By 2 s: naive has retried 4 times; backoff twice (0 s, 1 s).', 'By 4 s: naive has hammered the service 8 times; backoff waits 2 s, then 4 s.', 'By 8 s: 16 naive retries vs 4 backoff attempts.', 'By 16 s: 32 naive retries vs 5 spaced attempts, each with a little jitter so clients do not all retry together.'];
     let raf;
-    const ctl = { count: stops.length, show(i, animate) { cancelAnimationFrame(raf); const from = i ? stops[i - 1] : 0, to = stops[i]; capEl.textContent = caps[i]; if (!animate) { draw(to); return 0; } const dur = 900, t0 = performance.now(); (function step(now) { const u = Math.min(1, (now - t0) / dur); draw(from + (to - from) * u); if (u < 1) raf = requestAnimationFrame(step); })(t0); return dur; }, hold: () => 1300 };
+    const ctl = { count: stops.length, show(i, animate) { cancelAnimationFrame(raf); const from = i ? stops[i - 1] : 0, to = stops[i]; ctl.setCaption(caps[i]); if (!animate) { draw(to); return 0; } const dur = 900, t0 = performance.now(); (function step(now) { const u = Math.min(1, (now - t0) / dur); draw(from + (to - from) * u); if (u < 1) raf = requestAnimationFrame(step); })(t0); return dur; }, hold: () => 1300 };
     attachControls(root, ctl);
   }
 

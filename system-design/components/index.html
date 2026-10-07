@@ -90,7 +90,7 @@ details.orig pre{margin-top:8px}
 <p>The request travels through several components before reaching the database.</p>
 <p>A simplified architecture might look like:</p>
 <div class="anim" data-spec="client_flow"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+<details class="orig"><summary>View text version</summary><pre><code>Client
    |
    v
 DNS
@@ -134,7 +134,7 @@ Application Servers
 <p>DNS can also help route users geographically.</p>
 <p>For example:</p>
 <div class="anim" data-spec="dns_geo"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>User in India
+<details class="orig"><summary>View text version</summary><pre><code>User in India
      |
      v
 India Data Center
@@ -172,7 +172,7 @@ Images
 <p>It may also forward dynamic requests to an application server.</p>
 <p>For example:</p>
 <div class="anim" data-spec="web_server"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Browser
+<details class="orig"><summary>View text version</summary><pre><code>Browser
    |
    v
 Nginx
@@ -228,7 +228,7 @@ Server 4
 </blockquote>
 <p>That component is the <strong>Load Balancer</strong>.</p>
 <div class="anim" data-spec="lb"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>             +------------+
+<details class="orig"><summary>View text version</summary><pre><code>             +------------+
 Client ----&gt; |   Load     |
              |  Balancer  |
              +------------+
@@ -242,7 +242,7 @@ Client ----&gt; |   Load     |
 <h3>Round Robin</h3>
 <p>Requests are distributed one after another.</p>
 <div class="anim" data-spec="lb_rr"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Request 1 -&gt; Server A
+<details class="orig"><summary>View text version</summary><pre><code>Request 1 -&gt; Server A
 Request 2 -&gt; Server B
 Request 3 -&gt; Server C
 Request 4 -&gt; Server A
@@ -252,7 +252,7 @@ Request 4 -&gt; Server A
 <p>More powerful servers receive more traffic.</p>
 <p>For example:</p>
 <div class="anim" data-spec="lb_weighted"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Server A weight = 5
+<details class="orig"><summary>View text version</summary><pre><code>Server A weight = 5
 Server B weight = 2
 </code></pre></details>
 
@@ -282,7 +282,7 @@ Host
 </code></pre>
 <p>For example:</p>
 <div class="anim" data-spec="l7"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>/api/payments -&gt; Payment Service
+<details class="orig"><summary>View text version</summary><pre><code>/api/payments -&gt; Payment Service
 
 /api/users -&gt; User Service
 </code></pre></details>
@@ -317,7 +317,7 @@ After:
 <h2>Horizontal scaling</h2>
 <p>Add more machines.</p>
 <div class="anim" data-spec="scale_out"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>1 server
+<details class="orig"><summary>View text version</summary><pre><code>1 server
 
 becomes
 
@@ -331,7 +331,7 @@ becomes
 
 <p>A reverse proxy sits in front of backend servers.</p>
 <div class="anim" data-spec="reverse_proxy"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+<details class="orig"><summary>View text version</summary><pre><code>Client
    |
    v
 Reverse Proxy
@@ -362,12 +362,12 @@ Backend Servers
 <h2>Forward Proxy vs Reverse Proxy</h2>
 <p>A <strong>forward proxy</strong> hides the client.</p>
 <div class="anim" data-spec="forward_proxy"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client -&gt; Proxy -&gt; Internet
+<details class="orig"><summary>View text version</summary><pre><code>Client -&gt; Proxy -&gt; Internet
 </code></pre></details>
 
 <p>A <strong>reverse proxy</strong> hides the server.</p>
 <div class="anim" data-spec="reverse_proxy2"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Internet -&gt; Reverse Proxy -&gt; Backend
+<details class="orig"><summary>View text version</summary><pre><code>Internet -&gt; Reverse Proxy -&gt; Backend
 </code></pre></details>
 
 
@@ -383,7 +383,7 @@ Recommendation Service
 </code></pre>
 <p>Instead of exposing every service directly:</p>
 <div class="anim" data-spec="gateway"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+<details class="orig"><summary>View text version</summary><pre><code>Client
    |
    v
 API Gateway
@@ -408,7 +408,7 @@ API Gateway
 </ul>
 <p>Example:</p>
 <div class="anim" data-spec="gw_users"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>GET /users/123
+<details class="orig"><summary>View text version</summary><pre><code>GET /users/123
 </code></pre></details>
 
 <p>may route to:</p>
@@ -416,7 +416,7 @@ API Gateway
 </code></pre>
 <p>while:</p>
 <div class="anim" data-spec="gw_pay"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>POST /payments
+<details class="orig"><summary>View text version</summary><pre><code>POST /payments
 </code></pre></details>
 
 <p>routes to:</p>
@@ -432,7 +432,7 @@ API Gateway
 </code></pre>
 <p>Without a CDN:</p>
 <div class="anim" data-spec="cdn_without"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>India
+<details class="orig"><summary>View text version</summary><pre><code>India
   |
   |
   | Long network trip
@@ -443,7 +443,7 @@ USA Server
 
 <p>With a CDN:</p>
 <div class="anim" data-spec="cdn_with"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>India User
+<details class="orig"><summary>View text version</summary><pre><code>India User
     |
     v
 Nearby CDN Edge
@@ -479,7 +479,7 @@ Nearby CDN Edge
 </code></pre>
 <p>Instead of repeatedly querying the database, we can store frequently requested data inside a <strong>cache</strong>.</p>
 <div class="anim" data-spec="cache_flow"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+<details class="orig"><summary>View text version</summary><pre><code>Application
     |
     v
   Cache
@@ -500,7 +500,7 @@ Return   Database
 <h2>Example</h2>
 <p>Without cache:</p>
 <div class="anim" data-spec="no_cache"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>GET user 123
+<details class="orig"><summary>View text version</summary><pre><code>GET user 123
    |
 Database
 </code></pre></details>
@@ -508,7 +508,7 @@ Database
 <p>Every request hits the database.</p>
 <p>With cache:</p>
 <div class="anim" data-spec="with_cache"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>GET user 123
+<details class="orig"><summary>View text version</summary><pre><code>GET user 123
    |
 Redis
    |
@@ -538,7 +538,7 @@ Database only if missing
 <p>One of the most common caching strategies is <strong>cache-aside</strong>.</p>
 <p>The application first checks the cache.</p>
 <div class="anim" data-spec="cache_aside"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Read Cache
+<details class="orig"><summary>View text version</summary><pre><code>Read Cache
    |
 Found?
  /   \
@@ -743,7 +743,7 @@ bob@example.com   -&gt; Row 384293
 <p>If it is your only copy of the data, your application may stop working.</p>
 <p>Replication creates multiple copies.</p>
 <div class="anim" data-spec="replication"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>             Primary
+<details class="orig"><summary>View text version</summary><pre><code>             Primary
               /   \
              /     \
             v       v
@@ -758,7 +758,7 @@ DELETE
 <p>while replicas may handle reads.</p>
 <p>Example:</p>
 <div class="anim" data-spec="rw_split"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Write Request
+<details class="orig"><summary>View text version</summary><pre><code>Write Request
      |
      v
    Primary
@@ -785,7 +785,7 @@ Replica1 Replica2
 <p>This is called <strong>partitioning</strong>.</p>
 <p>Example:</p>
 <div class="anim" data-spec="partition"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Users A-F -&gt; Partition 1
+<details class="orig"><summary>View text version</summary><pre><code>Users A-F -&gt; Partition 1
 Users G-M -&gt; Partition 2
 Users N-Z -&gt; Partition 3
 </code></pre></details>
@@ -797,7 +797,7 @@ Users N-Z -&gt; Partition 3
 <p>Sharding is a form of horizontal partitioning where different pieces of data are stored on different servers.</p>
 <p>For example:</p>
 <div class="anim" data-spec="shard_range"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>user_id 1-1,000,000
+<details class="orig"><summary>View text version</summary><pre><code>user_id 1-1,000,000
         |
         v
      Shard A
@@ -813,7 +813,7 @@ user_id 1,000,001-2,000,000
 </code></pre>
 <p>For four shards:</p>
 <div class="anim" data-spec="shard_hash"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>hash(user123) % 4 = 2
+<details class="orig"><summary>View text version</summary><pre><code>hash(user123) % 4 = 2
 
 -&gt; Shard 2
 </code></pre></details>
@@ -851,7 +851,7 @@ Cache C
 <p><strong>Consistent hashing</strong> solves this problem.</p>
 <p>Servers and keys are placed conceptually on a hash ring:</p>
 <div class="anim" data-spec="ring"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>        Server A
+<details class="orig"><summary>View text version</summary><pre><code>        Server A
        /        \
       /          \
 Server D        Server B
@@ -885,7 +885,7 @@ Generate invoice
 <p>If one HTTP request performs all of these synchronously, it becomes slow and fragile.</p>
 <p>Instead:</p>
 <div class="anim" data-spec="mq"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+<details class="orig"><summary>View text version</summary><pre><code>Order Service
      |
      v
 Message Queue
@@ -917,7 +917,7 @@ Consumer
 </code></pre>
 <p>A consumer processes them.</p>
 <div class="anim" data-spec="prod_cons"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+<details class="orig"><summary>View text version</summary><pre><code>Order Service
      |
 Producer
      |
@@ -940,7 +940,7 @@ Email Service
 </code></pre>
 <p>Several services may listen:</p>
 <div class="anim" data-spec="event_driven"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>OrderCreated
+<details class="orig"><summary>View text version</summary><pre><code>OrderCreated
     |
     +--&gt; Payment Service
     |
@@ -959,7 +959,7 @@ Email Service
 <p>Kafka is commonly used for high-throughput event streaming.</p>
 <p>A simplified Kafka architecture is:</p>
 <div class="anim" data-spec="kafka"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Producer
+<details class="orig"><summary>View text version</summary><pre><code>Producer
    |
    v
  Topic
@@ -987,13 +987,13 @@ Email Service
 
 <p>A traditional queue often behaves like:</p>
 <div class="anim" data-spec="queue_plain"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Producer -&gt; Queue -&gt; Consumer
+<details class="orig"><summary>View text version</summary><pre><code>Producer -&gt; Queue -&gt; Consumer
 </code></pre></details>
 
 <p>After successful processing, the message may disappear.</p>
 <p>An event log behaves more like:</p>
 <div class="anim" data-spec="event_log"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Event 1
+<details class="orig"><summary>View text version</summary><pre><code>Event 1
 Event 2
 Event 3
 Event 4
@@ -1008,7 +1008,7 @@ Event 5
 <p>Publish/Subscribe, or <strong>Pub/Sub</strong>, allows multiple subscribers to receive the same event.</p>
 <p>Example:</p>
 <div class="anim" data-spec="pubsub"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>OrderCreated
+<details class="orig"><summary>View text version</summary><pre><code>OrderCreated
      |
      +--&gt; Email Service
      |
@@ -1025,7 +1025,7 @@ Event 5
 <p>What happens when a message repeatedly fails?</p>
 <p>Example:</p>
 <div class="anim" data-spec="retry_chain"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Process payment
+<details class="orig"><summary>View text version</summary><pre><code>Process payment
    |
 Failure
    |
@@ -1040,7 +1040,7 @@ Failure
 
 <p>Instead of retrying forever, the message can be placed into a <strong>Dead Letter Queue (DLQ)</strong>.</p>
 <div class="anim" data-spec="dlq"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Main Queue
+<details class="orig"><summary>View text version</summary><pre><code>Main Queue
    |
 Failed repeatedly
    |
@@ -1065,7 +1065,7 @@ retry
 <p>This can make an overloaded service even worse.</p>
 <p>A better strategy is <strong>exponential backoff</strong>:</p>
 <div class="anim" data-spec="backoff"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Retry after 1 second
+<details class="orig"><summary>View text version</summary><pre><code>Retry after 1 second
 Retry after 2 seconds
 Retry after 4 seconds
 Retry after 8 seconds
@@ -1106,7 +1106,7 @@ Retry after 8 seconds
 <p>A rate limiter controls how frequently a user or client can make requests.</p>
 <p>Example:</p>
 <div class="anim" data-spec="ratelimit"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>100 requests/minute per user
+<details class="orig"><summary>View text version</summary><pre><code>100 requests/minute per user
 </code></pre></details>
 
 <p>After that:</p>
@@ -1134,7 +1134,7 @@ Retry after 8 seconds
 <p>Imagine every user has a bucket containing tokens.</p>
 <p>Each request consumes one token.</p>
 <div class="anim" data-spec="bucket"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Bucket capacity = 10 tokens
+<details class="orig"><summary>View text version</summary><pre><code>Bucket capacity = 10 tokens
 </code></pre></details>
 
 <p>If tokens exist:</p>
@@ -1200,7 +1200,7 @@ Bob = Normal User
 <p>Because a system may have multiple application servers, session information should usually not live only in one server's local memory.</p>
 <p>Instead:</p>
 <div class="anim" data-spec="session"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>App Server 1
+<details class="orig"><summary>View text version</summary><pre><code>App Server 1
 App Server 2
 App Server 3
        |
@@ -1230,7 +1230,7 @@ Documents
 </ul>
 <p>Architecture:</p>
 <div class="anim" data-spec="object_storage"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+<details class="orig"><summary>View text version</summary><pre><code>Application
     |
     v
 Object Storage
@@ -1278,7 +1278,7 @@ users/123/profile.jpg
 </ul>
 <p>Architecture:</p>
 <div class="anim" data-spec="search"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Primary Database
+<details class="orig"><summary>View text version</summary><pre><code>Primary Database
       |
       v
 Search Index
@@ -1302,7 +1302,7 @@ Search API
 <p>Through <strong>service discovery</strong>.</p>
 <p>Conceptually:</p>
 <div class="anim" data-spec="discovery"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+<details class="orig"><summary>View text version</summary><pre><code>Order Service
      |
      v
 Service Registry
@@ -1350,7 +1350,7 @@ Search Service
 
 <p>A monolith packages most functionality inside one application.</p>
 <div class="anim" data-spec="monolith"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>            Application
+<details class="orig"><summary>View text version</summary><pre><code>            Application
       +----------------------+
       | Users                |
       | Orders               |
@@ -1389,7 +1389,7 @@ Circuit breaking
 <p>A <strong>service mesh</strong> moves many networking concerns into infrastructure.</p>
 <p>Architecture conceptually becomes:</p>
 <div class="anim" data-spec="mesh"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Service A
+<details class="orig"><summary>View text version</summary><pre><code>Service A
    |
 Proxy
    |
@@ -1404,7 +1404,7 @@ Service B
 
 <p>Imagine:</p>
 <div class="anim" data-spec="breaker_flow"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+<details class="orig"><summary>View text version</summary><pre><code>Order Service
     |
     v
 Payment Service
@@ -1415,7 +1415,7 @@ Payment Service
 <p>A <strong>circuit breaker</strong> temporarily stops requests.</p>
 <p>It typically has three states:</p>
 <div class="anim" data-spec="breaker"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>CLOSED
+<details class="orig"><summary>View text version</summary><pre><code>CLOSED
 OPEN
 HALF-OPEN
 </code></pre></details>
@@ -1438,7 +1438,7 @@ HALF-OPEN
 <p>Load balancers must know whether a server is healthy.</p>
 <p>They periodically call endpoints such as:</p>
 <div class="anim" data-spec="health"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>GET /health
+<details class="orig"><summary>View text version</summary><pre><code>GET /health
 </code></pre></details>
 
 <p>If a server responds successfully:</p>
@@ -1458,7 +1458,7 @@ HALF-OPEN
 </blockquote>
 <p>Example:</p>
 <div class="anim" data-spec="heartbeat"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Server -&gt; Coordinator
+<details class="orig"><summary>View text version</summary><pre><code>Server -&gt; Coordinator
 Server -&gt; Coordinator
 Server -&gt; Coordinator
 </code></pre></details>
@@ -1476,7 +1476,7 @@ Updating a shared resource
 </code></pre>
 <p>Several servers may be available, but one becomes the <strong>leader</strong>.</p>
 <div class="anim" data-spec="leader"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Node A -&gt; Leader
+<details class="orig"><summary>View text version</summary><pre><code>Node A -&gt; Leader
 Node B -&gt; Follower
 Node C -&gt; Follower
 </code></pre></details>
@@ -1493,7 +1493,7 @@ Server B -&gt; Update inventory
 <p>We may need only one server to execute it at a time.</p>
 <p>A distributed lock allows one participant to acquire a lock:</p>
 <div class="anim" data-spec="lock"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Lock acquired by Server A
+<details class="orig"><summary>View text version</summary><pre><code>Lock acquired by Server A
 </code></pre></details>
 
 <p>Server B must wait or fail.</p>
@@ -1543,7 +1543,7 @@ Reduce inventory
 <p>A Saga represents a long business transaction as a series of smaller transactions.</p>
 <p>Example:</p>
 <div class="anim" data-spec="saga"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>1. Create Order
+<details class="orig"><summary>View text version</summary><pre><code>1. Create Order
 2. Reserve Inventory
 3. Charge Payment
 4. Arrange Shipment
@@ -1604,7 +1604,7 @@ author_avatar
 <p>When a system has many reads but relatively few writes, read replicas are extremely useful.</p>
 <p>Example:</p>
 <div class="anim" data-spec="read_replica"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>             Primary
+<details class="orig"><summary>View text version</summary><pre><code>             Primary
             /   |   \
            v    v    v
         Read1 Read2 Read3
@@ -1630,7 +1630,7 @@ author_avatar
 </code></pre>
 <p>For example:</p>
 <div class="anim" data-spec="cqrs"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Write API
+<details class="orig"><summary>View text version</summary><pre><code>Write API
    |
    v
 Transactional Database
@@ -1657,7 +1657,7 @@ Read API
 </code></pre>
 <p>Event sourcing stores the events that created the state:</p>
 <div class="anim" data-spec="event_sourcing"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>AccountCreated
+<details class="orig"><summary>View text version</summary><pre><code>AccountCreated
 Deposit ₹5,000
 Deposit ₹7,000
 Withdraw ₹2,000
@@ -1684,7 +1684,7 @@ Withdraw ₹2,000
 <p>CAP is one of the most famous distributed-system concepts.</p>
 <p>It states that when a network partition occurs, a distributed system cannot simultaneously guarantee both:</p>
 <div class="anim" data-spec="cap"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Consistency
+<details class="orig"><summary>View text version</summary><pre><code>Consistency
 Availability
 </code></pre></details>
 
@@ -1759,7 +1759,7 @@ Replica B = 1,001
 <p>Suppose the primary database fails.</p>
 <p>The system may promote a replica:</p>
 <div class="anim" data-spec="failover"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Before:
+<details class="orig"><summary>View text version</summary><pre><code>Before:
 
 Primary A
 Replica B
@@ -1781,7 +1781,7 @@ Automatic
 <p>A <strong>Single Point of Failure</strong>, or SPOF, is a component whose failure brings the entire system down.</p>
 <p>Bad architecture:</p>
 <div class="anim" data-spec="spof_bad"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Users
+<details class="orig"><summary>View text version</summary><pre><code>Users
   |
   v
 One Server
@@ -1793,7 +1793,7 @@ One Database
 <p>Both components are single points of failure.</p>
 <p>More resilient architecture:</p>
 <div class="anim" data-spec="spof_good"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Users
+<details class="orig"><summary>View text version</summary><pre><code>Users
   |
 Load Balancer
  /        \
@@ -1830,7 +1830,7 @@ Region
 
 <p>Very large systems may operate in multiple geographic regions.</p>
 <div class="anim" data-spec="multi_region"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>              Global Routing
+<details class="orig"><summary>View text version</summary><pre><code>              Global Routing
                /          \
               v            v
          India Region    US Region
@@ -1858,7 +1858,7 @@ Region
 <p>Cloud regions often contain multiple physically separate facilities known as availability zones.</p>
 <p>For example:</p>
 <div class="anim" data-spec="az"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Region
+<details class="orig"><summary>View text version</summary><pre><code>Region
  |
  +-- AZ-1
  +-- AZ-2
@@ -1877,7 +1877,7 @@ Region
 </code></pre>
 <p>Instead of permanently running hundreds of servers, auto scaling adds and removes capacity.</p>
 <div class="anim" data-spec="autoscale"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Low Traffic
+<details class="orig"><summary>View text version</summary><pre><code>Low Traffic
 3 servers
 
 High Traffic
@@ -1909,7 +1909,7 @@ Configuration
 <p>Technologies such as Docker made containers popular because they provide consistent environments.</p>
 <p>Conceptually:</p>
 <div class="anim" data-spec="container"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Developer Laptop
+<details class="orig"><summary>View text version</summary><pre><code>Developer Laptop
      |
 Docker Image
      |
@@ -1946,7 +1946,7 @@ Production Server
 <p>A stateless server does not depend on data stored only in its local memory between requests.</p>
 <p>For example:</p>
 <div class="anim" data-spec="stateless"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Request 1 -&gt; Server A
+<details class="orig"><summary>View text version</summary><pre><code>Request 1 -&gt; Server A
 Request 2 -&gt; Server C
 Request 3 -&gt; Server B
 </code></pre></details>
@@ -1987,7 +1987,7 @@ Update analytics
 
 <p>Stream processing handles events continuously.</p>
 <div class="anim" data-spec="stream"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Event
+<details class="orig"><summary>View text version</summary><pre><code>Event
 Event
 Event
 Event
@@ -2018,7 +2018,7 @@ Run backup
 </code></pre>
 <p>Conceptually:</p>
 <div class="anim" data-spec="scheduler"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Scheduler
+<details class="orig"><summary>View text version</summary><pre><code>Scheduler
     |
     v
 Job Queue
@@ -2037,7 +2037,7 @@ GenerateThumbnail(image_123)
 </code></pre>
 <p>A worker receives the task:</p>
 <div class="anim" data-spec="worker"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Worker
+<details class="orig"><summary>View text version</summary><pre><code>Worker
   |
   v
 Resize image
@@ -2052,7 +2052,7 @@ Store result
 
 <p>Normal HTTP often looks like:</p>
 <div class="anim" data-spec="http"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client -&gt; Request
+<details class="orig"><summary>View text version</summary><pre><code>Client -&gt; Request
 Server -&gt; Response
 Connection finishes
 </code></pre></details>
@@ -2060,7 +2060,7 @@ Connection finishes
 <p>For real-time communication we may want a long-lived connection.</p>
 <p>WebSocket allows bidirectional communication.</p>
 <div class="anim" data-spec="websocket"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client &lt;----------------&gt; Server
+<details class="orig"><summary>View text version</summary><pre><code>Client &lt;----------------&gt; Server
 </code></pre></details>
 
 <p>Both sides can send messages.</p>
@@ -2077,7 +2077,7 @@ Connection finishes
 
 <p>Sometimes the client only needs the server to continuously push information.</p>
 <div class="anim" data-spec="sse"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Server -------&gt; Client
+<details class="orig"><summary>View text version</summary><pre><code>Server -------&gt; Client
 </code></pre></details>
 
 <p>Server-Sent Events, or SSE, can be simpler than WebSocket for scenarios such as:</p>
@@ -2093,7 +2093,7 @@ Connection finishes
 <p>Before widespread WebSocket adoption, systems sometimes used long polling.</p>
 <p>The client sends a request:</p>
 <div class="anim" data-spec="longpoll"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Any new messages?
+<details class="orig"><summary>View text version</summary><pre><code>Any new messages?
 </code></pre></details>
 
 <p>The server holds the connection until data becomes available or a timeout occurs.</p>
@@ -2113,7 +2113,7 @@ Connection finishes
 </blockquote>
 <p>For example, before querying a huge database:</p>
 <div class="anim" data-spec="bloom"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Bloom Filter
+<details class="orig"><summary>View text version</summary><pre><code>Bloom Filter
      |
 Could exist?
  /          \
@@ -2131,7 +2131,7 @@ Stop        Database
 <p>Creating a new database connection for every request is expensive.</p>
 <p>Instead:</p>
 <div class="anim" data-spec="pool"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+<details class="orig"><summary>View text version</summary><pre><code>Application
     |
     v
 Connection Pool
@@ -2234,7 +2234,7 @@ Protocol Buffers
 </ul>
 <p>A common architecture is:</p>
 <div class="anim" data-spec="grpc"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>External Client
+<details class="orig"><summary>View text version</summary><pre><code>External Client
       |
      REST
       |
@@ -2307,7 +2307,7 @@ Queue depth
 
 <p>Imagine one request flows through:</p>
 <div class="anim" data-spec="trace_flow"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>API Gateway
+<details class="orig"><summary>View text version</summary><pre><code>API Gateway
    |
 User Service
    |
@@ -2325,7 +2325,7 @@ Database
 <p>Distributed tracing assigns a trace identifier to the request and records timing across services.</p>
 <p>Example:</p>
 <div class="anim" data-spec="trace_waterfall"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>API Gateway      30 ms
+<details class="orig"><summary>View text version</summary><pre><code>API Gateway      30 ms
 Order Service   100 ms
 Payment Service 2.1 sec
 Database         50 ms
@@ -2354,7 +2354,7 @@ Database disk &gt; 90%
 <p>Latency is the amount of time required for an operation.</p>
 <p>Example:</p>
 <div class="anim" data-spec="latency"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Request sent
+<details class="orig"><summary>View text version</summary><pre><code>Request sent
       |
     100 ms
       |
@@ -2391,7 +2391,7 @@ Response received
 <p>Average latency can hide problems.</p>
 <p>Suppose:</p>
 <div class="anim" data-spec="percentile"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>99 requests = 100 ms
+<details class="orig"><summary>View text version</summary><pre><code>99 requests = 100 ms
 1 request   = 10 seconds
 </code></pre></details>
 
@@ -2412,7 +2412,7 @@ Response received
 </code></pre>
 <p>but consumers can process only:</p>
 <div class="anim" data-spec="backpressure"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>10,000 events/sec
+<details class="orig"><summary>View text version</summary><pre><code>10,000 events/sec
 </code></pre></details>
 
 <p>The queue keeps growing.</p>
@@ -2443,7 +2443,7 @@ Premium users:
 <p>Never allow network calls to wait forever.</p>
 <p>Example:</p>
 <div class="anim" data-spec="timeout"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Call Payment Service
+<details class="orig"><summary>View text version</summary><pre><code>Call Payment Service
 
 Timeout = 3 seconds
 </code></pre></details>
@@ -2462,7 +2462,7 @@ Timeout = 3 seconds
 <p>If it shares every thread and connection with checkout traffic, checkout might also fail.</p>
 <p>Separate resource pools isolate failures:</p>
 <div class="anim" data-spec="bulkhead"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Checkout Pool
+<details class="orig"><summary>View text version</summary><pre><code>Checkout Pool
 Search Pool
 Recommendation Pool
 </code></pre></details>
@@ -2498,7 +2498,7 @@ Recommendation Pool
 </code></pre>
 <p>Architecture:</p>
 <div class="anim" data-spec="bluegreen"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>            Load Balancer
+<details class="orig"><summary>View text version</summary><pre><code>            Load Balancer
              /        \
           Blue        Green
          Old App     New App
@@ -2511,7 +2511,7 @@ Recommendation Pool
 
 <p>Instead of sending everyone to the new version immediately:</p>
 <div class="anim" data-spec="canary"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>95% -&gt; Version 1
+<details class="orig"><summary>View text version</summary><pre><code>95% -&gt; Version 1
 5%  -&gt; Version 2
 </code></pre></details>
 
@@ -2559,7 +2559,7 @@ Private certificates
 <p>Protects data moving across networks.</p>
 <p>Usually implemented through TLS/HTTPS.</p>
 <div class="anim" data-spec="tls"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+<details class="orig"><summary>View text version</summary><pre><code>Client
   |
 Encrypted Connection
   |
@@ -2579,7 +2579,7 @@ Object storage
 <p>Hashing converts data into a fixed-size value.</p>
 <p>Example:</p>
 <div class="anim" data-spec="hashing"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>&quot;hello&quot;
+<details class="orig"><summary>View text version</summary><pre><code>&quot;hello&quot;
    |
  hash
    |
@@ -2670,7 +2670,7 @@ Process payment
 </ul>
 <p>A simplified pipeline is:</p>
 <div class="anim" data-spec="warehouse"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Application Databases
+<details class="orig"><summary>View text version</summary><pre><code>Application Databases
         |
         v
    Data Pipeline
@@ -2703,7 +2703,7 @@ Clickstream data
 <p>Now consider a large e-commerce platform.</p>
 <p>A request might flow like this:</p>
 <div class="anim" data-spec="big"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>                         USER
+<details class="orig"><summary>View text version</summary><pre><code>                         USER
                            |
                            v
                           DNS
@@ -2760,7 +2760,7 @@ Secret Management
 <p>and then introducing the component that solves that problem.</p>
 <p>For example:</p>
 <div class="anim" data-spec="chain1"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>One server cannot handle traffic
+<details class="orig"><summary>View text version</summary><pre><code>One server cannot handle traffic
         ↓
 Add horizontal scaling
         ↓
@@ -2771,42 +2771,42 @@ Add load balancer
 
 <p>Then:</p>
 <div class="anim" data-spec="chain2"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Database receives too many repeated reads
+<details class="orig"><summary>View text version</summary><pre><code>Database receives too many repeated reads
         ↓
 Add cache
 </code></pre></details>
 
 <p>Then:</p>
 <div class="anim" data-spec="chain3"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Images load slowly around the world
+<details class="orig"><summary>View text version</summary><pre><code>Images load slowly around the world
         ↓
 Add CDN
 </code></pre></details>
 
 <p>Then:</p>
 <div class="anim" data-spec="chain4"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Background work makes requests slow
+<details class="orig"><summary>View text version</summary><pre><code>Background work makes requests slow
         ↓
 Add message queue
 </code></pre></details>
 
 <p>Then:</p>
 <div class="anim" data-spec="chain5"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Database cannot handle read traffic
+<details class="orig"><summary>View text version</summary><pre><code>Database cannot handle read traffic
         ↓
 Add read replicas
 </code></pre></details>
 
 <p>Then:</p>
 <div class="anim" data-spec="chain6"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Database becomes too large for one machine
+<details class="orig"><summary>View text version</summary><pre><code>Database becomes too large for one machine
         ↓
 Introduce partitioning/sharding
 </code></pre></details>
 
 <p>Then:</p>
 <div class="anim" data-spec="chain7"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Microservices depend on unreliable networks
+<details class="orig"><summary>View text version</summary><pre><code>Microservices depend on unreliable networks
         ↓
 Add timeout + retry + circuit breaker
 </code></pre></details>

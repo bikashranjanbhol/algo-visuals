@@ -3,7 +3,7 @@
 <p>Suppose we build a small online store.</p>
 <p>The first version might look like this:</p>
 <div class="anim" data-spec="g1_simple"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>User
+<details class="orig"><summary>View text version</summary><pre><code>User
   |
   v
 Web / Mobile App
@@ -40,7 +40,7 @@ Database
 </ul>
 <p>The architecture begins to evolve.</p>
 <div class="anim" data-spec="g1_evolved"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>                         Users
+<details class="orig"><summary>View text version</summary><pre><code>                         Users
                            |
                            v
                           DNS
@@ -78,7 +78,7 @@ Database
 
 <p>Other components surround this request path:</p>
 <div class="anim" data-spec="g1_surround"></div>
-<details class="orig"><summary>Original text diagram</summary><pre><code>Object Storage     Search Engine
+<details class="orig"><summary>View text version</summary><pre><code>Object Storage     Search Engine
       \                 /
        \               /
         Application Services
@@ -96,22 +96,5 @@ Multi-region replication
 </code></pre></details>
 
 <p>Large systems must balance several competing goals.</p>
-<h2>Scalability</h2>
-<p>Can the system support more users, requests, and data?</p>
-<h2>Availability</h2>
-<p>Can users still access the system when something fails?</p>
-<h2>Reliability</h2>
-<p>Does the system behave correctly over time?</p>
-<h2>Performance</h2>
-<p>How quickly does it respond?</p>
-<h2>Security</h2>
-<p>Can unauthorized users access data or functionality?</p>
-<h2>Fault tolerance</h2>
-<p>Can components fail without taking down the whole system?</p>
-<h2>Maintainability</h2>
-<p>Can engineers understand, modify, and operate the system?</p>
-<h2>Consistency</h2>
-<p>When multiple copies of data exist, how quickly must they agree?</p>
-<h2>Cost</h2>
-<p>How much infrastructure and engineering effort are justified?</p>
-<p>Every component discussed below addresses one or more of these concerns.</p>
+<div class="qgrid"><div class="q"><b>Scalability</b><span>Can the system support more users, requests, and data?</span></div><div class="q"><b>Availability</b><span>Can users still access the system when something fails?</span></div><div class="q"><b>Reliability</b><span>Does the system behave correctly over time?</span></div><div class="q"><b>Performance</b><span>How quickly does it respond?</span></div><div class="q"><b>Security</b><span>Can unauthorized users access data or functionality?</span></div><div class="q"><b>Fault tolerance</b><span>Can components fail without taking down the whole system?</span></div><div class="q"><b>Maintainability</b><span>Can engineers understand, modify, and operate the system?</span></div><div class="q"><b>Consistency</b><span>When multiple copies of data exist, how quickly must they agree?</span></div><div class="q"><b>Cost</b><span>How much infrastructure and engineering effort are justified?</span></div></div>
+<p>Every component discussed below addresses one or more of these concerns.</p><div class="quiz"><h2>Why was this component added?</h2><p>Your single backend server is now CPU-bound at peak traffic. What would you add next?</p><div class="qopts"><button type="button" data-ok="0" data-why="A CDN speeds up static files and cuts origin load, but the bottleneck here is application CPU.">CDN</button><button type="button" data-ok="1" data-why="Yes. The constraint is compute, so scale the compute tier horizontally and put a load balancer in front.">Load balancer + more app servers</button><button type="button" data-ok="0" data-why="An event stream helps with asynchronous work and fan-out. It does not add request-handling capacity.">Kafka</button><button type="button" data-ok="0" data-why="Sharding addresses database size or write throughput. The database is not the problem yet.">Database sharding</button></div><p class="qwhy" aria-live="polite"></p></div>

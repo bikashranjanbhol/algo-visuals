@@ -40,12 +40,34 @@ def render(key):
         idx[0] += 1
         lang, code = mo.group(1), mo.group(2)
         if idx[0] in repl:
-            return f'<div class="anim" data-spec="{repl[idx[0]]}"></div>\n<details class="orig"><summary>Original text diagram</summary><pre><code>{H.escape(code)}</code></pre></details>\n'
+            return f'<div class="anim" data-spec="{repl[idx[0]]}"></div>\n<details class="orig"><summary>View text version</summary><pre><code>{H.escape(code)}</code></pre></details>\n'
         return mo.group(0)
     body = re.sub(r'```(\w*)\n(.*?)```', sub, body, flags=re.S)
     body = body.replace('\n---\n', '\n')
     html = markdown.markdown(body, extensions=['tables', 'fenced_code'])
+    html = post(key, html)
     return f'<h1 class="sec-title">{H.escape(title)}</h1>\n' + html
+
+QUIZ = {
+    1: ('Your single backend server is now CPU-bound at peak traffic. What would you add next?',
+        [('CDN', 'A CDN speeds up static files and cuts origin load, but the bottleneck here is application CPU.'),
+         ('Load balancer + more app servers', 'Yes. The constraint is compute, so scale the compute tier horizontally and put a load balancer in front.'),
+         ('Kafka', 'An event stream helps with asynchronous work and fan-out. It does not add request-handling capacity.'),
+         ('Database sharding', 'Sharding addresses database size or write throughput. The database is not the problem yet.')], 1)
+}
+def post(key, html):
+    if key == 1:
+        # "system qualities" h2+p pairs -> compact grid
+        m = re.search(r'(<h2>Scalability</h2>.*?)(<p>Every component discussed below)', html, re.S)
+        if m:
+            pairs = re.findall(r'<h2>(.*?)</h2>\s*<p>(.*?)</p>', m.group(1), re.S)
+            grid = '<div class="qgrid">' + ''.join(f'<div class="q"><b>{a}</b><span>{b}</span></div>' for a, b in pairs) + '</div>\n'
+            html = html[:m.start(1)] + grid + html[m.start(2):]
+    if key in QUIZ:
+        q, opts, ans = QUIZ[key]
+        html += '<div class="quiz"><h2>Why was this component added?</h2><p>' + H.escape(q) + '</p><div class="qopts">' + ''.join(
+            f'<button type="button" data-ok="{1 if i == ans else 0}" data-why="{H.escape(w, quote=True)}">{H.escape(o)}</button>' for i, (o, w) in enumerate(opts)) + '</div><p class="qwhy" aria-live="polite"></p></div>'
+    return html
 
 manifest = []
 for gname, keys in GROUPS:
@@ -55,7 +77,8 @@ for gname, keys in GROUPS:
         title = sections[k][0]
         sid = f's{k}'
         ready = k in READY
-        items.append({'id': sid, 'title': title, 'ready': ready})
+        words = len(re.findall(r'\w+', sections[k][1]))
+        items.append({'id': sid, 'title': title, 'ready': ready, 'min': max(1, round(words / 180))})
         if ready:
             open(f'sections/{sid}.html', 'w').write(render(k))
     manifest.append({'group': gname, 'items': items})

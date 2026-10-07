@@ -18,13 +18,43 @@
 <script src="/assets/anim.js"></script>
 <style>
 :root{--code-bg:#1B2233} @media (prefers-color-scheme:dark){:root{--code-bg:#0F1420}}
-.wrap{max-width:1320px;padding:24px 20px 40px}
-.lib{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+.wrap{max-width:1400px;padding:24px 20px 40px}
+.lib{display:grid;grid-template-columns:290px minmax(0,1fr);gap:22px;align-items:start}
 @media (max-width:900px){.lib{grid-template-columns:1fr}}
 .side{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:12px;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto}
 @media (max-width:900px){.side{position:static;max-height:280px}}
 .side h2{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 8px 8px}
-.side .prog{font-size:.8rem;color:var(--muted);margin:0 8px 10px}
+.side .prog{font-size:.84rem;color:var(--ink);margin:0 8px 6px;font-weight:600}
+.side .pbar{height:6px;background:var(--line);border-radius:6px;margin:0 8px 10px;overflow:hidden}
+.side .pbar div{height:100%;background:var(--hit);border-radius:6px;transition:width .3s}
+.side .search{width:calc(100% - 16px);margin:0 8px 10px;font-family:var(--sans);font-size:.9rem;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
+.grp > button .n.done{color:var(--hit);background:var(--hit-soft)}
+.grp li a .tick{display:inline-block;width:14px;margin-right:4px;color:var(--hit);font-weight:700}
+.grp li a:not(.done) .tick{visibility:hidden}
+.grp.hide{display:none}
+.meta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;color:var(--muted);font-size:.86rem;margin:0 0 6px}
+.meta .pbar{flex-basis:100%;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.meta .pbar div{height:100%;background:var(--hit)}
+.lesson-nav{margin-top:30px;padding-top:18px;border-top:1px solid var(--line)}
+.lesson-nav .done-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.lesson-nav .mark{font-family:var(--sans);font-size:.92rem;font-weight:600;border:1px solid var(--hit);background:var(--hit-soft);color:var(--hit);border-radius:999px;padding:8px 14px;cursor:pointer}
+.lesson-nav .mark.is-done{background:var(--hit);color:#fff}
+.lesson-nav .links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lesson-nav a.next{display:inline-flex;flex-direction:column;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:240px}
+.lesson-nav a.next small{color:var(--muted);font-size:.78rem}
+.lesson-nav a.next b{color:var(--i)}
+.lesson-nav a.prev{align-self:center;color:var(--muted);text-decoration:none;font-size:.92rem}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:12px 0 16px;max-width:none}
+.qgrid .q{background:var(--cell);border-radius:12px;padding:12px 14px}
+.qgrid .q b{display:block;margin-bottom:3px}
+.qgrid .q span{font-size:.92rem;color:var(--muted)}
+.quiz{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.quiz h2{margin:0 0 6px;font-size:1.1rem}
+.qopts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px}
+.qopts button{font-family:var(--sans);font-size:.92rem;font-weight:600;border:1px solid var(--line);background:var(--cell);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer}
+.qopts button.ok{border-color:var(--hit);background:var(--hit-soft);color:var(--hit)}
+.qopts button.no{border-color:var(--miss);background:var(--miss-soft);color:var(--miss)}
+.qwhy{margin:0;min-height:1.4em;color:var(--muted)}
 .grp{border-top:1px solid var(--line)}
 .grp:first-of-type{border-top:none}
 .grp > button{width:100%;text-align:left;background:none;border:none;font-family:var(--sans);font-size:.95rem;font-weight:700;color:var(--ink);padding:10px 8px;cursor:pointer;display:flex;align-items:center;gap:8px}
@@ -71,8 +101,10 @@ details.orig pre{margin-top:8px}
   <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Complete guide</p>
   <div class="lib">
     <aside class="side" aria-label="Concepts">
-      <h2>Concepts</h2>
+      <h2>System Design Guide</h2>
       <p class="prog" id="prog"></p>
+      <div class="pbar"><div id="pbarFill"></div></div>
+      <input class="search" id="search" type="search" placeholder="Search concepts…" aria-label="Search concepts">
       <div id="groups"></div>
     </aside>
     <section class="stage"><div class="doc" id="doc"></div></section>
@@ -82,29 +114,50 @@ details.orig pre{margin-top:8px}
 <script>
 const G = window.GUIDE, $ = id => document.getElementById(id);
 const all = G.groups.flatMap(g => g.items), ready = all.filter(i => i.ready);
-let cur = null;
+let cur = null, filter = '';
+const DONE_KEY = 'sd-guide-done';
+const done = new Set((() => { try { return JSON.parse(localStorage.getItem(DONE_KEY) || '[]'); } catch { return []; } })());
+const saveDone = () => { try { localStorage.setItem(DONE_KEY, JSON.stringify([...done])); } catch {} };
 function renderSide(){
-  const open = g => g.items.some(i => i.id === cur);
-  $('prog').textContent = `${ready.length} of ${all.length} built`;
-  $('groups').innerHTML = G.groups.map(g => `<div class="grp ${open(g) || cur === null && g === G.groups[0] ? 'open' : ''}"><button type="button">${g.group}<span class="n">${g.items.filter(i=>i.ready).length}/${g.items.length}</span><span class="chev"></span></button><ul>${g.items.map(i => i.ready ? `<li><a href="#${i.id}" data-id="${i.id}" ${i.id===cur?'aria-current="true"':''}>${i.title}</a></li>` : `<li><span class="soon">${i.title}</span></li>`).join('')}</ul></div>`).join('');
+  const n = done.size;
+  $('prog').textContent = `${n} / ${all.length} concepts completed`;
+  $('pbarFill').style.width = (n / all.length * 100) + '%';
+  const q = filter.trim().toLowerCase();
+  const open = g => q ? true : (g.items.some(i => i.id === cur) || (cur === null && g === G.groups[0]));
+  $('groups').innerHTML = G.groups.map(g => {
+    const items = g.items.filter(i => !q || i.title.toLowerCase().includes(q));
+    if (!items.length) return '';
+    const d = g.items.filter(i => done.has(i.id)).length;
+    return `<div class="grp ${open(g) ? 'open' : ''}"><button type="button">${g.group}<span class="n ${d === g.items.length ? 'done' : ''}">${d}/${g.items.length}${d === g.items.length ? ' ✓' : ''}</span><span class="chev"></span></button><ul>${items.map(i => i.ready ? `<li><a href="#${i.id}" data-id="${i.id}" class="${done.has(i.id) ? 'done' : ''}" ${i.id===cur?'aria-current="true"':''}><span class="tick">✓</span>${i.title}</a></li>` : `<li><span class="soon">${i.title}</span></li>`).join('')}</ul></div>`;
+  }).join('');
   $('groups').querySelectorAll('.grp > button').forEach(b => b.onclick = () => b.parentElement.classList.toggle('open'));
   $('groups').querySelectorAll('li a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+}
+$('search').addEventListener('input', e => { filter = e.target.value; renderSide(); });
+function wireQuiz(doc){
+  doc.querySelectorAll('.quiz').forEach(qz => { const why = qz.querySelector('.qwhy'); qz.querySelectorAll('.qopts button').forEach(b => b.onclick = () => { qz.querySelectorAll('.qopts button').forEach(x => x.classList.remove('ok','no')); b.classList.add(b.dataset.ok === '1' ? 'ok' : 'no'); why.textContent = (b.dataset.ok === '1' ? 'Correct. ' : 'Not quite. ') + b.dataset.why; }); });
 }
 async function go(id, scroll){
   cur = id; history.replaceState(null, '', '#' + id); renderSide();
   const doc = $('doc'); doc.innerHTML = '<p class="intro">Loading…</p>';
+  const item = all.find(x => x.id === id), idx = all.indexOf(item);
   try { const r = await fetch(`/system-design/guide/sections/${id}.html`); if (!r.ok) throw 0; doc.innerHTML = await r.text(); }
   catch { doc.innerHTML = '<p>This concept is not built yet.</p>'; }
+  const pct = Math.round(done.size / all.length * 100);
+  doc.insertAdjacentHTML('afterbegin', `<div class="meta"><span>Concept ${idx + 1} of ${all.length}</span><span>~${item.min} min read</span><span>${idx < 8 ? 'Beginner' : 'Intermediate'}</span><div class="pbar"><div style="width:${pct}%"></div></div></div>`);
   const i = ready.findIndex(x => x.id === id), prev = ready[i-1], next = ready[i+1];
-  doc.insertAdjacentHTML('beforeend', `<div class="pager">${prev?`<a href="#${prev.id}" data-id="${prev.id}">‹ ${prev.title}</a>`:'<span></span>'}${next?`<a href="#${next.id}" data-id="${next.id}">${next.title} ›</a>`:'<span>More concepts coming</span>'}</div>`);
-  doc.querySelectorAll('.pager a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+  const upcoming = all[idx + 1];
+  doc.insertAdjacentHTML('beforeend', `<div class="lesson-nav"><div class="done-row"><button type="button" class="mark ${done.has(id)?'is-done':''}" id="markDone">${done.has(id)?'✓ Completed':'Mark as complete'}</button><span class="sub" style="margin:0">${done.has(id)?'Nice work.':'Mark this concept done to track your progress.'}</span></div><div class="links">${prev?`<a class="prev" href="#${prev.id}" data-id="${prev.id}">‹ ${prev.title}</a>`:'<span></span>'}${next?`<a class="next" href="#${next.id}" data-id="${next.id}"><small>Next</small><b>${next.title} →</b></a>`:(upcoming?`<a class="next" style="opacity:.7;pointer-events:none"><small>Next (coming soon)</small><b>${upcoming.title}</b></a>`:'')}</div></div>`);
+  doc.querySelectorAll('.lesson-nav a[data-id]').forEach(a => a.onclick = e => { e.preventDefault(); if (a.classList.contains('next')) { done.add(id); saveDone(); } go(a.dataset.id, true); });
+  $('markDone').onclick = () => { if (done.has(id)) done.delete(id); else done.add(id); saveDone(); go(id, false); };
+  wireQuiz(doc);
   window.ANIM && window.ANIM.mountAll(doc);
   if (scroll) document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function showIntro(){
   cur = null; renderSide();
-  $('doc').innerHTML = `<h1 class="sec-title">System Design Components Explained</h1><div class="intro">${G.intro}</div><p class="sub">Pick a concept on the left. Built concepts are clickable; the rest are listed so you can see where they fit.</p>` + (ready[0] ? `<div class="pager"><span></span><a href="#${ready[0].id}" data-id="${ready[0].id}">Start: ${ready[0].title} ›</a></div>` : '');
-  $('doc').querySelectorAll('.pager a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+  $('doc').innerHTML = `<h1 class="sec-title">System Design Components Explained</h1><div class="intro">${G.intro}</div><p class="sub">Pick a concept on the left, or start at the beginning. Concepts marked "coming" are listed so you can see the full map.</p>` + (ready[0] ? `<div class="lesson-nav"><div class="links"><span></span><a class="next" href="#${ready[0].id}" data-id="${ready[0].id}"><small>Start</small><b>${ready[0].title} →</b></a></div></div>` : '');
+  $('doc').querySelectorAll('.lesson-nav a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
 }
 const h = location.hash.replace('#', '');
 if (h && ready.some(x => x.id === h)) go(h, false); else showIntro();
