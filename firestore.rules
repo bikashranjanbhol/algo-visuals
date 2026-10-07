@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    match /users/{uid} {
+      // a user can read their own record; admins can read and list everyone
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      // a new record is created by the user themselves and always starts as 'free'
+      allow create: if signedIn() && request.auth.uid == uid && request.resource.data.role == 'free';
+      // users may update their own profile fields but never their role; admins may change roles
+      allow update: if isAdmin()
+        || (signedIn() && request.auth.uid == uid && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+  }
+}

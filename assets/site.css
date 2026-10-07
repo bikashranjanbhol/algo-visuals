@@ -14,3 +14,27 @@ header.site-header{max-width:none;margin:0;width:100%}
 .site-footer .in{padding:22px 20px;flex-wrap:wrap;justify-content:space-between;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
 .site-footer b{color:var(--ink)}
 @media (max-width:900px){.site-header .in{flex-wrap:wrap;gap:4px 12px;padding-top:10px}.site-nav{margin-left:-6px;width:100%;padding:2px 0 8px}}
+
+/* auth */
+.site-auth{margin-left:8px;flex:none;display:flex;align-items:center;min-width:0}
+.auth-btn{font-family:var(--sans);font-size:.88rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
+.auth-btn:hover{border-color:var(--muted)}
+.auth-btn.ghost{border-color:transparent;color:var(--muted);padding:7px 8px}
+.auth-user{display:flex;align-items:center;gap:8px;min-width:0}
+.auth-user img{width:28px;height:28px;border-radius:50%;flex:none}
+.auth-name{font-size:.88rem;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-link{font-size:.85rem;font-weight:600;color:var(--i);text-decoration:none;padding:4px 8px;border-radius:8px}
+.auth-link:hover{background:var(--cell)}
+.role{font-family:var(--mono);font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--cell);color:var(--muted);text-transform:none}
+.role-premium{background:var(--j-soft,#FBEFD3);color:var(--j,#B97C06)}
+.role-admin{background:var(--i-soft,#E3E6FB);color:var(--i,#4B57D1)}
+.site-nav a .lock{display:inline-block;width:9px;height:11px;margin-left:6px;vertical-align:-1px;border:1.5px solid currentColor;border-radius:2px;position:relative;opacity:.55}
+.site-nav a .lock::before{content:"";position:absolute;left:1px;top:-6px;width:3px;height:5px;border:1.5px solid currentColor;border-bottom:none;border-radius:4px 4px 0 0}
+html.gated main{visibility:hidden}
+main.gate-hidden{display:none}
+.gate-wall{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px}
+.gate-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;max-width:440px;text-align:center;font-family:var(--sans)}
+.gate-card h2{margin:0 0 8px;font-size:1.4rem}
+.gate-card p{margin:0 0 14px;color:var(--muted)}
+.gate-card .gate-small{display:block;font-size:.85rem;color:var(--muted);margin-top:12px}
+@media (max-width:900px){.site-auth{margin-left:auto}.auth-name{display:none}}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin, Algo Visuals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="module" src="/assets/auth.js"></script>
+<style>
+.users{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.users th{text-align:left;font-size:.8rem;color:var(--muted);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line)}
+.users td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.users tr:last-child td{border-bottom:none}
+.users img{width:28px;height:28px;border-radius:50%;vertical-align:middle;margin-right:8px}
+.users select{font-family:var(--mono);font-size:.9rem;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
+.users .you{font-size:.75rem;color:var(--muted);margin-left:6px}
+.status{font-size:.9rem;color:var(--muted);min-height:1.4em;margin:10px 0 0}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:60ch}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.summary div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:.9rem}
+.summary b{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <p class="crumb"><a href="/">Home</a> / Admin</p>
+  <h1>Members and roles</h1>
+  <p class="lede">Everyone who has signed in appears here. Change a role and it takes effect the next time that person loads a page.</p>
+  <div id="content"><div class="note">Checking your access…</div></div>
+</div>
+</main>
+<script type="module">
+const el = document.getElementById('content');
+const A = await window.AlgoAuth.ready;
+if (!A.enabled) { el.innerHTML = '<div class="note"><b>Firebase isn\'t configured yet.</b> Fill in <code>assets/firebase-config.js</code> first.</div>'; }
+else if (!A.user) { el.innerHTML = '<div class="note">Sign in with an admin account to manage members.</div>'; }
+else if (A.role !== 'admin') { el.innerHTML = `<div class="note">This page is for admins. You're signed in as <b>${A.user.email}</b> with the <b>${A.role}</b> role.</div>`; }
+else {
+  const { collection, getDocs, doc, updateDoc, query, orderBy } = A.fs;
+  const snap = await getDocs(query(collection(A.db, 'users'), orderBy('createdAt', 'desc')));
+  const rows = []; const counts = {free:0, premium:0, admin:0};
+  snap.forEach(d => { const u = d.data(); counts[u.role] = (counts[u.role]||0)+1; rows.push({ id: d.id, ...u }); });
+  const opts = r => window.SITE.roles.map(x => `<option value="${x}"${x===r?' selected':''}>${x}</option>`).join('');
+  el.innerHTML = `
+    <div class="summary"><div><b>${rows.length}</b> members</div><div><b>${counts.free}</b> free</div><div><b>${counts.premium}</b> premium</div><div><b>${counts.admin}</b> admin</div></div>
+    <table class="users"><thead><tr><th>Member</th><th>Email</th><th>Role</th></tr></thead><tbody>
+    ${rows.map(u => `<tr><td>${u.photo?`<img src="${u.photo}" alt="" referrerpolicy="no-referrer">`:''}${u.name||'(no name)'}${u.id===A.user.uid?'<span class="you">you</span>':''}</td><td>${u.email||''}</td><td><select data-id="${u.id}" ${u.id===A.user.uid?'disabled title="You can\'t change your own role"':''}>${opts(u.role)}</select></td></tr>`).join('')}
+    </tbody></table><p class="status" id="status"></p>`;
+  const status = document.getElementById('status');
+  el.querySelectorAll('select').forEach(s => s.onchange = async () => {
+    status.textContent = 'Saving…';
+    try { await updateDoc(doc(A.db, 'users', s.dataset.id), { role: s.value }); status.textContent = `Saved: role set to ${s.value}.`; }
+    catch (e) { status.textContent = 'Could not save: ' + e.message; }
+  });
+}
+</script>
+</body>
+</html>

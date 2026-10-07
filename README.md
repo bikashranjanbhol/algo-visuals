@@ -34,3 +34,23 @@ Or from the terminal:
     vercel
 
 `vercel.json` turns on clean URLs so `/two-sum` serves `two-sum/index.html`.
+
+## Sign-in, roles and members-only tracks
+
+Google sign-in uses Firebase Auth; roles (`free`, `premium`, `admin`) live in Firestore at `users/{uid}.role`.
+Tracks marked `access: 'premium'` in `assets/site.js` require the `premium` or `admin` role to open their walkthroughs;
+track index pages stay public. Until `assets/firebase-config.js` is filled in, the site behaves as fully public.
+
+Setup (about 10 minutes):
+
+1. Create a project at https://console.firebase.google.com (Analytics off is fine).
+2. Build → Authentication → Get started → Sign-in method → enable **Google** (set a support email).
+3. Authentication → Settings → **Authorized domains** → add your Vercel domain (e.g. `algo-visuals-seven.vercel.app`).
+4. Build → Firestore Database → Create database → production mode.
+5. Firestore → Rules → replace with the contents of `firestore.rules` → Publish.
+6. Project settings → Your apps → **Add app → Web** → register → copy the `firebaseConfig` object into `assets/firebase-config.js`. Commit and push.
+7. Sign in on the site once (you'll be created as `free`), then in Firestore open `users/<your uid>` and set `role` to `admin`. That's the only manual promotion ever needed.
+8. Visit `/admin` to manage everyone else's roles.
+
+Note: this is client-side gating. The HTML of a members-only page is still downloadable by a determined visitor.
+It keeps casual visitors out; if you ever charge for access, move gated content behind a server (Vercel middleware or Firebase Functions).
