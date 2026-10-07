@@ -12,7 +12,8 @@
   // ctl: { count, show(i, animate) -> ms, hold(i) -> ms } ; engine handles the play loop, visibility and buttons
   function attachControls(root, ctl) {
     const bar = document.createElement('div'); bar.className = 'anim-bar';
-    bar.innerHTML = `<button type="button" class="an-btn" data-a="back" aria-label="Back">‹</button><button type="button" class="an-btn play" data-a="play" aria-label="Play">▶</button><button type="button" class="an-btn" data-a="next" aria-label="Next">›</button><span class="an-count"></span>`;
+    const I = { back: '<svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>', next: '<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg>', play: '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>', pause: '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>' };
+    bar.innerHTML = `<button type="button" class="an-btn" data-a="back" aria-label="Back">${I.back}<span>Back</span></button><button type="button" class="an-btn play" data-a="play" aria-label="Play">${I.play}<span>Play</span></button><button type="button" class="an-btn" data-a="next" aria-label="Next"><span>Next</span>${I.next}</button><span class="an-count"></span>`;
     root.appendChild(bar);
     const btn = a => bar.querySelector(`[data-a="${a}"]`), count = bar.querySelector('.an-count');
     let i = -1, playing = false, timer = null, userPaused = false;
@@ -23,7 +24,7 @@
       count.textContent = `${i + 1} / ${ctl.count}`;
       if (playing) timer = setTimeout(() => show(i + 1, true), Math.max(ms, 0) + (ctl.hold ? ctl.hold(i) : 900));
     }
-    function setPlaying(p) { playing = p; btn('play').textContent = p ? '❚❚' : '▶'; btn('play').setAttribute('aria-label', p ? 'Pause' : 'Play'); if (!p) clearTimeout(timer); }
+    function setPlaying(p) { playing = p; btn('play').innerHTML = (p ? I.pause : I.play) + `<span>${p ? 'Pause' : 'Play'}</span>`; btn('play').setAttribute('aria-label', p ? 'Pause' : 'Play'); if (!p) clearTimeout(timer); }
     btn('play').onclick = () => { if (playing) { setPlaying(false); userPaused = true; } else { userPaused = false; setPlaying(true); show(i < 0 ? 0 : i + 1, true); } };
     btn('next').onclick = () => { setPlaying(false); userPaused = true; show(i + 1, true); };
     btn('back').onclick = () => { setPlaying(false); userPaused = true; show(i - 1, true); };
