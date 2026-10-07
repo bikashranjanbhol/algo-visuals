@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Add Two Numbers, digit by digit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F5; --surface:#FFFFFF; --cell:#F5F7FA; --ink:#18202E; --muted:#5B6577; --line:#D5DBE5;
+  --a:#4B57D1; --a-soft:#E3E6FB; --b:#B05FB8; --b-soft:#F5E4F6; --carry:#B97C06; --carry-soft:#FBEFD3;
+  --hit:#14875C; --hit-soft:#D6F2E5; --miss:#C2414F; --miss-soft:#F8DDE0;
+  --code-bg:#1B2233; --code-ink:#D9DFEA; --code-dim:#7F8AA0; --code-kw:#9FA8FF; --code-hl:rgba(242,190,74,.16);
+  --sans:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+    --a:#949EFF; --a-soft:#272E58; --b:#E19BE8; --b-soft:#3B2440; --carry:#F2BE4A; --carry-soft:#3B3120;
+    --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --code-bg:#0F1420;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+  --a:#949EFF; --a-soft:#272E58; --b:#E19BE8; --b-soft:#3B2440; --carry:#F2BE4A; --carry-soft:#3B3120;
+  --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --code-bg:#0F1420;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 56px}
+header{margin-bottom:22px;max-width:68ch}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
+header p{color:var(--muted);margin:0}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+h2.big{font-size:clamp(1.4rem,3.2vw,1.9rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.mono{font-family:var(--mono)}
+.ca{color:var(--a);font-weight:600} .cb{color:var(--b);font-weight:600} .cc{color:var(--carry);font-weight:600} .cg{color:var(--hit);font-weight:600}
+
+/* read the lists */
+.read{margin-bottom:20px}
+.read-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media (max-width:820px){.read-grid{grid-template-columns:1fr}}
+.read-card{background:var(--cell);border-radius:14px;padding:14px 16px}
+.read-card .lbl{font-size:.88rem;color:var(--muted)}
+.read-card .chain{font-family:var(--mono);font-size:1rem;margin:4px 0;overflow-wrap:anywhere}
+.read-card .num{font-size:1.7rem;font-weight:800;font-family:var(--mono);overflow-wrap:anywhere;line-height:1.2}
+
+/* stage */
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px clamp(16px,3vw,32px) 22px}
+.stage-top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;margin-bottom:22px}
+.equation{font-family:var(--mono);font-size:clamp(1rem,2.6vw,1.4rem);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:2.4em}
+.pill{font-family:var(--sans);font-size:.95rem;font-weight:600;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.pill.idle{background:var(--cell);color:var(--muted)}
+.pill.hit{background:var(--hit-soft);color:var(--hit)}
+.carrybox{display:flex;align-items:center;gap:10px;background:var(--cell);border-radius:14px;padding:8px 14px;border:2px solid transparent;transition:background .3s,border-color .3s}
+.carrybox span{color:var(--muted);font-size:.92rem}
+.carrybox b{font-family:var(--mono);font-size:1.6rem;line-height:1}
+.carrybox.on{background:var(--carry-soft);border-color:var(--carry)}
+.carrybox.on b{color:var(--carry)}
+.carrybox.bump{animation:bump .45s ease}
+@keyframes bump{40%{transform:scale(1.12)}}
+
+.lists-scroll{overflow-x:auto;padding-bottom:6px}
+.lists{position:relative;display:grid;row-gap:14px;width:max-content;padding:28px 4px 4px}
+.band{position:absolute;top:24px;bottom:-2px;width:72px;border-radius:14px;background:var(--carry-soft);opacity:.55;transition:left .42s cubic-bezier(.5,0,.2,1),opacity .3s;pointer-events:none}
+.band.off{opacity:0}
+.place{position:absolute;top:4px;font-size:.75rem;font-weight:600;color:var(--carry);white-space:nowrap;transition:left .42s cubic-bezier(.5,0,.2,1)}
+.rowlabel{display:flex;flex-direction:column;justify-content:center;font-weight:600;position:relative;z-index:1}
+.rowlabel small{font-family:var(--mono);font-weight:400;color:var(--muted);font-size:.78rem}
+.slot{position:relative;z-index:1;display:flex;align-items:center;height:76px}
+.node{width:56px;height:56px;border-radius:12px;border:2px solid var(--line);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;flex:none;transition:background .3s,border-color .3s}
+.node .val{font-weight:800;font-size:1.5rem;line-height:1}
+.node .tag{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.72rem;font-weight:600;white-space:nowrap}
+.node.l1{border-color:var(--a)} .node.l1 .val{color:var(--a)}
+.node.l2{border-color:var(--b)} .node.l2 .val{color:var(--b)}
+.node.l1.on{background:var(--a-soft)} .node.l2.on{background:var(--b-soft)}
+.node.res{border-color:var(--hit)}
+.node.res.done{background:var(--hit-soft)}
+.node.new{animation:grow .5s cubic-bezier(.3,1.4,.5,1)}
+@keyframes grow{from{transform:scale(.4);opacity:0}}
+.node.ghost{border-style:dashed;background:transparent}
+.node.ghost .val{color:var(--muted)}
+.node.dummy{border-style:dashed;border-color:var(--muted);background:transparent}
+.node.dummy .val{font-size:1.2rem;color:var(--muted)}
+.arrow{width:32px;height:2px;background:var(--muted);position:relative;flex:none;opacity:.7}
+.arrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid var(--muted);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.null{font-family:var(--mono);font-size:.8rem;color:var(--muted);padding-left:4px}
+
+.narration{margin:18px 0 0;padding-top:16px;border-top:1px dashed var(--line);font-size:1.05rem;min-height:3.2em;max-width:74ch}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:18px 0 28px}
+button{font-family:var(--sans);font-size:.95rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+button:hover:not(:disabled){border-color:var(--muted)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);min-width:112px;justify-content:center}
+button svg{width:16px;height:16px;fill:currentColor}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+.speed{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.9rem;margin-left:auto}
+.speed input{accent-color:var(--a);width:120px}
+.progress{flex-basis:100%;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress div{height:100%;width:0;background:var(--a);transition:width .3s}
+
+.panels{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.panels{grid-template-columns:1fr}.speed{margin-left:0}}
+.code-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;gap:4px;background:var(--cell);border-radius:12px;padding:3px}
+.seg button{border:none;background:transparent;padding:6px 12px;border-radius:9px;font-size:.88rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:14px 0;font-family:var(--mono);font-size:.84rem;overflow-x:auto}
+.ln{display:flex;align-items:center;padding:2px 16px 2px 0;white-space:pre;border-left:3px solid transparent;transition:background .25s}
+.ln .no{width:34px;text-align:right;padding-right:14px;color:var(--code-dim);flex:none}
+.ln .kw{color:var(--code-kw)}
+.ln .cm{color:var(--code-dim)}
+.ln.loop{background:rgba(148,158,255,.07)}
+.ln.active{background:var(--code-hl);border-left-color:#F2BE4A}
+.ln.ret{background:rgba(79,209,154,.18);border-left-color:#4FD19A}
+.ann{margin-left:auto;padding-left:18px;color:#F2BE4A;font-size:.78rem}
+.ann.g{color:#4FD19A}
+
+/* paper addition */
+.paper{display:grid;justify-content:end;font-family:var(--mono);font-size:1.5rem;row-gap:2px;margin:6px 0 10px;overflow-x:auto}
+.paper .pc{width:1.6em;text-align:center;border-radius:8px;transition:background .3s}
+.paper .pc.on{background:var(--carry-soft)}
+.paper .carry{font-size:.85rem;color:var(--carry);font-weight:600;height:1.3em;line-height:1.3em}
+.paper .rule{grid-column:1/-1;height:2px;background:var(--ink);margin:4px 0}
+.paper .r .v{color:var(--hit);font-weight:600}
+.paper .r .v.pop{animation:grow .45s ease}
+.paper .a{color:var(--a)} .paper .b{color:var(--b)}
+.paper-note{font-size:.9rem;color:var(--muted);margin:0}
+
+/* learn */
+.learn{margin-top:20px}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px}
+.tip{background:var(--cell);border-radius:14px;padding:16px}
+.tip h3{margin:0 0 6px;font-size:1.02rem}
+.tip p{margin:0 0 10px;font-size:.94rem}
+.tip button{font-weight:400;font-size:.86rem;padding:6px 12px}
+.complex{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.complex div{flex:1;min-width:180px;background:var(--cell);border-radius:12px;padding:10px 14px}
+.complex b{display:block;font-family:var(--mono);font-size:1.1rem}
+.complex span{color:var(--muted);font-size:.86rem}
+
+.try{margin-top:20px}
+.form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--muted)}
+input[type=text]{font-family:var(--mono);font-size:1rem;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink);width:min(260px,80vw)}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.presets button{font-weight:400;padding:7px 12px;font-size:.88rem}
+.err{color:var(--miss);font-size:.9rem;min-height:1.4em;margin:8px 0 0}
+.keys{color:var(--muted);font-size:.84rem;margin-top:18px}
+kbd{font-family:var(--mono);font-size:.78rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--surface)}
+
+/* understand the problem */
+.problem{margin-bottom:20px}
+.problem h3{font-size:1.05rem;margin:22px 0 8px}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.io{grid-template-columns:1fr}}
+.io div{background:var(--cell);border-radius:14px;padding:14px 16px}
+.io b{display:block;margin-bottom:4px}
+.io p{margin:0;font-size:.95rem}
+.ll{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:6px 0 4px}
+.ll .node{width:50px;height:50px}
+.ll .node .val{font-size:1.3rem}
+.ll .cap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ll .cap small{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.ll .arrow{margin-bottom:22px}
+.ll .null{margin-bottom:22px}
+.ex{display:grid;gap:10px}
+.ex-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px 18px;align-items:center;background:var(--cell);border-radius:14px;padding:12px 16px}
+@media (max-width:700px){.ex-row{grid-template-columns:1fr}}
+.ex-row .tag2{font-weight:600}
+.ex-row .io2{font-family:var(--mono);font-size:.9rem;overflow-wrap:anywhere}
+.ex-row .io2 span{display:block}
+.ex-row .io2 em{font-style:normal;color:var(--muted);font-family:var(--sans)}
+.ex-row button{font-weight:400;font-size:.86rem;padding:6px 12px}
+.cons{width:100%;border-collapse:collapse;font-size:.94rem}
+.cons th{text-align:left;font-weight:600;color:var(--muted);font-size:.82rem;padding:6px 10px;border-bottom:1px solid var(--line)}
+.cons td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.cons td:first-child{font-family:var(--mono);white-space:nowrap}
+.cons-wrap{overflow-x:auto}
+.quiz{display:grid;gap:8px}
+.quiz details{background:var(--cell);border-radius:12px;padding:10px 14px}
+.quiz summary{cursor:pointer;font-weight:600}
+.quiz details p{margin:8px 0 2px;font-size:.95rem}
+.plan{margin-bottom:20px}
+.plan ol{margin:6px 0 0;padding-left:1.4em;max-width:68ch}
+.plan li{margin:0 0 8px;padding-left:4px}
+.plan li::marker{font-family:var(--mono);font-weight:600;color:var(--a)}
+.divider{display:flex;align-items:center;gap:14px;margin:34px 0 18px}
+.divider h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;margin:0;white-space:nowrap}
+.divider::after{content:"";flex:1;height:2px;background:var(--line)}
+
+.anat{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px 28px;align-items:center;margin:16px 0 4px}
+@media (max-width:700px){.anat{grid-template-columns:1fr}}
+.anat-node{display:flex;border:2px solid var(--a);border-radius:14px;overflow:hidden;width:max-content}
+.anat-val,.anat-next{padding:10px 18px;display:flex;flex-direction:column;justify-content:center}
+.anat-val{font-size:2rem;font-weight:800;color:var(--a);background:var(--a-soft);border-right:2px solid var(--a);min-width:84px}
+.anat-next{font-family:var(--mono);font-size:.95rem}
+.anat small{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:400}
+.snip{margin:0;background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.82rem;overflow-x:auto}
+.snip .cm{color:var(--code-dim)}
+.walk{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start;background:var(--cell);border-radius:16px;padding:16px}
+@media (max-width:820px){.walk{grid-template-columns:1fr}}
+.mem-scroll{overflow-x:auto}
+.memsvg{width:100%;min-width:520px;height:auto;display:block}
+.memsvg .addr{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.memsvg .other{fill:none;stroke:var(--line);stroke-dasharray:4 4}
+.memsvg .otext{font-family:var(--sans);font-size:12px;fill:var(--muted);opacity:.7}
+.memsvg .mnode rect{fill:var(--surface);stroke:var(--a);stroke-width:2;transition:fill .3s,stroke-width .3s}
+.memsvg .mnode.cur rect{fill:var(--a-soft);stroke-width:4}
+.memsvg .mnode.seen rect{fill:var(--surface)}
+.memsvg .div{stroke:var(--a);stroke-width:1.5;opacity:.6}
+.memsvg .mval{font-family:var(--sans);font-weight:800;font-size:26px;fill:var(--a)}
+.memsvg .mlbl{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.memsvg .mnext{font-family:var(--mono);font-size:13px;font-weight:600;fill:var(--ink)}
+.memsvg .arr path{fill:none;stroke:var(--muted);stroke-width:2.5;stroke-linejoin:round;opacity:.8;transition:stroke .3s,opacity .3s}
+.memsvg .arr circle{fill:var(--muted);opacity:.8;transition:fill .3s}
+.memsvg .arr.on path{stroke:var(--a);opacity:1;stroke-width:3}
+.memsvg .arr.on circle{fill:var(--a);opacity:1}
+.memsvg .ahead{fill:var(--muted)} .memsvg .ahead.on{fill:var(--a)}
+.memsvg .tag-h{font-family:var(--mono);font-size:12px;font-weight:600;fill:var(--muted)}
+.memsvg .tag-c{font-family:var(--mono);font-size:13px;font-weight:600;fill:var(--carry);transition:x .4s,y .4s}
+.cur-c{color:var(--carry);font-weight:600}
+.walk-read{font-family:var(--mono);font-size:.95rem;background:var(--surface);border-radius:12px;padding:12px 14px;display:grid;gap:4px}
+.walk-read .k{color:var(--muted)}
+.walk-read .big{font-size:1.5rem;font-weight:800;font-family:var(--sans)}
+.walk-btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.walk-btns button.primary{font-family:var(--mono);min-width:0}
+.walk-say{margin:0;font-size:.95rem}
+.vs2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.vs2 div{background:var(--cell);border-radius:14px;padding:12px 16px}
+.vs2 p{margin:4px 0 0;font-size:.93rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+</head>
+<body>
+<main style="flex:1"><div class="wrap">
+  <header>
+    <h1>Add Two Numbers, digit by digit</h1>
+    <p>Two numbers arrive as linked lists, one digit per node, stored backwards. You add them the same way you learned on paper: one column at a time, starting from the ones place, carrying a 1 when a column goes past 9.</p>
+  </header>
+
+
+  <div class="divider"><h2>Understand the problem</h2></div>
+  <section class="panel problem">
+    <h2 class="big">What are we being asked?</h2>
+    <p style="max-width:68ch;margin:0">You get two non-negative whole numbers, but not as normal numbers. Each one is a <b>linked list</b> of single digits, written backwards. Your job is to add the two numbers and hand back the total in the same backwards linked-list form.</p>
+
+    <h3>Input and output</h3>
+    <div class="io">
+      <div><b>You get</b><p><span class="mono ca">l1</span> and <span class="mono cb">l2</span>: the first node of each list. Each list has at least one node, and each node holds one digit, 0 to 9.</p></div>
+      <div><b>You return</b><p>The first node of a <span class="cg">new linked list</span> holding the sum, also one digit per node and also backwards.</p></div>
+    </div>
+
+    <h3>What's a linked list? Think of a treasure hunt</h3>
+    <p style="max-width:68ch;margin:0 0 10px">You're handed one clue card. It shows a digit and says where the next card is hidden. That card has another digit and directions to the one after it. The last card says "the end". You can't skip ahead or count cards in advance: the only way to read them is to follow the directions one by one, starting from the first card.</p>
+    <p style="max-width:68ch;margin:0 0 4px">A linked list works exactly like that. Each clue card is a <b>node</b>. The digit is its <span class="mono">val</span>, the directions are its <span class="mono">next</span> pointer, "the end" is <span class="mono">null</span>, and the first card you're handed is the <b>head</b>.</p>
+
+    <div class="anat">
+      <div>
+        <div class="anat-node"><div class="anat-val"><small>val</small>2</div><div class="anat-next"><small>next</small>→ the next node</div></div>
+        <p class="sub" style="margin:8px 0 0">One node: a value and an arrow to the next node.</p>
+      </div>
+      <pre class="snip"><span class="cm">// what a node looks like in code</span>
+class ListNode {
+  constructor(val, next = null) {
+    this.val = val;    <span class="cm">// one digit</span>
+    this.next = next;  <span class="cm">// next node, or null</span>
+  }
+}</pre>
+    </div>
+
+    <h3>Walk the list yourself</h3>
+    <p style="max-width:68ch;margin:0 0 12px">In the computer's memory, nodes aren't neatly lined up like an array. They can be anywhere, and only the <span class="mono">next</span> pointers connect them. Below is the list for 342, scattered across memory. Keep a pointer called <span class="mono cur-c">cur</span> and press the button to follow the arrows.</p>
+    <div class="walk">
+      <div class="mem-scroll"><svg viewBox="0 0 680 316" class="memsvg" role="img" aria-label="Three nodes scattered in memory, linked by next pointers">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 0 10 5 0 10z" class="ahead"/></marker>
+<marker id="ah2" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0 10 5 0 10z" class="ahead on"/></marker></defs>
+<text x="22" y="33" class="addr">@100</text>
+<rect x="20" y="40" width="130" height="56" rx="10" class="other"/><text x="85" y="73" class="otext" text-anchor="middle">other data</text>
+<text x="192" y="33" class="addr">@104</text>
+<rect x="190" y="40" width="130" height="56" rx="10" class="other"/><text x="255" y="73" class="otext" text-anchor="middle">other data</text>
+<text x="362" y="33" class="addr">@108</text>
+<g class="mnode" id="mnB"><rect x="360" y="40" width="130" height="56" rx="10"/><line x1="408" y1="48" x2="408" y2="88" class="div"/><text x="384" y="77" class="mval" text-anchor="middle">4</text><text x="418" y="64" class="mlbl">next</text><text x="418" y="83" class="mnext">@144</text></g>
+<text x="532" y="33" class="addr">@112</text>
+<rect x="530" y="40" width="130" height="56" rx="10" class="other"/><text x="595" y="73" class="otext" text-anchor="middle">other data</text>
+<text x="22" y="129" class="addr">@116</text>
+<rect x="20" y="136" width="130" height="56" rx="10" class="other"/><text x="85" y="169" class="otext" text-anchor="middle">other data</text>
+<text x="192" y="129" class="addr">@120</text>
+<g class="mnode" id="mnA"><rect x="190" y="136" width="130" height="56" rx="10"/><line x1="238" y1="144" x2="238" y2="184" class="div"/><text x="214" y="173" class="mval" text-anchor="middle">2</text><text x="248" y="160" class="mlbl">next</text><text x="248" y="179" class="mnext">@108</text></g>
+<text x="362" y="129" class="addr">@124</text>
+<rect x="360" y="136" width="130" height="56" rx="10" class="other"/><text x="425" y="169" class="otext" text-anchor="middle">other data</text>
+<text x="532" y="129" class="addr">@128</text>
+<rect x="530" y="136" width="130" height="56" rx="10" class="other"/><text x="595" y="169" class="otext" text-anchor="middle">other data</text>
+<text x="22" y="225" class="addr">@132</text>
+<rect x="20" y="232" width="130" height="56" rx="10" class="other"/><text x="85" y="265" class="otext" text-anchor="middle">other data</text>
+<text x="192" y="225" class="addr">@136</text>
+<rect x="190" y="232" width="130" height="56" rx="10" class="other"/><text x="255" y="265" class="otext" text-anchor="middle">other data</text>
+<text x="362" y="225" class="addr">@140</text>
+<rect x="360" y="232" width="130" height="56" rx="10" class="other"/><text x="425" y="265" class="otext" text-anchor="middle">other data</text>
+<text x="532" y="225" class="addr">@144</text>
+<g class="mnode" id="mnC"><rect x="530" y="232" width="130" height="56" rx="10"/><line x1="578" y1="240" x2="578" y2="280" class="div"/><text x="554" y="269" class="mval" text-anchor="middle">3</text><text x="588" y="256" class="mlbl">next</text><text x="588" y="275" class="mnext">null</text></g>
+<g id="arAB" class="arr"><path d="M308 164 H335 Q340 164 340 159 V73 Q340 68 345 68 H359" marker-end="url(#ah)"/><circle cx="308" cy="164" r="4.5"/></g>
+<g id="arBC" class="arr"><path d="M478 68 H505 Q510 68 510 73 V255 Q510 260 515 260 H529" marker-end="url(#ah)"/><circle cx="478" cy="68" r="4.5"/></g>
+<text id="headTag" x="232" y="129" class="tag-h" visibility="hidden">head</text>
+<text id="curTag" class="tag-c" x="0" y="0">cur</text>
+</svg></div>
+      <div class="walk-side">
+        <div class="walk-read" id="walkRead"></div>
+        <div class="walk-btns">
+          <button class="primary" id="walkNext">cur = cur.next</button>
+          <button id="walkReset">Back to head</button>
+        </div>
+        <p class="walk-say" id="walkSay" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <h3>So how does a list become a number?</h3>
+    <div class="ll">
+      <div class="cap"><div class="node l1"><span class="val">2</span></div><small>head: ones</small></div><span class="arrow"></span>
+      <div class="cap"><div class="node l1"><span class="val">4</span></div><small>tens</small></div><span class="arrow"></span>
+      <div class="cap"><div class="node l1"><span class="val">3</span></div><small>hundreds</small></div><span class="arrow"></span>
+      <span class="null">null</span>
+    </div>
+    <p style="max-width:68ch;margin:6px 0 0">We usually draw a list neatly in a row like this. Walking from the head, the first digit you meet is the ones digit, then tens, then hundreds. That's why the problem calls it "reverse order": written as a normal number, you read it right to left.</p>
+    <div class="vs2">
+      <div><b>Array</b><p>Items sit side by side with numbered positions. You can jump straight to <span class="mono">nums[2]</span>.</p></div>
+      <div><b>Linked list</b><p>No positions to jump to. You hold the head and follow <span class="mono">next</span> one node at a time until you hit <span class="mono">null</span>.</p></div>
+      <div><b>Why it helps here</b><p>Walking from the head gives you ones, then tens, then hundreds. That's the same order you add digits on paper.</p></div>
+    </div>
+
+    <h3>The examples, explained</h3>
+    <div class="ex">
+      <div class="ex-row"><span class="tag2">Example 1</span>
+        <div class="io2"><span><span class="ca">[2,4,3]</span> + <span class="cb">[5,6,4]</span> → <span class="cg">[7,0,8]</span></span><em>342 + 465 = 807. The 6 + 4 column makes 10, so a 1 carries into the hundreds.</em></div>
+        <button data-a="2,4,3" data-b="5,6,4">Watch it</button></div>
+      <div class="ex-row"><span class="tag2">Example 2</span>
+        <div class="io2"><span><span class="ca">[0]</span> + <span class="cb">[0]</span> → <span class="cg">[0]</span></span><em>0 + 0 = 0. The smallest possible input still returns one node, not an empty list.</em></div>
+        <button data-a="0" data-b="0">Watch it</button></div>
+      <div class="ex-row"><span class="tag2">Example 3</span>
+        <div class="io2"><span><span class="ca">[9,9,9,9,9,9,9]</span> + <span class="cb">[9,9,9,9]</span> → <span class="cg">[8,9,9,9,0,0,0,1]</span></span><em>9,999,999 + 9,999 = 10,009,998. The lists have different lengths, and the answer is one node longer than both.</em></div>
+        <button data-a="9,9,9,9,9,9,9" data-b="9,9,9,9">Watch it</button></div>
+    </div>
+
+    <h3>The rules, in plain words</h3>
+    <div class="cons-wrap"><table class="cons">
+      <thead><tr><th>Constraint</th><th>What it means for you</th></tr></thead>
+      <tbody>
+        <tr><td>1 to 100 nodes per list</td><td>Neither list is ever empty. But a number can be 100 digits long, far too big to store in a normal integer variable.</td></tr>
+        <tr><td>0 ≤ Node.val ≤ 9</td><td>Every node is one digit. The biggest column is 9 + 9 + a carry of 1 = 19, so the carry is only ever 0 or 1.</td></tr>
+        <tr><td>No leading zeros</td><td>The last node isn't 0, unless the whole number is just 0. Adding digit by digit never creates leading zeros either.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Check yourself</h3>
+    <div class="quiz">
+      <details><summary>What number does [1 → 0 → 9] represent?</summary><p><b>901.</b> The head, 1, is the ones digit. Read right to left: 9, 0, 1.</p></details>
+      <details><summary>l1 = [9] and l2 = [1]. What should you return?</summary><p><b>[0 → 1].</b> 9 + 1 = 10, and 10 stored backwards is 0 then 1. The answer can be longer than both inputs.</p></details>
+      <details><summary>l1 = [5, 1] and l2 = [3]. What happens after the first column?</summary><p>l2 has run out, so treat its missing digit as 0. 15 + 3 = 18, returned as <b>[8 → 1]</b>.</p></details>
+    </div>
+  </section>
+
+  <section class="panel plan">
+    <h2 class="big">The plan, before any code</h2>
+    <p class="sub" style="max-width:66ch">This is just the addition you already know from school. The lists happen to give you the digits in exactly the order you need.</p>
+    <ol>
+      <li>Start at the head of both lists. These are the ones digits.</li>
+      <li>Add the two digits and the carry. If one list has run out, use 0 for its digit.</li>
+      <li>Keep the last digit of that sum as a new node in the answer. Carry the rest, which is 0 or 1, to the next column.</li>
+      <li>Move both lists forward one node and repeat, as long as either list has nodes left or the carry isn't 0.</li>
+      <li>Return the head of the new list.</li>
+    </ol>
+  </section>
+
+  <div class="divider"><h2>Watch the solution</h2></div>
+  <section class="panel read">
+    <h2>The lists being added right now</h2>
+    <p class="sub">Change them with the examples above or the inputs at the bottom of the page.</p>
+    <div class="read-grid" id="readGrid"></div>
+  </section>
+
+  <section class="stage" aria-label="Animation">
+    <div class="stage-top">
+      <div class="equation" id="eq" aria-live="polite"></div>
+      <div class="carrybox" id="carrybox"><span>carry</span><b id="carryVal">0</b></div>
+    </div>
+    <div class="lists-scroll"><div class="lists" id="lists"></div></div>
+    <p class="narration" id="say"></p>
+  </section>
+
+  <div class="controls">
+    <button id="reset" title="Reset (R)"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Reset</button>
+    <button id="back" title="Step back (←)"><svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>Back</button>
+    <button id="play" class="primary" title="Play or pause (Space)"></button>
+    <button id="fwd" title="Step forward (→)">Next<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg></button>
+    <label class="speed">Speed <input type="range" id="speed" min="200" max="1700" value="900" aria-label="Playback speed"></label>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="code-head">
+        <div><h2>The code, running</h2><p class="sub">Highlighted lines are running now. Live values sit on the right.</p></div>
+        <div class="seg" role="group" aria-label="Language">
+          <button data-lang="js" aria-pressed="true">JavaScript</button>
+          <button data-lang="py" aria-pressed="false">Python</button>
+        </div>
+      </div>
+      <div class="code" id="code"></div>
+    </div>
+    <div class="panel">
+      <h2>Same thing, on paper</h2>
+      <p class="sub">The highlighted column is the one the code is working on. Small yellow digits are carries.</p>
+      <div class="paper" id="paper"></div>
+      <p class="paper-note" id="paperNote"></p>
+    </div>
+  </div>
+
+  <section class="panel learn">
+    <h2 class="big">Three things that trip up beginners</h2>
+    <p class="sub" style="max-width:66ch">Each one is handled by a single small detail in the code. Try the matching example to watch it happen.</p>
+    <div class="tips">
+      <div class="tip">
+        <h3>The lists can have different lengths</h3>
+        <p>When one list runs out, treat its missing digit as <span class="mono">0</span>. That's what <span class="mono">l1 ? l1.val : 0</span> does. You'll see a dashed ghost node with a 0 in it.</p>
+        <button data-a="1,8" data-b="0">Try 81 + 0</button>
+      </div>
+      <div class="tip">
+        <h3>A carry can be left over at the end</h3>
+        <p>5 + 5 = 10 has two digits even though both inputs have one. The loop keeps going while <span class="mono">carry</span> is not 0, which adds that final 1 node.</p>
+        <button data-a="5" data-b="5">Try 5 + 5</button>
+      </div>
+      <div class="tip">
+        <h3>The first node needs somewhere to attach</h3>
+        <p>A placeholder <b>dummy</b> node sits in front of the result, so every new digit is attached the same way: <span class="mono">tail.next = new node</span>. At the end, return <span class="mono">dummy.next</span> to skip it.</p>
+        <button data-a="2,4,3" data-b="5,6,4">Try example 1</button>
+      </div>
+    </div>
+    <h2 style="margin-top:26px">Why not just turn the lists into numbers?</h2>
+    <p style="max-width:70ch;margin:4px 0 0">It's tempting: read 342 and 465, add them, then split 807 back into nodes. But each list can have up to 100 nodes, which means 100-digit numbers. A normal 64-bit integer holds about 19 digits, and JavaScript numbers lose precision after about 15 or 16. Adding digit by digit works for any length, and it's what the problem is really testing.</p>
+    <div class="complex">
+      <div><b>O(max(m, n))</b><span>time: each node is visited once</span></div>
+      <div><b>O(max(m, n))</b><span>space for the answer list, plus O(1) extra (just carry and a few pointers)</span></div>
+    </div>
+  </section>
+
+  <section class="panel try">
+    <h2>Try your own lists</h2>
+    <p class="sub">Digits 0 to 9, separated by commas, in the same backwards order LeetCode uses. Up to 10 nodes each.</p>
+    <div class="form">
+      <label>l1<input type="text" id="aIn" value="2, 4, 3" autocomplete="off"></label>
+      <label>l2<input type="text" id="bIn" value="5, 6, 4" autocomplete="off"></label>
+      <button id="apply" class="primary">Run it</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <div class="presets">
+      <button data-a="2,4,3" data-b="5,6,4">Example 1</button>
+      <button data-a="0" data-b="0">Example 2</button>
+      <button data-a="9,9,9,9,9,9,9" data-b="9,9,9,9">Example 3</button>
+      <button data-a="1,8" data-b="0">Different lengths</button>
+      <button data-a="5" data-b="5">Carry at the end</button>
+    </div>
+    <p class="keys"><kbd>Space</kbd> play or pause &nbsp; <kbd>←</kbd> <kbd>→</kbd> step &nbsp; <kbd>R</kbd> reset</p>
+  </section>
+</div></main>
+<script>
+const CODE = {
+  js: { sumName:'sum', ret:14, lines:[
+    'function addTwoNumbers(l1, l2) {',
+    '  const dummy = new ListNode(0);',
+    '  let tail = dummy;',
+    '  let carry = 0;',
+    '  while (l1 || l2 || carry) {',
+    '    const x = l1 ? l1.val : 0;',
+    '    const y = l2 ? l2.val : 0;',
+    '    const sum = x + y + carry;',
+    '    carry = Math.floor(sum / 10);',
+    '    tail.next = new ListNode(sum % 10);',
+    '    tail = tail.next;',
+    '    if (l1) l1 = l1.next;',
+    '    if (l2) l2 = l2.next;',
+    '  }',
+    '  return dummy.next;',
+    '}' ]},
+  py: { sumName:'total', ret:13, lines:[
+    'def addTwoNumbers(l1, l2):',
+    '    dummy = ListNode(0)',
+    '    tail = dummy',
+    '    carry = 0',
+    '    while l1 or l2 or carry:',
+    '        x = l1.val if l1 else 0',
+    '        y = l2.val if l2 else 0',
+    '        total = x + y + carry',
+    '        carry = total // 10',
+    '        tail.next = ListNode(total % 10)',
+    '        tail = tail.next',
+    '        l1 = l1.next if l1 else None',
+    '        l2 = l2.next if l2 else None',
+    '    return dummy.next' ]}
+};
+const PLACES = ['ones','tens','hundreds','thousands','ten-thousands','hundred-thousands','millions','ten-millions','hundred-millions','billions','ten-billions'];
+const LABEL_W = 110, COL_W = 88;
+const $ = id => document.getElementById(id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let A = [2,4,3], B = [5,6,4], steps = [], cols = 0, k = -1, playing = false, timer = null, lang = 'js', lastCarry = 0;
+
+function build(){
+  steps = []; let carry = 0, c = 0;
+  while (c < A.length || c < B.length || carry){
+    const hasX = c < A.length, hasY = c < B.length;
+    const x = hasX ? A[c] : 0, y = hasY ? B[c] : 0, sum = x + y + carry;
+    const base = {c, x, y, hasX, hasY, cin:carry, sum};
+    steps.push({type:'add', ...base});
+    steps.push({type:'write', ...base, d: sum % 10, cout: Math.floor(sum/10)});
+    carry = Math.floor(sum/10); c++;
+  }
+  steps.push({type:'done'});
+  cols = c;
+}
+const asNum = arr => arr.slice().reverse().join('');
+const resultDigits = () => steps.filter(s=>s.type==='write').map(s=>s.d);
+const chain = arr => '[' + arr.join(' → ') + ']';
+
+function renderRead(){
+  const R = resultDigits();
+  $('readGrid').innerHTML = `
+    <div class="read-card"><div class="lbl">l1</div><div class="chain ca">${chain(A)}</div><div class="lbl">means</div><div class="num ca">${asNum(A)}</div></div>
+    <div class="read-card"><div class="lbl">l2</div><div class="chain cb">${chain(B)}</div><div class="lbl">means</div><div class="num cb">${asNum(B)}</div></div>
+    <div class="read-card"><div class="lbl">so the answer is</div><div class="num cg">${asNum(R)}</div><div class="lbl">stored backwards as</div><div class="chain cg">${chain(R)}</div></div>`;
+}
+
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function hl(s){
+  const kws = lang==='js' ? 'function|const|let|new|while|if|return' : 'def|while|if|else|return|or|None';
+  return esc(s).replace(new RegExp('\\b('+kws+')\\b','g'),'<span class="kw">$1</span>');
+}
+const placeName = c => PLACES[c] || `10^${c}`;
+
+function render(){
+  const s = steps[k];
+  const active = s && s.type !== 'done' ? s.c : -1;
+  const written = steps.slice(0, k+1).filter(t=>t.type==='write');
+  const done = s && s.type === 'done';
+  const carry = !s ? 0 : s.type==='add' ? s.cin : s.type==='write' ? s.cout : 0;
+
+  // carry box
+  const cb = $('carrybox');
+  $('carryVal').textContent = carry;
+  cb.classList.toggle('on', carry > 0);
+  cb.classList.remove('bump');
+  if (carry !== lastCarry && !reduce){ void cb.offsetWidth; cb.classList.add('bump'); }
+  lastCarry = carry;
+
+  // equation + narration
+  const eq = $('eq'), say = $('say');
+  if (!s){
+    eq.innerHTML = `<span class="pill idle">Ready when you are</span>`;
+    say.innerHTML = `Before the loop, we make a placeholder node called <b>dummy</b> so there's always a node to attach the next digit to. <b>tail</b> points at the end of the answer, and <span class="cc">carry</span> starts at 0. Press play or step through.`;
+  } else if (s.type === 'add'){
+    eq.innerHTML = `<span><span class="ca">${s.x}</span> + <span class="cb">${s.y}</span> + <span class="cc">${s.cin}</span> = ${s.sum}</span>`;
+    const xs = s.hasX ? `l1 gives <span class="ca">${s.x}</span>` : `l1 has run out, so we use <span class="ca">0</span>`;
+    const ys = s.hasY ? `l2 gives <span class="cb">${s.y}</span>` : `l2 has run out, so we use <span class="cb">0</span>`;
+    const extra = !s.hasX && !s.hasY ? `Both lists are finished, but there's still a carry of 1, so the loop runs one more time. ` : '';
+    say.innerHTML = `${extra}Working on the <b>${placeName(s.c)}</b> place. ${xs}, ${ys}, and the carry from the last column is <span class="cc">${s.cin}</span>. Add them: ${s.x} + ${s.y} + ${s.cin} = <b>${s.sum}</b>.`;
+  } else if (s.type === 'write'){
+    eq.innerHTML = `<span>${s.sum} → write <span class="cg">${s.d}</span>, carry <span class="cc">${s.cout}</span></span>`;
+    const why = s.sum >= 10
+      ? `${s.sum} is too big for one node, so keep the last digit, ${s.sum} % 10 = <span class="cg">${s.d}</span>, and carry ${s.sum} ÷ 10 rounded down = <span class="cc">1</span> into the next column.`
+      : `${s.sum} fits in one digit, so the new node is <span class="cg">${s.d}</span> and the carry is <span class="cc">0</span>.`;
+    const attach = s.c === 0
+      ? `The new node is attached to <b>dummy</b>, so dummy.next now points at the first real digit. <b>tail</b> moves onto the new node`
+      : `The new node goes on the end of the answer and <b>tail</b> moves onto it`;
+    say.innerHTML = `${why} ${attach}, and l1 and l2 step to their next nodes.`;
+  } else {
+    const R = resultDigits();
+    eq.innerHTML = `<span class="cg">${chain(R)}</span><span class="pill hit">${asNum(A)} + ${asNum(B)} = ${asNum(R)}</span>`;
+    say.innerHTML = `l1, l2 and carry are all empty, so the loop stops. <b>dummy</b> is still sitting in front of the answer, but it was only ever a handle to hang the first node on. We don't return dummy itself; we return <b>dummy.next</b>, the node after it, so the caller only ever sees <span class="cg">${chain(R)}</span>.`;
+  }
+
+  // lists
+  const tpl = `${LABEL_W}px repeat(${cols}, ${COL_W}px) 60px`;
+  let h = `<div class="band ${active<0?'off':''}" style="left:${LABEL_W + Math.max(active,0)*COL_W - 8}px"></div>`;
+  h += `<div class="place" style="left:${LABEL_W + Math.max(active,0)*COL_W - 8}px;${active<0?'opacity:0':''}">${active>=0?placeName(active)+' place':''}</div>`;
+  const listRow = (arr, cls, name) => {
+    let r = `<div class="rowlabel" style="grid-column:1"><span class="${cls==='l1'?'ca':'cb'}">${name}</span><small>= ${asNum(arr)}</small></div>`;
+    for (let c = 0; c < cols; c++){
+      let inner = '';
+      if (c < arr.length){
+        inner = `<div class="node ${cls} ${c===active?'on':''}"><span class="val">${arr[c]}</span>${c===active?`<span class="tag ${cls==='l1'?'ca':'cb'}">${name}</span>`:''}</div><span class="arrow"></span>`;
+        if (c === arr.length-1 && c+1 >= cols) {} // null drawn in trailing column
+      } else if (c === active){
+        inner = `<div class="node ghost"><span class="val">0</span><span class="tag" style="color:var(--muted)">null → 0</span></div>`;
+      } else if (c === arr.length){
+        inner = `<span class="null">null</span>`;
+      }
+      r += `<div class="slot">${inner}</div>`;
+    }
+    r += `<div class="slot">${arr.length===cols ? '<span class="null">null</span>' : ''}</div>`;
+    return `<div style="display:grid;grid-template-columns:${tpl};grid-column:1/-1">${r}</div>`;
+  };
+  h += listRow(A,'l1','l1');
+  h += listRow(B,'l2','l2');
+  // result row
+  const tailIdx = written.length - 1;
+  let r = `<div class="slot" style="position:relative"><small style="position:absolute;top:-8px;left:6px;color:var(--muted);font-size:.72rem;white-space:nowrap">${done?'dummy (skipped)':'dummy'}</small><div class="node dummy" style="${done?'opacity:.4':''}"><span class="val">0</span>${tailIdx<0?'<span class="tag cc">tail</span>':''}</div><span class="arrow" style="flex:1;width:auto"></span></div>`;
+  for (let c = 0; c < cols; c++){
+    let inner = '';
+    if (c < written.length){
+      const isNew = s && s.type==='write' && s.c===c;
+      inner = `<div class="node res ${done?'done':''} ${isNew && !reduce?'new':''}"><span class="val cg">${written[c].d}</span>${c===tailIdx && !done?'<span class="tag cc">tail</span>':''}</div><span class="arrow"></span>`;
+    } else if (c === written.length){
+      inner = `<span class="null">null</span>`;
+    }
+    r += `<div class="slot">${inner}</div>`;
+  }
+  r += `<div class="slot">${written.length===cols ? '<span class="null">null</span>' : ''}</div>`;
+  h += `<div style="display:grid;grid-template-columns:${tpl};grid-column:1/-1">${r}</div>`;
+  const L = $('lists');
+  L.style.gridTemplateColumns = '1fr';
+  L.innerHTML = h;
+  if (active >= 0){
+    const sc = L.parentElement, x = LABEL_W + active*COL_W;
+    if (x < sc.scrollLeft || x + COL_W > sc.scrollLeft + sc.clientWidth) sc.scrollLeft = x - sc.clientWidth/2;
+  }
+
+  renderCode(s, done);
+  renderPaper(s, written, active);
+
+  $('bar').style.width = ((k+1)/steps.length*100)+'%';
+  $('back').disabled = k < 0;
+  $('fwd').disabled = k === steps.length-1;
+  setPlayLabel();
+}
+
+function renderCode(s, done){
+  const C = CODE[lang], n = C.sumName;
+  let act = [], ann = {};
+  if (!s) act = [1,2,3];
+  else if (s.type==='add'){
+    act = [5,6,7];
+    ann[5] = `x = ${s.x}${s.hasX?'':' (l1 is null)'}`;
+    ann[6] = `y = ${s.y}${s.hasY?'':' (l2 is null)'}`;
+    ann[7] = `${n} = ${s.x} + ${s.y} + ${s.cin} = ${s.sum}`;
+  } else if (s.type==='write'){
+    act = [8,9,10,11,12];
+    ann[8] = `carry = ${s.cout}`;
+    ann[9] = `new node ${s.d}`;
+  } else { act = [C.ret]; ann[C.ret] = chain(resultDigits()); }
+  $('code').innerHTML = C.lines.map((l,x)=>{
+    let cls = 'ln';
+    if (act.includes(x)) cls += done ? ' ret' : ' active';
+    else if (s && !done && x===4) cls += ' loop';
+    return `<div class="${cls}"><span class="no">${x+1}</span><span>${hl(l)}</span>${ann[x]?`<span class="ann ${done?'g':''}">${ann[x]}</span>`:''}</div>`;
+  }).join('');
+}
+
+function renderPaper(s, written, active){
+  // display columns: sign column + cols digits, most significant on the left
+  const P = $('paper');
+  P.style.gridTemplateColumns = `repeat(${cols+1}, auto)`;
+  const cell = (c, content, extra='') => `<div class="pc ${c===active?'on':''} ${extra}">${content}</div>`;
+  let h = '';
+  // carry row: carry INTO column c, known once column c-1 is written
+  h += `<div class="pc carry"></div>`;
+  for (let d = cols-1; d >= 0; d--){
+    const w = written[d-1];
+    h += cell(d, w && w.cout ? '1' : '', 'carry');
+  }
+  h += `<div class="pc"></div>`;
+  for (let d = cols-1; d >= 0; d--) h += cell(d, d < A.length ? A[d] : '', 'a');
+  h += `<div class="pc">+</div>`;
+  for (let d = cols-1; d >= 0; d--) h += cell(d, d < B.length ? B[d] : '', 'b');
+  h += `<div class="rule"></div><div class="pc r"></div>`;
+  for (let d = cols-1; d >= 0; d--){
+    const w = written[d];
+    const isNew = s && s.type==='write' && s.c===d;
+    h += `<div class="pc r ${d===active?'on':''}"><span class="v ${isNew && !reduce?'pop':''}">${w ? w.d : ''}</span></div>`;
+  }
+  P.innerHTML = h;
+  $('paperNote').innerHTML = active >= 0
+    ? `On paper you start at the right. The linked lists already start there, because their head is the ones digit. That's why reverse order makes this problem easier, not harder.`
+    : `On paper you add from right to left. The linked lists are stored so the code can do exactly the same, starting at the head.`;
+}
+
+function setPlayLabel(){
+  const ended = k === steps.length-1;
+  $('play').innerHTML = playing
+    ? '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>Pause'
+    : ended ? '<svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Replay'
+    : '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>Play';
+}
+const delay = () => 1900 - +$('speed').value;
+function tick(){
+  if (k < steps.length-1){ k++; render(); }
+  if (k >= steps.length-1){ pause(); return; }
+  timer = setTimeout(tick, delay());
+}
+function play(){
+  if (k >= steps.length-1){ k = -1; render(); }
+  playing = true; setPlayLabel();
+  timer = setTimeout(tick, k<0 ? 350 : delay());
+}
+function pause(){ playing = false; clearTimeout(timer); setPlayLabel(); }
+$('play').onclick = () => playing ? pause() : play();
+$('fwd').onclick = () => { pause(); if (k<steps.length-1){k++;render();} };
+$('back').onclick = () => { pause(); if (k>=0){k--;render();} };
+$('reset').onclick = () => { pause(); k=-1; render(); };
+
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+  lang = b.dataset.lang;
+  document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed', x===b));
+  render();
+});
+
+function parseList(str, name){
+  const parts = str.split(',').map(x=>x.trim()).filter(Boolean);
+  if (parts.length < 1 || parts.length > 10) return `${name} needs between 1 and 10 digits.`;
+  if (parts.some(p=>!/^[0-9]$/.test(p))) return `Each node in ${name} holds a single digit from 0 to 9.`;
+  const arr = parts.map(Number);
+  if (arr.length > 1 && arr[arr.length-1] === 0) return `The last node of ${name} can't be 0, because that would be a leading zero in the number (it's stored backwards).`;
+  return arr;
+}
+function load(aStr, bStr){
+  const a = parseList(aStr,'l1'), b = parseList(bStr,'l2'), err = $('err');
+  if (typeof a === 'string') return err.textContent = a;
+  if (typeof b === 'string') return err.textContent = b;
+  err.textContent = '';
+  pause(); A = a; B = b; k = -1; lastCarry = 0; build(); renderRead(); render();
+}
+$('apply').onclick = () => load($('aIn').value, $('bIn').value);
+document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+  $('aIn').value = b.dataset.a.split(',').join(', ');
+  $('bIn').value = b.dataset.b.split(',').join(', ');
+  load(b.dataset.a, b.dataset.b);
+  document.querySelector('.stage').scrollIntoView({behavior: reduce?'auto':'smooth', block:'start'});
+});
+document.addEventListener('keydown', e=>{
+  if (e.target.matches('input')) { if (e.key==='Enter') $('apply').click(); return; }
+  if (e.target.closest('.seg')) return;
+  if (e.key===' '){ e.preventDefault(); $('play').click(); }
+  else if (e.key==='ArrowRight') $('fwd').click();
+  else if (e.key==='ArrowLeft') $('back').click();
+  else if (e.key==='r'||e.key==='R') $('reset').click();
+});
+build(); renderRead(); render();
+
+(()=>{
+  const W = [
+    {id:'mnA', addr:'@120', val:2, next:'@108', x:190, y:136},
+    {id:'mnB', addr:'@108', val:4, next:'@144', x:360, y:40},
+    {id:'mnC', addr:'@144', val:3, next:'null', x:530, y:232}
+  ];
+  const places = ['ones','tens','hundreds'];
+  const arrows = ['arAB','arBC'];
+  let w = 0;
+  const g = id => document.getElementById(id);
+  function draw(){
+    W.forEach((n,i)=>{ const el = g(n.id); el.classList.toggle('cur', i===w); });
+    arrows.forEach((a,i)=>{ const el = g(a), on = i < w; el.classList.toggle('on', on); el.querySelector('path').setAttribute('marker-end', on ? 'url(#ah2)' : 'url(#ah)'); });
+    const ct = g('curTag');
+    if (w < 3){ ct.setAttribute('x', W[w].x + 100); ct.setAttribute('y', W[w].y - 7); ct.textContent = 'cur'; }
+    else { ct.setAttribute('x', 540); ct.setAttribute('y', 310); ct.textContent = 'cur = null'; }
+    const seen = W.slice(0, Math.min(w+1,3)).map(n=>n.val);
+    const num = seen.slice().reverse().join('');
+    const R = g('walkRead');
+    R.innerHTML = w < 3
+      ? `<div><span class="k">cur</span> = ${W[w].addr}${w===0?' <span class="k">(the head)</span>':''}</div>
+         <div><span class="k">cur.val</span> = ${W[w].val}</div>
+         <div><span class="k">cur.next</span> = ${W[w].next}</div>
+         <div style="margin-top:6px"><span class="k">number so far</span></div><div class="big">${num}</div>`
+      : `<div><span class="k">cur</span> = null</div><div style="margin-top:6px"><span class="k">the whole number</span></div><div class="big">342</div>`;
+    g('walkSay').innerHTML = [
+      `You only know the head, the node at @120. Its digit, 2, is the <b>ones</b> digit. Notice its next field says @108: that's where the next node lives.`,
+      `Followed the arrow to @108. Its digit, 4, is the <b>tens</b> digit, so it goes in front: the number so far is 42.`,
+      `Followed the arrow to @144. Its digit, 3, is the <b>hundreds</b> digit: 342. Its next field is null, so this is the last node.`,
+      `cur.next was null, so cur is now null and there's nothing left to visit. Loops over a list stop exactly here, with <span class="mono">while (cur)</span>.`
+    ][w];
+    g('walkNext').disabled = w >= 3;
+  }
+  g('walkNext').onclick = () => { if (w < 3){ w++; draw(); } };
+  g('walkReset').onclick = () => { w = 0; draw(); };
+  g('headTag').setAttribute('visibility','visible');
+  draw();
+})();
+</script>
+</body>
+</html>

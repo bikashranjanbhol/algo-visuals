@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two Sum, two ways</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F5; --surface:#FFFFFF; --cell:#F5F7FA; --ink:#18202E; --muted:#5B6577; --line:#D5DBE5;
+  --i:#4B57D1; --i-soft:#E3E6FB; --j:#B97C06; --j-soft:#FBEFD3;
+  --hit:#14875C; --hit-soft:#D6F2E5; --miss:#C2414F; --miss-soft:#F8DDE0; --done:#C9D0DC;
+  --code-bg:#1B2233; --code-ink:#D9DFEA; --code-dim:#7F8AA0; --code-kw:#9FA8FF; --code-hl:rgba(242,190,74,.16);
+  --sans:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+    --i:#949EFF; --i-soft:#272E58; --j:#F2BE4A; --j-soft:#3B3120;
+    --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --done:#3A4559;
+    --code-bg:#0F1420;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+  --i:#949EFF; --i-soft:#272E58; --j:#F2BE4A; --j-soft:#3B3120;
+  --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --done:#3A4559;
+  --code-bg:#0F1420;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 56px}
+header{margin-bottom:24px;max-width:66ch}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
+header p{color:var(--muted);margin:0}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+
+/* stage */
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px clamp(16px,3vw,32px) 22px}
+.stage-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:baseline;justify-content:space-between;margin-bottom:26px}
+.target{font-size:1.05rem;color:var(--muted)}
+.target b{font-size:1.6rem;color:var(--ink);font-weight:800;margin-left:6px}
+.equation{font-family:var(--mono);font-size:clamp(1rem,2.6vw,1.45rem);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:2.4em}
+.equation .vi{color:var(--i);font-weight:600}
+.equation .vj{color:var(--j);font-weight:600}
+.verdict{font-family:var(--sans);font-size:.95rem;font-weight:600;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.verdict.miss{background:var(--miss-soft);color:var(--miss)}
+.verdict.hit{background:var(--hit-soft);color:var(--hit)}
+.verdict.idle{background:var(--cell);color:var(--muted)}
+
+.track{--g:10px; position:relative}
+.array{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:var(--g)}
+.cell{background:var(--cell);border:2px solid transparent;border-radius:14px;height:clamp(76px,13vw,132px);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .3s,border-color .3s,opacity .3s,transform .3s}
+.cell .v{font-size:clamp(1.4rem,5vw,3rem);font-weight:800;line-height:1}
+.cell .ix{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:6px}
+.cell.passed{opacity:.38}
+.cell.is-i{background:var(--i-soft);border-color:var(--i)}
+.cell.is-j{background:var(--j-soft);border-color:var(--j)}
+.cell.found{background:var(--hit-soft);border-color:var(--hit)}
+.cell.found.pop{animation:pop .55s ease}
+@keyframes pop{40%{transform:translateY(-8px) scale(1.05)}}
+.pointers{position:relative;height:64px;margin-top:8px}
+.ptr{position:absolute;top:0;width:44px;margin-left:-22px;display:flex;flex-direction:column;align-items:center;left:0;transition:left .42s cubic-bezier(.5,0,.2,1)}
+.ptr svg{width:26px;height:20px}
+.ptr span{font-family:var(--mono);font-weight:600;font-size:1rem}
+.ptr.i{color:var(--i)} .ptr.j{color:var(--j)}
+.ptr.hidden{opacity:0}
+.narration{margin:6px 0 0;padding-top:16px;border-top:1px dashed var(--line);font-size:1.05rem;min-height:3.2em;max-width:70ch}
+
+/* controls */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:18px 0 28px}
+button{font-family:var(--sans);font-size:.95rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+button:hover:not(:disabled){border-color:var(--muted)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);min-width:112px;justify-content:center}
+button svg{width:16px;height:16px;fill:currentColor}
+:focus-visible{outline:3px solid var(--i);outline-offset:2px}
+.speed{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.9rem;margin-left:auto}
+.speed input{accent-color:var(--i);width:120px}
+.progress{flex-basis:100%;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress div{height:100%;width:0;background:var(--i);transition:width .3s}
+
+/* lower panels */
+.panels{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.panels{grid-template-columns:1fr}.speed{margin-left:0}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:14px 0;font-family:var(--mono);font-size:.86rem;overflow-x:auto}
+.ln{display:flex;align-items:center;padding:2px 16px 2px 0;white-space:pre;border-left:3px solid transparent;transition:background .25s}
+.ln .no{width:34px;text-align:right;padding-right:14px;color:var(--code-dim);flex:none}
+.ln .kw{color:var(--code-kw)}
+.ln.loop{background:rgba(148,158,255,.07)}
+.ln.active{background:var(--code-hl);border-left-color:#F2BE4A}
+.ln.ret{background:rgba(79,209,154,.18);border-left-color:#4FD19A}
+.ann{margin-left:auto;padding-left:18px;color:#F2BE4A;font-size:.8rem}
+.ann.i{color:#A9B1FF}
+.complex{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.complex div{flex:1;min-width:130px;background:var(--cell);border-radius:12px;padding:10px 14px}
+.complex b{display:block;font-family:var(--mono);font-size:1.15rem}
+.complex span{color:var(--muted);font-size:.86rem}
+
+.matrix-wrap{overflow-x:auto}
+.matrix{display:grid;gap:4px;width:max-content;margin:4px 0 12px}
+.mh{font-family:var(--mono);font-size:.72rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.mc{width:34px;height:34px;border-radius:8px;background:var(--cell);border:2px solid transparent;transition:background .3s,border-color .3s;padding:0}
+.mc.void{background:transparent;border:1px dashed var(--line);cursor:default}
+.mc.pair{cursor:pointer}
+.mc.checked{background:var(--miss-soft);border-color:transparent}
+.mc.current{border-color:var(--j);background:var(--j-soft)}
+.mc.found{background:var(--hit);border-color:var(--hit)}
+.mc.skip{opacity:.35}
+.counter{font-family:var(--mono);font-size:.95rem}
+.counter b{font-size:1.3rem}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--muted);font-size:.84rem;margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* input */
+.try{margin-top:20px}
+.form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--muted)}
+input[type=text],input[type=number]{font-family:var(--mono);font-size:1rem;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
+#numsIn{width:min(320px,80vw)} #targetIn{width:110px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.presets button{font-weight:400;padding:7px 12px;font-size:.88rem}
+.err{color:var(--miss);font-size:.9rem;min-height:1.4em;margin:8px 0 0}
+.keys{color:var(--muted);font-size:.84rem;margin-top:18px}
+kbd{font-family:var(--mono);font-size:.78rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--surface)}
+
+/* why optimize */
+.why{margin-top:20px}
+.why h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+.why .lede{color:var(--muted);max-width:66ch;margin:0 0 22px}
+.why-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+@media (max-width:820px){.why-grid{grid-template-columns:1fr}}
+.nrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.nrow b{font-family:var(--mono);font-size:1.6rem}
+.nrow .tag{font-size:.82rem;font-weight:600;color:var(--i);background:var(--i-soft);border-radius:999px;padding:2px 10px}
+#nSlider{width:100%;accent-color:var(--i);margin:4px 0 2px}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:18px}
+.bar-row{margin-bottom:16px}
+.bar-head{display:flex;justify-content:space-between;gap:12px;font-size:.92rem;margin-bottom:6px;flex-wrap:wrap}
+.bar-head span:last-child{font-family:var(--mono);color:var(--muted)}
+.bar-track{height:16px;background:var(--cell);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;transition:width .45s cubic-bezier(.5,0,.2,1)}
+.bar-fill.bf{background:var(--miss)} .bar-fill.hm{background:var(--hit)}
+.scale-note{font-size:.8rem;color:var(--muted);margin:-4px 0 16px}
+.callout{background:var(--cell);border-radius:14px;padding:14px 16px;font-size:.95rem}
+.callout b{font-family:var(--mono)}
+.waste{width:100%;border-collapse:collapse;font-size:.9rem}
+.waste th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:6px 8px;border-bottom:1px solid var(--line)}
+.waste td{padding:7px 8px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.waste td.no{color:var(--miss)} .waste td.yes{color:var(--hit);font-weight:600}
+.waste-wrap{overflow-x:auto;margin-bottom:14px}
+.fix{margin-top:24px;padding-top:20px;border-top:1px dashed var(--line);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fix div{background:var(--cell);border-radius:12px;padding:12px 14px}
+.fix b{display:block;font-family:var(--mono);font-size:1.05rem}
+.fix span{color:var(--muted);font-size:.86rem}
+.fix .good b{color:var(--hit)} .fix .bad b{color:var(--miss)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+
+:root{
+  --bg:#EDF0F5; --surface:#FFFFFF; --cell:#F5F7FA; --ink:#18202E; --muted:#5B6577; --line:#D5DBE5;
+  --i:#4B57D1; --i-soft:#E3E6FB; --j:#B97C06; --j-soft:#FBEFD3;
+  --hit:#14875C; --hit-soft:#D6F2E5; --miss:#C2414F; --miss-soft:#F8DDE0;
+  --code-bg:#1B2233; --code-ink:#D9DFEA; --code-dim:#7F8AA0; --code-kw:#9FA8FF; --code-hl:rgba(242,190,74,.16);
+  --sans:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+    --i:#949EFF; --i-soft:#272E58; --j:#F2BE4A; --j-soft:#3B3120;
+    --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --code-bg:#0F1420;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --surface:#1A2232; --cell:#212B3D; --ink:#E8ECF4; --muted:#98A2B5; --line:#2C3649;
+  --i:#949EFF; --i-soft:#272E58; --j:#F2BE4A; --j-soft:#3B3120;
+  --hit:#4FD19A; --hit-soft:#173A2D; --miss:#F27885; --miss-soft:#3D1F27; --code-bg:#0F1420;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 56px}
+header{margin-bottom:24px;max-width:68ch}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
+header p{color:var(--muted);margin:0}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px clamp(16px,3vw,32px) 22px}
+.stage-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:baseline;justify-content:space-between;margin-bottom:26px}
+.target{font-size:1.05rem;color:var(--muted)}
+.target b{font-size:1.6rem;color:var(--ink);font-weight:800;margin-left:6px}
+.equation{font-family:var(--mono);font-size:clamp(1rem,2.6vw,1.4rem);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:2.4em}
+.equation .vi{color:var(--i);font-weight:600}
+.equation .need{color:var(--j);font-weight:600}
+.pill{font-family:var(--sans);font-size:.95rem;font-weight:600;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.pill.miss{background:var(--miss-soft);color:var(--miss)}
+.pill.hit{background:var(--hit-soft);color:var(--hit)}
+.pill.idle{background:var(--cell);color:var(--muted)}
+.pill.store{background:var(--i-soft);color:var(--i)}
+
+.track{--g:10px;position:relative}
+.array{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:var(--g)}
+.cell{position:relative;background:var(--cell);border:2px solid transparent;border-radius:14px;height:clamp(76px,13vw,132px);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .3s,border-color .3s,opacity .3s,transform .3s}
+.cell .v{font-size:clamp(1.4rem,5vw,3rem);font-weight:800;line-height:1}
+.cell .ix{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:6px}
+.cell .badge{position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--i);opacity:0;transition:opacity .3s}
+.cell.stored .badge{opacity:.8}
+.cell.stored{opacity:.6}
+.cell.is-i{background:var(--i-soft);border-color:var(--i);opacity:1}
+.cell.found{background:var(--hit-soft);border-color:var(--hit);opacity:1}
+.cell.found.pop{animation:pop .55s ease}
+@keyframes pop{40%{transform:translateY(-8px) scale(1.05)}}
+.pointers{position:relative;height:60px;margin-top:8px}
+.ptr{position:absolute;top:0;left:0;width:44px;margin-left:-22px;display:flex;flex-direction:column;align-items:center;color:var(--i);transition:left .42s cubic-bezier(.5,0,.2,1)}
+.ptr svg{width:26px;height:20px}
+.ptr span{font-family:var(--mono);font-weight:600}
+
+/* the map */
+.mapbox{margin-top:4px;border:2px dashed var(--line);border-radius:16px;padding:14px 16px 16px}
+.maphead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-bottom:12px}
+.maphead .name{font-family:var(--mono);font-weight:600}
+.maphead .name small{color:var(--muted);font-weight:400;margin-left:6px}
+.probe{font-family:var(--mono);font-size:.95rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:10px;min-height:58px;align-items:center}
+.chip{display:flex;align-items:stretch;border-radius:12px;overflow:hidden;border:2px solid var(--line);background:var(--surface);transition:border-color .3s,background .3s,transform .3s}
+.chip .k{font-weight:800;font-size:1.3rem;padding:8px 14px;background:var(--cell);min-width:52px;text-align:center}
+.chip .val{font-family:var(--mono);font-size:.82rem;color:var(--muted);padding:8px 12px;display:flex;align-items:center;gap:6px}
+.chip.new{animation:drop .45s cubic-bezier(.3,1.4,.5,1)}
+@keyframes drop{from{transform:translateY(-14px) scale(.85);opacity:0}}
+.chip.match{border-color:var(--hit)}
+.chip.match .k{background:var(--hit-soft);color:var(--hit)}
+.chip.flash{animation:flash .5s ease}
+@keyframes flash{50%{transform:scale(1.08)}}
+.empty{color:var(--muted);font-size:.92rem}
+.narration{margin:16px 0 0;padding-top:16px;border-top:1px dashed var(--line);font-size:1.05rem;min-height:3.2em;max-width:72ch}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:18px 0 28px}
+button{font-family:var(--sans);font-size:.95rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+button:hover:not(:disabled){border-color:var(--muted)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);min-width:112px;justify-content:center}
+button svg{width:16px;height:16px;fill:currentColor}
+:focus-visible{outline:3px solid var(--i);outline-offset:2px}
+.speed{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.9rem;margin-left:auto}
+.speed input{accent-color:var(--i);width:120px}
+.progress{flex-basis:100%;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress div{height:100%;width:0;background:var(--i);transition:width .3s}
+
+.panels{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.panels{grid-template-columns:1fr}.speed{margin-left:0}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:14px 0;font-family:var(--mono);font-size:.86rem;overflow-x:auto}
+.ln{display:flex;align-items:center;padding:2px 16px 2px 0;white-space:pre;border-left:3px solid transparent;transition:background .25s}
+.ln .no{width:34px;text-align:right;padding-right:14px;color:var(--code-dim);flex:none}
+.ln .kw{color:var(--code-kw)}
+.ln.loop{background:rgba(148,158,255,.07)}
+.ln.active{background:var(--code-hl);border-left-color:#F2BE4A}
+.ln.ret{background:rgba(79,209,154,.18);border-left-color:#4FD19A}
+.ann{margin-left:auto;padding-left:18px;color:#F2BE4A;font-size:.8rem}
+.ann.i{color:#A9B1FF} .ann.g{color:#4FD19A} .ann.r{color:#F27885}
+
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stats div{flex:1;min-width:140px;background:var(--cell);border-radius:12px;padding:10px 14px}
+.stats b{display:block;font-family:var(--mono);font-size:1.4rem}
+.stats span{color:var(--muted);font-size:.86rem}
+.stats .good b{color:var(--hit)} .stats .bad b{color:var(--miss)}
+.trace-wrap{overflow-x:auto}
+.trace{width:100%;border-collapse:collapse;font-size:.9rem}
+.trace th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:6px 8px;border-bottom:1px solid var(--line)}
+.trace td{padding:7px 8px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.trace tr.cur td{background:var(--i-soft)}
+.trace td.no{color:var(--miss)} .trace td.yes{color:var(--hit);font-weight:600}
+.trace .ph td{color:var(--muted);font-family:var(--sans)}
+
+.compare{margin-top:20px}
+.compare h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+.compare .lede{color:var(--muted);max-width:66ch;margin:0 0 20px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:700px){.vs{grid-template-columns:1fr}}
+.vs > div{background:var(--cell);border-radius:16px;padding:18px}
+.vs h3{margin:0 0 10px;font-size:1.05rem}
+.vs dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+.vs dt{color:var(--muted);font-size:.88rem}
+.vs dd{margin:0;font-family:var(--mono);font-size:.92rem}
+.vs .good dd.t{color:var(--hit);font-weight:600}
+.vs .bad dd.t{color:var(--miss);font-weight:600}
+.compare .note{margin:18px 0 0;max-width:70ch}
+
+.try{margin-top:20px}
+.form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+label{display:flex;flex-direction:column;gap:6px;font-size:.88rem;color:var(--muted)}
+input[type=text],input[type=number]{font-family:var(--mono);font-size:1rem;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
+#numsIn{width:min(320px,80vw)} #targetIn{width:110px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.presets button{font-weight:400;padding:7px 12px;font-size:.88rem}
+.err{color:var(--miss);font-size:.9rem;min-height:1.4em;margin:8px 0 0}
+.keys{color:var(--muted);font-size:.84rem;margin-top:18px}
+kbd{font-family:var(--mono);font-size:.78rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--surface)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);padding:12px 0;margin:-8px 0 16px}
+.seg{display:inline-flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;max-width:100%;overflow-x:auto}
+.seg button{border:none;background:transparent;border-radius:10px;padding:9px 16px;color:var(--muted);white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.seg button .n{font-family:var(--mono);font-size:.8rem;opacity:.75}
+.nextwrap{margin-top:22px;display:flex;justify-content:flex-end}
+.view[hidden]{display:none}
+</style>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+</head>
+<body>
+<main style="flex:1"><div class="wrap">
+  <nav class="tabs" aria-label="Solutions">
+    <div class="seg" role="tablist">
+      <button role="tab" id="tab-brute" aria-controls="view-brute" data-go="brute"><span class="n">1</span> Brute force</button>
+      <button role="tab" id="tab-hashmap" aria-controls="view-hashmap" data-go="hashmap"><span class="n">2</span> One pass with a hash map</button>
+    </div>
+  </nav>
+  <div class="view" id="view-brute" role="tabpanel" aria-labelledby="tab-brute">
+  <header>
+    <h1>Two Sum, the brute-force way</h1>
+    <p>Pin one number with <b style="color:var(--i)">i</b>, then let <b style="color:var(--j)">j</b> try every number after it. Repeat until a pair adds up to the target. Watch every comparison happen, one pair at a time.</p>
+  </header>
+
+  <section class="stage" aria-label="Animation">
+    <div class="stage-top">
+      <div class="target">target <b id="tgt">3</b></div>
+      <div class="equation" id="eq" aria-live="polite"></div>
+    </div>
+    <div class="track" id="track">
+      <div class="array" id="arr"></div>
+      <div class="pointers">
+        <div class="ptr i" id="pi"><svg viewBox="0 0 26 20"><path d="M13 0 26 20H0z" fill="currentColor"/></svg><span>i</span></div>
+        <div class="ptr j" id="pj"><svg viewBox="0 0 26 20"><path d="M13 0 26 20H0z" fill="currentColor"/></svg><span>j</span></div>
+      </div>
+    </div>
+    <p class="narration" id="say"></p>
+  </section>
+
+  <div class="controls">
+    <button id="reset" title="Reset (R)"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Reset</button>
+    <button id="back" title="Step back (←)"><svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>Back</button>
+    <button id="play" class="primary" title="Play or pause (Space)"></button>
+    <button id="fwd" title="Step forward (→)">Next<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg></button>
+    <label class="speed">Speed <input type="range" id="speed" min="200" max="1700" value="1000" aria-label="Playback speed"></label>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <h2>The code, running</h2>
+      <p class="sub">The highlighted line is the one doing work right now. Live values sit on the right.</p>
+      <div class="code" id="code"></div>
+      <div class="complex">
+        <div><b>O(n²)</b><span>time: two nested loops</span></div>
+        <div><b>O(1)</b><span>extra space: just i and j</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Every pair it has to try</h2>
+      <p class="sub">Row is i, column is j. Only squares right of the diagonal are real pairs, so the search fills a triangle.</p>
+      <div class="counter"><b id="cnt">0</b> of <span id="max">10</span> pairs checked</div>
+      <div class="matrix-wrap"><div class="matrix" id="mx"></div></div>
+      <div class="legend">
+        <span><i style="background:var(--miss-soft)"></i>checked, no match</span>
+        <span><i style="background:var(--j-soft);outline:2px solid var(--j);outline-offset:-2px"></i>checking now</span>
+        <span><i style="background:var(--hit)"></i>answer</span>
+      </div>
+      <p class="sub" style="margin-top:12px">Click any square to jump to that comparison.</p>
+    </div>
+  </div>
+
+
+  <section class="panel why" aria-labelledby="whyTitle">
+    <h2 class="big" id="whyTitle">Why brute force isn't good enough</h2>
+    <p class="lede">It always finds the answer, but it pays for every pair. Add one more number and it has to be paired with everything already there, so the work grows with n², not n.</p>
+    <div class="why-grid">
+      <div>
+        <h2>Drag to grow the input</h2>
+        <p class="sub">Worst case: the answer is the very last pair.</p>
+        <div class="nrow">n = <b id="nVal">10,000</b><span class="tag" id="nTag">this problem's limit</span></div>
+        <input type="range" id="nSlider" min="0" max="5" step="1" value="3" aria-label="Array length">
+        <div class="ticks"><span>10</span><span>100</span><span>1k</span><span>10k</span><span>100k</span><span>1M</span></div>
+        <div class="bar-row">
+          <div class="bar-head"><span>Brute force: every pair</span><span id="bfOps"></span></div>
+          <div class="bar-track"><div class="bar-fill bf" id="bfBar"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-head"><span>One pass with a hash map</span><span id="hmOps"></span></div>
+          <div class="bar-track"><div class="bar-fill hm" id="hmBar"></div></div>
+        </div>
+        <p class="scale-note">Bars use a log scale, otherwise the green one would be invisible.</p>
+        <div class="callout" id="nCallout"></div>
+      </div>
+      <div>
+        <h2>Where the work goes to waste</h2>
+        <p class="sub">For your current numbers: each pass of the inner loop is really hunting for one value, target − nums[i], and rescans the array to find it.</p>
+        <div class="waste-wrap"><table class="waste">
+          <thead><tr><th>i</th><th>nums[i]</th><th>looking for</th><th>pairs scanned</th><th>result</th></tr></thead>
+          <tbody id="wasteBody"></tbody>
+        </table></div>
+        <div class="callout" id="wasteCallout"></div>
+      </div>
+    </div>
+    <div class="fix">
+      <div class="bad"><b>O(n²) time</b><span>brute force: rescans the rest of the array for every number</span></div>
+      <div class="good"><b>O(n) time</b><span>hash map: remember each number as you pass it, then ask "have I seen target − x?" in one step</span></div>
+      <div><b>O(n) space</b><span>the trade: spend memory on the map to save a huge amount of time</span></div>
+    </div>
+    <div class="nextwrap"><button class="primary go" data-go="hashmap">See the one-pass solution</button></div>
+  </section>
+
+  <section class="panel try">
+    <h2>Try your own numbers</h2>
+    <p class="sub">Up to 10 integers, separated by commas.</p>
+    <div class="form">
+      <label>nums<input type="text" id="numsIn" value="4, 5, 1, 7, 2" autocomplete="off"></label>
+      <label>target<input type="number" id="targetIn" value="3"></label>
+      <button id="apply" class="primary">Run it</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <div class="presets">
+      <button data-n="4,5,1,7,2" data-t="3">Course example</button>
+      <button data-n="2,7,11,15" data-t="9">Found on the first try</button>
+      <button data-n="1,2,3,4,5,6,7,8" data-t="15">Worst case: last pair</button>
+      <button data-n="3,-1,8,4,-6,10" data-t="-2">Negative numbers</button>
+      <button data-n="3,3" data-t="6">Duplicate values</button>
+    </div>
+    <p class="keys"><kbd>Space</kbd> play or pause &nbsp; <kbd>←</kbd> <kbd>→</kbd> step &nbsp; <kbd>R</kbd> reset</p>
+  </section>
+</div>
+  <div class="view" id="view-hashmap" role="tabpanel" aria-labelledby="tab-hashmap" hidden>
+  <header>
+    <h1>Two Sum, in one pass</h1>
+    <p>Brute force keeps rescanning the array to find a partner. This version walks the array once and keeps a memory, a hash map called <b>seen</b>. For each number it asks one question: have I already passed the number that would complete the pair?</p>
+  </header>
+
+  <section class="stage" aria-label="Animation">
+    <div class="stage-top">
+      <div class="target">target <b id="tgt">3</b></div>
+      <div class="equation" id="eq" aria-live="polite"></div>
+    </div>
+    <div class="track" id="track">
+      <div class="array" id="arr"></div>
+      <div class="pointers">
+        <div class="ptr" id="pi"><svg viewBox="0 0 26 20"><path d="M13 0 26 20H0z" fill="currentColor"/></svg><span>i</span></div>
+      </div>
+    </div>
+    <div class="mapbox">
+      <div class="maphead">
+        <div class="name">seen<small>number → index</small></div>
+        <div class="probe" id="probe"></div>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <p class="narration" id="say"></p>
+  </section>
+
+  <div class="controls">
+    <button id="reset" title="Reset (R)"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Reset</button>
+    <button id="back" title="Step back (←)"><svg viewBox="0 0 16 16"><path d="M11 2v12L3 8z"/></svg>Back</button>
+    <button id="play" class="primary" title="Play or pause (Space)"></button>
+    <button id="fwd" title="Step forward (→)">Next<svg viewBox="0 0 16 16"><path d="M5 2v12l8-6z"/></svg></button>
+    <label class="speed">Speed <input type="range" id="speed" min="200" max="1700" value="1000" aria-label="Playback speed"></label>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <h2>The code, running</h2>
+      <p class="sub">The highlighted line is the one doing work right now. Live values sit on the right.</p>
+      <div class="code" id="code"></div>
+    </div>
+    <div class="panel">
+      <h2>One row per number</h2>
+      <p class="sub">Each number gets exactly one lookup. No number is ever visited twice.</p>
+      <div class="stats">
+        <div class="good"><b id="lookups">0</b><span>lookups so far</span></div>
+        <div class="bad"><b id="bfCount">10</b><span>comparisons brute force needs here</span></div>
+      </div>
+      <div class="trace-wrap"><table class="trace">
+        <thead><tr><th>i</th><th>nums[i]</th><th>need</th><th>in seen?</th><th>then</th></tr></thead>
+        <tbody id="trace"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <section class="panel compare">
+    <h2 class="big">What changed from brute force</h2>
+    <p class="lede">Both versions answer the same question, "where is my partner?" Brute force answers it by searching. This version answers it by remembering.</p>
+    <div class="vs">
+      <div class="bad">
+        <h3>Brute force</h3>
+        <dl>
+          <dt>Time</dt><dd class="t">O(n²)</dd>
+          <dt>Extra space</dt><dd>O(1)</dd>
+          <dt>Per number</dt><dd>scan everything after it</dd>
+          <dt>n = 10,000</dt><dd>up to ~50 million checks</dd>
+        </dl>
+      </div>
+      <div class="good">
+        <h3>One pass with a hash map</h3>
+        <dl>
+          <dt>Time</dt><dd class="t">O(n)</dd>
+          <dt>Extra space</dt><dd>O(n)</dd>
+          <dt>Per number</dt><dd>one lookup, one insert</dd>
+          <dt>n = 10,000</dt><dd>up to 10,000 lookups</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="note">Two details make it work. The lookup happens <b>before</b> the insert, so a number can never pair with itself. And because the map only holds numbers to the left of <b>i</b>, the first time a partner exists, it is found immediately.</p>
+  </section>
+
+  <section class="panel try">
+    <h2>Try your own numbers</h2>
+    <p class="sub">Up to 10 integers, separated by commas.</p>
+    <div class="form">
+      <label>nums<input type="text" id="numsIn" value="4, 5, 1, 7, 2" autocomplete="off"></label>
+      <label>target<input type="number" id="targetIn" value="3"></label>
+      <button id="apply" class="primary">Run it</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <div class="presets">
+      <button data-n="4,5,1,7,2" data-t="3">Course example</button>
+      <button data-n="2,7,11,15" data-t="9">Classic example</button>
+      <button data-n="1,2,3,4,5,6,7,8" data-t="15">Brute force's worst case</button>
+      <button data-n="3,-1,8,4,-6,10" data-t="-2">Negative numbers</button>
+      <button data-n="3,3" data-t="6">Duplicate values</button>
+      <button data-n="3,2,4" data-t="6">Can't use 3 twice</button>
+    </div>
+    <p class="keys"><kbd>Space</kbd> play or pause &nbsp; <kbd>←</kbd> <kbd>→</kbd> step &nbsp; <kbd>R</kbd> reset</p>
+  </section>
+</div>
+</div></main>
+<script>
+(()=>{
+
+const LINES = [
+  'function twoSum(nums, target) {',
+  '  for (let i = 0; i < nums.length; i++) {',
+  '    for (let j = i + 1; j < nums.length; j++) {',
+  '      if (nums[i] + nums[j] === target) {',
+  '        return [i, j];',
+  '      }',
+  '    }',
+  '  }',
+  '  return [];',
+  '}'
+];
+const root = document.getElementById('view-brute');
+const $ = id => root.querySelector('#'+id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let curI = 0, curJ = 1;
+function placePointers(){
+  [['pi',curI],['pj',curJ]].forEach(([id,x])=>{
+    const c = $('c'+x); if (!c) return;
+    $(id).style.left = (c.offsetLeft + c.offsetWidth/2) + 'px';
+  });
+}
+new ResizeObserver(placePointers).observe($('track'));
+let nums = [4,5,1,7,2], target = 3, steps = [], k = -1, playing = false, timer = null;
+
+function build(){
+  steps = [];
+  outer: for (let i = 0; i < nums.length; i++)
+    for (let j = i + 1; j < nums.length; j++){
+      const sum = nums[i] + nums[j], hit = sum === target;
+      steps.push({i, j, sum, hit});
+      if (hit) break outer;
+    }
+}
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const hl = s => esc(s).replace(/\b(function|for|let|if|return)\b/g,'<span class="kw">$1</span>');
+
+function setup(){
+  const n = nums.length;
+  $('track').style.setProperty('--n', n);
+  $('tgt').textContent = target;
+  $('arr').innerHTML = nums.map((v,x)=>`<div class="cell" id="c${x}"><span class="v">${v}</span><span class="ix">${x}</span></div>`).join('');
+  $('max').textContent = n*(n-1)/2;
+  // matrix
+  const mx = $('mx');
+  mx.style.gridTemplateColumns = `28px repeat(${n}, 34px)`;
+  let h = '<div class="mh">i\\j</div>';
+  for (let j=0;j<n;j++) h += `<div class="mh">${j}</div>`;
+  for (let i=0;i<n;i++){
+    h += `<div class="mh">${i}</div>`;
+    for (let j=0;j<n;j++){
+      if (j<=i) h += `<button class="mc void" tabindex="-1" aria-hidden="true" disabled></button>`;
+      else h += `<button class="mc pair" id="m${i}_${j}" title="nums[${i}] + nums[${j}] = ${nums[i]} + ${nums[j]} = ${nums[i]+nums[j]}" aria-label="Pair ${i}, ${j}"></button>`;
+    }
+  }
+  mx.innerHTML = h;
+  renderWaste();
+  mx.querySelectorAll('.mc.pair').forEach(b=>b.addEventListener('click',()=>{
+    const [i,j] = b.id.slice(1).split('_').map(Number);
+    const idx = steps.findIndex(s=>s.i===i&&s.j===j);
+    if (idx>=0){ pause(); k = idx; render(); }
+  }));
+  render();
+}
+
+function render(){
+  const n = nums.length, s = steps[k], last = k === steps.length-1;
+  const ended = k>=0 && last;
+  const found = s && s.hit;
+  const ci = s ? s.i : 0, cj = s ? s.j : 1;
+
+  // cells
+  nums.forEach((_,x)=>{
+    const c = $('c'+x);
+    c.className = 'cell';
+    if (found && (x===ci||x===cj)){ c.classList.add('found'); if(!reduce) c.classList.add('pop'); }
+    else if (k>=0 && !ended && x===ci) c.classList.add('is-i');
+    else if (k>=0 && !ended && x===cj) c.classList.add('is-j');
+    else if (k<0 && x===0) c.classList.add('is-i');
+    else if (k<0 && x===1) c.classList.add('is-j');
+    else if (ended && !found && (x===ci||x===cj)) {}
+    if (x<ci && !found) c.classList.add('passed');
+  });
+  curI = ci; curJ = cj; placePointers();
+
+  // equation + narration
+  const eq = $('eq'), say = $('say');
+  if (k<0){
+    eq.innerHTML = `<span class="verdict idle">Ready when you are</span>`;
+    say.innerHTML = `<b style="color:var(--i)">i</b> starts at index 0 and <b style="color:var(--j)">j</b> starts right after it. Press play, or step through one comparison at a time.`;
+  } else {
+    const a = nums[s.i], b = nums[s.j];
+    eq.innerHTML = `<span><span class="vi">${a}</span> + <span class="vj">${b}</span> = ${s.sum}</span>` +
+      (s.hit ? `<span class="verdict hit">equals ${target}, found it</span>` : `<span class="verdict miss">${s.sum} ≠ ${target}</span>`);
+    if (s.hit){
+      say.innerHTML = `nums[${s.i}] + nums[${s.j}] is ${a} + ${b} = ${target}. The function returns <b>[${s.i}, ${s.j}]</b> after ${k+1} comparison${k?'s':''}.`;
+    } else {
+      const nx = steps[k+1];
+      let tail;
+      if (!nx) tail = `That was the last pair. No two numbers add up to ${target}, so the function returns [].`;
+      else if (nx.i===s.i) tail = `No match, so <b style="color:var(--j)">j</b> moves on to index ${nx.j}.`;
+      else tail = `<b style="color:var(--j)">j</b> has reached the end, so <b style="color:var(--i)">i</b> moves to index ${nx.i} and <b style="color:var(--j)">j</b> restarts at ${nx.j}. Pairs with earlier numbers were already tried.`;
+      say.innerHTML = `Does ${a} + ${b} equal ${target}? It's ${s.sum}. ${tail}`;
+    }
+  }
+
+  // code
+  let active = 0;
+  if (k>=0) active = found ? 4 : (ended ? 8 : 3);
+  $('code').innerHTML = LINES.map((l,x)=>{
+    let cls = 'ln';
+    if (x===active) cls += found ? ' ret' : ' active';
+    else if (k>=0 && !ended && (x===1||x===2)) cls += ' loop';
+    let ann = '';
+    if (k>=0 && !(ended&&!found)){
+      if (x===1) ann = `<span class="ann i">i = ${ci}</span>`;
+      if (x===2) ann = `<span class="ann">j = ${cj}</span>`;
+      if (x===3) ann = `<span class="ann">${nums[ci]} + ${nums[cj]} = ${s.sum}</span>`;
+    }
+    return `<div class="${cls}"><span class="no">${x+1}</span><span>${hl(l)}</span>${ann}</div>`;
+  }).join('');
+
+  // matrix
+  steps.forEach((st,x)=>{
+    const m = $(`m${st.i}_${st.j}`);
+    m.className = 'mc pair';
+    if (x<k || (x===k && !st.hit)) m.classList.add('checked');
+    if (x===k && !st.hit && !ended) { m.classList.remove('checked'); m.classList.add('current'); }
+    if (x===k && st.hit) m.classList.add('found');
+  });
+  // pairs never reached
+  for (let i=0;i<n;i++) for (let j=i+1;j<n;j++){
+    const reached = steps.some(st=>st.i===i&&st.j===j);
+    if (!reached) $(`m${i}_${j}`).classList.toggle('skip', found);
+  }
+  $('cnt').textContent = k+1;
+  $('bar').style.width = steps.length ? ((k+1)/steps.length*100)+'%' : '0';
+
+  $('back').disabled = k<0;
+  $('fwd').disabled = ended;
+  $('play').disabled = false;
+  setPlayLabel();
+}
+
+function setPlayLabel(){
+  const ended = k === steps.length-1;
+  $('play').innerHTML = playing
+    ? '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>Pause'
+    : ended ? '<svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Replay'
+    : '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>Play';
+}
+const delay = () => 1900 - +$('speed').value;
+function tick(){
+  if (k < steps.length-1){ k++; render(); }
+  if (k >= steps.length-1){ pause(); return; }
+  timer = setTimeout(tick, delay());
+}
+function play(){
+  if (k >= steps.length-1){ k = -1; render(); }
+  playing = true; setPlayLabel();
+  timer = setTimeout(tick, k<0 ? 350 : delay());
+}
+function pause(){ playing = false; clearTimeout(timer); setPlayLabel(); }
+
+$('play').onclick = () => playing ? pause() : play();
+$('fwd').onclick = () => { pause(); if (k<steps.length-1){k++;render();} };
+$('back').onclick = () => { pause(); if (k>=0){k--;render();} };
+$('reset').onclick = () => { pause(); k=-1; render(); };
+
+function load(nStr, tStr){
+  const parts = nStr.split(',').map(x=>x.trim()).filter(Boolean);
+  const arr = parts.map(Number);
+  const t = Number(tStr);
+  const err = $('err');
+  if (parts.length<2 || parts.length>10) return err.textContent = 'Enter between 2 and 10 numbers.';
+  if (arr.some(x=>!Number.isInteger(x))) return err.textContent = 'Use whole numbers only, separated by commas.';
+  if (tStr==='' || !Number.isInteger(t)) return err.textContent = 'Target needs to be a whole number.';
+  err.textContent = '';
+  pause(); nums = arr; target = t; k = -1; build(); setup();
+}
+$('apply').onclick = () => load($('numsIn').value, $('targetIn').value);
+root.querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{
+  $('numsIn').value = b.dataset.n.split(',').join(', ');
+  $('targetIn').value = b.dataset.t;
+  load(b.dataset.n, b.dataset.t);
+  $('track').scrollIntoView({behavior: reduce?'auto':'smooth', block:'center'});
+});
+document.addEventListener('keydown', e=>{
+  if (root.hidden) return;
+  if (e.target.matches('input')) { if (e.key==='Enter') $('apply').click(); return; }
+  if (e.key===' '){ e.preventDefault(); $('play').click(); }
+  else if (e.key==='ArrowRight') $('fwd').click();
+  else if (e.key==='ArrowLeft') $('back').click();
+  else if (e.key==='r'||e.key==='R') $('reset').click();
+});
+
+const fmt = x => Math.round(x).toLocaleString('en-US');
+function fmtTime(sec){
+  if (sec < 1e-3) return 'well under a millisecond';
+  if (sec < 1) return `about ${Math.round(sec*1000)} ms`;
+  if (sec < 60) return `about ${sec.toFixed(sec<10?1:0)} seconds`;
+  if (sec < 3600) return `about ${Math.round(sec/60)} minutes`;
+  return `about ${(sec/3600).toFixed(1)} hours`;
+}
+const NS = [10,100,1000,10000,100000,1000000];
+function renderGrowth(){
+  const n = NS[+$('nSlider').value];
+  const bf = n*(n-1)/2, hm = n;
+  const maxLog = Math.log10(NS[5]*(NS[5]-1)/2);
+  $('nVal').textContent = fmt(n);
+  $('nTag').style.visibility = n===10000 ? 'visible' : 'hidden';
+  $('bfOps').textContent = fmt(bf) + ' comparisons';
+  $('hmOps').textContent = fmt(hm) + ' lookups';
+  $('bfBar').style.width = (Math.log10(bf)/maxLog*100) + '%';
+  $('hmBar').style.width = (Math.log10(hm)/maxLog*100) + '%';
+  const ratio = bf/hm;
+  $('nCallout').innerHTML = `Brute force does <b>${fmt(ratio)}×</b> more work here. At roughly 100 million simple operations per second, that's ${fmtTime(bf/1e8)} versus ${fmtTime(hm/1e8)}. Ten times more numbers means a hundred times more brute-force work.`;
+}
+$('nSlider').addEventListener('input', renderGrowth);
+
+function renderWaste(){
+  const rows = [];
+  steps.forEach(st=>{
+    let r = rows[rows.length-1];
+    if (!r || r.i !== st.i){ r = {i:st.i, scanned:0, hitJ:-1}; rows.push(r); }
+    r.scanned++;
+    if (st.hit) r.hitJ = st.j;
+  });
+  $('wasteBody').innerHTML = rows.map(r=>`<tr><td>${r.i}</td><td>${nums[r.i]}</td><td>${target - nums[r.i]}</td><td>${r.scanned}</td>${
+    r.hitJ>=0 ? `<td class="yes">found at ${r.hitJ}</td>` : `<td class="no">not after i</td>`}</tr>`).join('');
+  const last = steps[steps.length-1];
+  const found = last && last.hit;
+  const hmOps = found ? last.j + 1 : nums.length;
+  $('wasteCallout').innerHTML = `Brute force spends <b>${steps.length}</b> comparison${steps.length===1?'':'s'} here. A hash map of numbers already seen would answer each "looking for" question in a single lookup, finishing in <b>${hmOps}</b> step${hmOps===1?'':'s'}${found ? ` (it stops as soon as it reaches index ${last.j})` : ''}.`;
+}
+build(); setup(); renderGrowth();
+
+root.addEventListener('viewhide', ()=>pause());
+})();
+
+(()=>{
+
+const LINES = [
+  'function twoSum(nums, target) {',
+  '  const seen = new Map();',
+  '  for (let i = 0; i < nums.length; i++) {',
+  '    const need = target - nums[i];',
+  '    if (seen.has(need)) {',
+  '      return [seen.get(need), i];',
+  '    }',
+  '    seen.set(nums[i], i);',
+  '  }',
+  '  return [];',
+  '}'
+];
+const root = document.getElementById('view-hashmap');
+const $ = id => root.querySelector('#'+id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let nums = [4,5,1,7,2], target = 3, steps = [], k = -1, playing = false, timer = null, bfCount = 0, curI = 0;
+
+function build(){
+  steps = [];
+  const seen = new Map();
+  for (let i = 0; i < nums.length; i++){
+    const need = target - nums[i], has = seen.has(need);
+    steps.push({type:'look', i, need, has, j: has ? seen.get(need) : -1, map:[...seen]});
+    if (has){ steps.push({type:'found', i, need, j: seen.get(need), map:[...seen]}); break; }
+    seen.set(nums[i], i);
+    steps.push({type:'store', i, need, map:[...seen]});
+  }
+  bfCount = 0;
+  outer: for (let i = 0; i < nums.length; i++)
+    for (let j = i + 1; j < nums.length; j++){ bfCount++; if (nums[i]+nums[j]===target) break outer; }
+}
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const hl = s => esc(s).replace(/\b(function|for|let|const|new|if|return)\b/g,'<span class="kw">$1</span>');
+
+function placePointer(){
+  const c = $('c'+curI); if (!c) return;
+  $('pi').style.left = (c.offsetLeft + c.offsetWidth/2) + 'px';
+}
+new ResizeObserver(placePointer).observe($('track'));
+
+function setup(){
+  $('track').style.setProperty('--n', nums.length);
+  $('tgt').textContent = target;
+  $('arr').innerHTML = nums.map((v,x)=>`<div class="cell" id="c${x}"><span class="badge" title="stored in seen"></span><span class="v">${v}</span><span class="ix">${x}</span></div>`).join('');
+  $('bfCount').textContent = bfCount;
+  render();
+}
+
+function render(){
+  const s = steps[k], ended = k === steps.length-1;
+  const found = s && s.type==='found';
+  curI = s ? s.i : 0;
+  const map = s ? s.map : [];
+  const storedIdx = new Set(map.map(e=>e[1]));
+
+  nums.forEach((_,x)=>{
+    const c = $('c'+x); c.className = 'cell';
+    if (found && (x===s.i || x===s.j)){ c.classList.add('found'); if(!reduce) c.classList.add('pop'); return; }
+    if (storedIdx.has(x)) c.classList.add('stored');
+    if (x===curI && !(ended && !found && s && s.type==='store' && false)) c.classList.add('is-i');
+  });
+  placePointer();
+
+  // equation + probe
+  const eq = $('eq'), probe = $('probe'), say = $('say');
+  if (!s){
+    eq.innerHTML = `<span class="pill idle">Ready when you are</span>`;
+    probe.innerHTML = `<span class="pill idle">empty</span>`;
+    say.innerHTML = `Start with an empty map called <b>seen</b>. As <b style="color:var(--i)">i</b> walks the array, seen will remember every number already passed and its index.`;
+  } else {
+    const v = nums[s.i];
+    eq.innerHTML = `<span>need = ${target} − <span class="vi">${v}</span> = <span class="need">${s.need}</span></span>`;
+    if (s.type==='look'){
+      probe.innerHTML = `seen.has(${s.need}) ` + (s.has ? `<span class="pill hit">yes, index ${s.j}</span>` : `<span class="pill miss">no</span>`);
+      say.innerHTML = `nums[${s.i}] is ${v}. To reach ${target} it needs a partner of <b style="color:var(--j)">${s.need}</b>. Is ${s.need} already in seen? ` +
+        (s.has ? `Yes, it was stored at index ${s.j}.` : (map.length ? `No, it isn't among the numbers we've passed.` : `No, the map is still empty.`));
+    } else if (s.type==='store'){
+      probe.innerHTML = `seen.set(${v}, ${s.i}) <span class="pill store">stored</span>`;
+      const last = s.i === nums.length-1;
+      say.innerHTML = `No partner yet, so remember ${v} at index ${s.i}. A later number might need it. ` +
+        (last ? `That was the last number. No pair adds up to ${target}, so the function returns [].` : `Move <b style="color:var(--i)">i</b> to index ${s.i+1}.`);
+    } else {
+      probe.innerHTML = `return [${s.j}, ${s.i}] <span class="pill hit">found it</span>`;
+      say.innerHTML = `${nums[s.j]} + ${v} = ${target}. Return <b>[${s.j}, ${s.i}]</b> after looking at ${s.i+1} number${s.i?'s':''}, each one exactly once.`;
+    }
+  }
+
+  // chips
+  const newKey = s && s.type==='store' ? nums[s.i] : null;
+  const matchKey = s && (s.type==='found' || (s.type==='look' && s.has)) ? s.need : null;
+  $('chips').innerHTML = map.length ? map.map(([key,idx])=>{
+    let cls = 'chip';
+    if (key===newKey) cls += ' new';
+    if (key===matchKey) cls += ' match' + (s.type==='look' ? ' flash' : '');
+    return `<div class="${cls}"><span class="k">${key}</span><span class="val">→ ${idx}</span></div>`;
+  }).join('') : `<span class="empty">Nothing stored yet.</span>`;
+
+  // code
+  let active = 1, ann = {};
+  if (s){
+    ann[2] = `<span class="ann i">i = ${s.i}</span>`;
+    ann[3] = `<span class="ann">need = ${s.need}</span>`;
+    if (s.type==='look'){ active = 4; ann[4] = s.has ? `<span class="ann g">true</span>` : `<span class="ann r">false</span>`; }
+    else if (s.type==='store'){ active = 7; ann[7] = `<span class="ann">seen[${nums[s.i]}] = ${s.i}</span>`; }
+    else { active = 5; ann[5] = `<span class="ann g">[${s.j}, ${s.i}]</span>`; }
+    if (ended && s.type==='store'){ active = 9; ann = {}; }
+  }
+  $('code').innerHTML = LINES.map((l,x)=>{
+    let cls = 'ln';
+    if (x===active) cls += found ? ' ret' : ' active';
+    else if (s && !ended && x===2) cls += ' loop';
+    return `<div class="${cls}"><span class="no">${x+1}</span><span>${hl(l)}</span>${ann[x]||''}</div>`;
+  }).join('');
+
+  // trace
+  const rows = [];
+  for (let x=0; x<=k; x++){
+    const st = steps[x];
+    if (st.type==='look') rows.push({i:st.i, need:st.need, has:st.has, j:st.j, then:'…'});
+    const r = rows[rows.length-1];
+    if (st.type==='store') r.then = `store ${nums[st.i]} → ${st.i}`;
+    if (st.type==='found') r.then = `return [${st.j}, ${st.i}]`;
+  }
+  $('trace').innerHTML = rows.length ? rows.map((r,x)=>`<tr class="${x===rows.length-1?'cur':''}"><td>${r.i}</td><td>${nums[r.i]}</td><td>${r.need}</td>${
+      r.has ? `<td class="yes">yes, at ${r.j}</td>` : `<td class="no">no</td>`}<td>${r.then}</td></tr>`).join('')
+    : `<tr class="ph"><td colspan="5">Rows appear as i moves.</td></tr>`;
+  $('lookups').textContent = rows.length;
+
+  $('bar').style.width = ((k+1)/steps.length*100)+'%';
+  $('back').disabled = k<0;
+  $('fwd').disabled = ended;
+  setPlayLabel();
+}
+
+function setPlayLabel(){
+  const ended = k === steps.length-1;
+  $('play').innerHTML = playing
+    ? '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>Pause'
+    : ended ? '<svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1-5.6 3.9l1.8.7A4 4 0 1 0 8 4v2.5L4 3l4-3.5z"/></svg>Replay'
+    : '<svg viewBox="0 0 16 16"><path d="M4 2v12l10-6z"/></svg>Play';
+}
+const delay = () => 1900 - +$('speed').value;
+function tick(){
+  if (k < steps.length-1){ k++; render(); }
+  if (k >= steps.length-1){ pause(); return; }
+  timer = setTimeout(tick, delay());
+}
+function play(){
+  if (k >= steps.length-1){ k = -1; render(); }
+  playing = true; setPlayLabel();
+  timer = setTimeout(tick, k<0 ? 350 : delay());
+}
+function pause(){ playing = false; clearTimeout(timer); setPlayLabel(); }
+$('play').onclick = () => playing ? pause() : play();
+$('fwd').onclick = () => { pause(); if (k<steps.length-1){k++;render();} };
+$('back').onclick = () => { pause(); if (k>=0){k--;render();} };
+$('reset').onclick = () => { pause(); k=-1; render(); };
+
+function load(nStr, tStr){
+  const parts = nStr.split(',').map(x=>x.trim()).filter(Boolean);
+  const arr = parts.map(Number), t = Number(tStr), err = $('err');
+  if (parts.length<2 || parts.length>10) return err.textContent = 'Enter between 2 and 10 numbers.';
+  if (arr.some(x=>!Number.isInteger(x))) return err.textContent = 'Use whole numbers only, separated by commas.';
+  if (tStr==='' || !Number.isInteger(t)) return err.textContent = 'Target needs to be a whole number.';
+  err.textContent = '';
+  pause(); nums = arr; target = t; k = -1; build(); setup();
+}
+$('apply').onclick = () => load($('numsIn').value, $('targetIn').value);
+root.querySelectorAll('.presets button').forEach(b=>b.onclick=()=>{
+  $('numsIn').value = b.dataset.n.split(',').join(', ');
+  $('targetIn').value = b.dataset.t;
+  load(b.dataset.n, b.dataset.t);
+  $('track').scrollIntoView({behavior: reduce?'auto':'smooth', block:'center'});
+});
+document.addEventListener('keydown', e=>{
+  if (root.hidden) return;
+  if (e.target.matches('input')) { if (e.key==='Enter') $('apply').click(); return; }
+  if (e.key===' '){ e.preventDefault(); $('play').click(); }
+  else if (e.key==='ArrowRight') $('fwd').click();
+  else if (e.key==='ArrowLeft') $('back').click();
+  else if (e.key==='r'||e.key==='R') $('reset').click();
+});
+build(); setup();
+
+root.addEventListener('viewhide', ()=>pause());
+})();
+
+(()=>{
+  const views = ['brute','hashmap'];
+  function show(name, scroll){
+    if (!views.includes(name)) name = 'brute';
+    views.forEach(v=>{
+      const el = document.getElementById('view-'+v), on = v===name;
+      if (!on && !el.hidden) el.dispatchEvent(new Event('viewhide'));
+      el.hidden = !on;
+      document.getElementById('tab-'+v).setAttribute('aria-selected', on);
+    });
+    try { history.replaceState(null,'','#'+name); } catch(e) {}
+    if (scroll) window.scrollTo({top:0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  }
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go, true)));
+  show(location.hash.slice(1), false);
+})();
+</script>
+</body>
+</html>
