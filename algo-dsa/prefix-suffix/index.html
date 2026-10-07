@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prefix and suffix techniques, Algo Visuals</title>
+<meta name="description" content="Prefix and suffix arrays explained interactively: build them, query ranges in O(1), and apply the everything-except-me pattern.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+<script type="module" src="/assets/auth.js"></script>
+<style>
+:root{--p:#4B57D1;--p-soft:#E3E6FB;--s:#B05FB8;--s-soft:#F5E4F6;--cur:#B97C06;--cur-soft:#FBEFD3;--code-bg:#1B2233}
+@media (prefers-color-scheme:dark){:root{--p:#949EFF;--p-soft:#272E58;--s:#E19BE8;--s-soft:#3B2440;--cur:#F2BE4A;--cur-soft:#3B3120;--code-bg:#0F1420}}
+.wrap{padding-bottom:40px}
+h1{max-width:18ch}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+h3{font-size:1rem;margin:18px 0 6px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:20px}
+.mono{font-family:var(--mono)}
+code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
+.cp{color:var(--p);font-weight:600}.cs{color:var(--s);font-weight:600}.cc{color:var(--cur);font-weight:600}.cg{color:var(--hit);font-weight:600}
+p{max-width:70ch}
+.divider{display:flex;align-items:center;gap:14px;margin:34px 0 18px}
+.divider h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;margin:0;white-space:nowrap}
+.divider::after{content:"";flex:1;height:2px;background:var(--line)}
+.idea{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.idea div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.idea b{display:block;margin-bottom:4px}.idea p{margin:0;color:var(--muted);font-size:.93rem}
+
+/* generic array rows */
+.rows{display:grid;gap:8px;overflow-x:auto;padding-bottom:4px}
+.row{display:grid;grid-template-columns:110px repeat(var(--n),56px);gap:6px;align-items:center;width:max-content}
+.row .lbl{font-size:.82rem;color:var(--muted);font-weight:600;white-space:nowrap}
+.row .lbl small{display:block;font-family:var(--mono);font-weight:400;font-size:.72rem}
+.c{height:50px;border-radius:12px;background:var(--cell);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;transition:background .25s,border-color .25s,opacity .25s;position:relative}
+.c.ix{height:auto;background:transparent;font-family:var(--mono);font-weight:400;font-size:.75rem;color:var(--muted)}
+.c.p{background:var(--p-soft);border-color:var(--p)}
+.c.s{background:var(--s-soft);border-color:var(--s)}
+.c.cur{background:var(--cur-soft);border-color:var(--cur)}
+.c.hit{background:var(--hit-soft);border-color:var(--hit)}
+.c.dim{opacity:.35}
+.c.empty{background:transparent;border:2px dashed var(--line);color:var(--muted);font-weight:400}
+.c .tag{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.7rem;font-weight:600;white-space:nowrap}
+.row.tagged{margin-bottom:14px}
+.slider{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:.9rem;color:var(--muted);flex-wrap:wrap}
+.slider input[type=range]{accent-color:var(--p);width:min(320px,100%)}
+.slider b{font-family:var(--mono);color:var(--ink)}
+.say{margin:12px 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:1rem;min-height:2.8em;max-width:72ch}
+.formula{font-family:var(--mono);font-size:1rem;background:var(--cell);border-radius:12px;padding:10px 14px;margin:12px 0;overflow-x:auto;white-space:nowrap}
+.formula .v{color:var(--p);font-weight:600}.formula .w{color:var(--cur);font-weight:600}.formula .r{color:var(--hit);font-weight:600}
+
+/* controls */
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+button.btn,.seg button{font-family:var(--sans);font-size:.92rem;font-weight:600;cursor:pointer}
+button.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 14px;display:inline-flex;align-items:center;gap:6px}
+button.btn:disabled{opacity:.4;cursor:default}
+button.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);min-width:96px;justify-content:center}
+.seg{display:inline-flex;gap:3px;background:var(--cell);border-radius:12px;padding:3px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;padding:6px 11px;border-radius:9px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+input[type=text],input[type=number]{font-family:var(--mono);font-size:.95rem;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
+input[type=number]{width:80px}
+label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted)}
+.err{color:var(--miss);font-size:.88rem;min-height:1.3em;margin:4px 0 0}
+.code{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;overflow-x:auto;line-height:1.55;margin:10px 0 0}
+.code .kw{color:#9FA8FF}.code .cm{color:#7F8AA0}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+
+/* calc */
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.out div{background:var(--cell);border-radius:12px;padding:12px 14px}
+.out b{display:block;font-family:var(--mono);font-size:1.25rem}.out span{font-size:.82rem;color:var(--muted)}
+.out .bad b{color:var(--miss)}.out .good b{color:var(--hit)}
+
+/* rain */
+.rain{width:100%;height:auto;display:block;margin-top:8px}
+.rain .bar{fill:var(--muted);opacity:.8}.rain .bar.cur{fill:var(--cur)}
+.rain .water{fill:var(--p);opacity:.45}.rain .water.cur{opacity:.9}
+.rain .lvl{stroke:var(--hit);stroke-width:2;stroke-dasharray:4 3}
+.rain text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
+.tbl th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:8px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td:first-child{font-family:var(--mono);white-space:nowrap}
+.yes{color:var(--hit);font-weight:600}.no{color:var(--miss);font-weight:600}.maybe{color:var(--cur);font-weight:600}
+.tbl-wrap{overflow-x:auto}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:12px}
+.card2{background:var(--cell);border-radius:14px;padding:16px}
+.card2 h4{margin:0 0 6px;font-size:1rem}
+.card2 p{margin:0 0 8px;font-size:.93rem}
+.card2 pre{margin:8px 0 0;font-family:var(--mono);font-size:.8rem;background:var(--surface);border-radius:10px;padding:10px 12px;overflow-x:auto;line-height:1.5}
+.card2.bad{border-left:3px solid var(--miss)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:var(--cell);border-radius:999px;padding:5px 12px;font-size:.88rem}
+.steps-list{margin:8px 0 0;padding-left:1.4em;max-width:70ch}
+.steps-list li{margin:0 0 6px}
+.steps-list li::marker{font-family:var(--mono);font-weight:600;color:var(--p)}
+.quiz{display:grid;gap:8px;margin-top:12px}
+.quiz details{background:var(--cell);border-radius:12px;padding:10px 14px}
+.quiz summary{cursor:pointer;font-weight:600}
+.quiz p{margin:8px 0 2px;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <p class="crumb"><a href="/">Home</a> / <a href="/algo-dsa">Algo &amp; DSA</a> / Prefix and suffix</p>
+  <h1>Prefix and suffix techniques</h1>
+  <p class="lede">Array problems keep asking the same two questions: "what happened before this index?" and "what remains after it?" Instead of rescanning every time, sweep once in each direction and remember. That one habit turns O(n²) into O(n) and turns range queries into a subtraction.</p>
+
+  <div class="idea">
+    <div><b>Prefix = left to right</b><p>Information accumulated over <span class="cp">A[0 … i]</span>. "What have I seen so far?"</p></div>
+    <div><b>Suffix = right to left</b><p>Information accumulated over <span class="cs">A[i … n−1]</span>. "What is still ahead of me?"</p></div>
+    <div><b>Any operation works</b><p>Sum is the famous one, but max, min, XOR, GCD, product and counts all follow the same recurrence.</p></div>
+    <div><b>Both sides at once</b><p>prefix[i−1] and suffix[i+1] describe everything except index i. That pattern solves a whole family of problems.</p></div>
+  </div>
+
+  <div class="divider"><h2>What prefix and suffix mean</h2></div>
+  <section class="panel">
+    <p class="sub">Drag the slider. The blue cells are the prefix that ends at i; the purple cells are the suffix that starts at i. Index i belongs to both.</p>
+    <div class="rows" id="defRows"></div>
+    <div class="slider">i = <b id="defI">2</b><input type="range" id="defSlider" min="0" max="4" value="2" aria-label="index i"></div>
+    <p class="say" id="defSay"></p>
+  </section>
+
+  <div class="divider"><h2>Build one, step by step</h2></div>
+  <section class="panel">
+    <p class="sub">Every prefix array comes from one recurrence: <code>prefix[i] = combine(prefix[i−1], A[i])</code>. Pick the operation and the direction, then watch it fill in. The code updates to match.</p>
+    <div class="ctrl">
+      <div class="seg" id="opSeg" role="group" aria-label="Operation"></div>
+      <div class="seg" id="dirSeg" role="group" aria-label="Direction"><button data-dir="prefix" aria-pressed="true">Prefix</button><button data-dir="suffix" aria-pressed="false">Suffix</button></div>
+    </div>
+    <div class="rows" id="bRows"></div>
+    <div class="formula" id="bFormula"></div>
+    <div class="ctrl">
+      <button class="btn" id="bReset">Reset</button>
+      <button class="btn" id="bBack">Back</button>
+      <button class="btn primary" id="bPlay">Play</button>
+      <button class="btn" id="bNext">Next</button>
+    </div>
+    <p class="say" id="bSay"></p>
+    <div class="two" style="margin-top:12px">
+      <div><div class="code" id="bCode"></div></div>
+      <div>
+        <label class="f">Your own array (2 to 10 integers)<input type="text" id="bIn" value="3, 1, 5, 2, 8, 4" style="width:min(300px,80vw)"></label>
+        <div class="ctrl" style="margin:8px 0 0"><button class="btn primary" id="bApply">Use it</button></div>
+        <p class="err" id="bErr"></p>
+        <p class="sub" style="margin-top:8px">Time: one pass, O(n). Each cell costs one combine, which is why rescanning is never needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><h2>The range-query trick</h2></div>
+  <section class="panel">
+    <p class="sub">Use an array of size n+1 with <code>prefix[0] = 0</code>. Then the sum of any range A[L … R] is <code>prefix[R+1] − prefix[L]</code>: the unwanted left part is subtracted away. Pick L and R and watch which two cells are used.</p>
+    <div class="ctrl">
+      <div class="seg" id="qSeg" role="group" aria-label="Operation"><button data-op="sum" aria-pressed="true">Sum</button><button data-op="xor" aria-pressed="false">XOR</button><button data-op="count" aria-pressed="false">Count of odd</button><button data-op="max" aria-pressed="false">Max (why not?)</button></div>
+      <label class="f">L<input type="number" id="qL" value="1" min="0"></label>
+      <label class="f">R<input type="number" id="qR" value="3" min="0"></label>
+    </div>
+    <div class="rows" id="qRows"></div>
+    <div class="formula" id="qFormula"></div>
+    <p class="say" id="qSay"></p>
+    <h3>Why it matters at scale</h3>
+    <p class="sub">n elements, q range queries. Rescanning costs about n per query; prefix sums cost n once, then 1 per query.</p>
+    <div class="ctrl">
+      <label class="f">n<input type="number" id="cN" value="100000"></label>
+      <label class="f">q<input type="number" id="cQ" value="100000"></label>
+    </div>
+    <div class="out" id="cOut"></div>
+  </section>
+
+  <div class="divider"><h2>Everything except me</h2></div>
+  <section class="panel">
+    <p class="sub">The most important prefix + suffix pattern: for each index, combine what's strictly to its left with what's strictly to its right. Product of Array Except Self is the classic. Watch the two passes build <code>left</code> and <code>right</code>, then multiply.</p>
+    <div class="rows" id="eRows"></div>
+    <div class="formula" id="eFormula"></div>
+    <div class="ctrl">
+      <button class="btn" id="eReset">Reset</button>
+      <button class="btn" id="eBack">Back</button>
+      <button class="btn primary" id="ePlay">Play</button>
+      <button class="btn" id="eNext">Next</button>
+    </div>
+    <p class="say" id="eSay"></p>
+    <div class="two" style="margin-top:12px">
+      <div class="code">left[i]  = product of A[0 … i−1]   <span class="cm">// strictly before i</span>
+right[i] = product of A[i+1 … n−1] <span class="cm">// strictly after i</span>
+ans[i]   = left[i] * right[i]
+
+<span class="cm">// in code, left is built left-to-right, right is built right-to-left</span>
+left[0] = 1;  <span class="kw">for</span> (i = 1 … n−1)  left[i]  = left[i−1]  * A[i−1];
+right[n−1] = 1; <span class="kw">for</span> (i = n−2 … 0) right[i] = right[i+1] * A[i+1];</div>
+      <div class="card2 bad"><h4>Including vs excluding the current element</h4><p>A prefix that <b>includes</b> i is <code>prefix[i]</code>. "Strictly before i" is <code>prefix[i−1]</code>, and "strictly after i" is <code>suffix[i+1]</code>. Most bugs in this pattern come from mixing those up, and from forgetting that i = 0 has nothing to its left and i = n−1 has nothing to its right. Use an identity value (0 for sum, 1 for product, −∞ for max) at the edges.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"><h2>The same idea in famous problems</h2></div>
+  <section class="panel">
+    <h2>Pivot index: left sum equals right sum</h2>
+    <p class="sub">Move i. Left is the sum strictly before i, right is the sum strictly after. You don't even need an array here: a running total is enough, because right = total − left − A[i].</p>
+    <div class="rows" id="pvRows"></div>
+    <div class="slider">i = <b id="pvI">0</b><input type="range" id="pvSlider" min="0" max="5" value="0" aria-label="index"></div>
+    <p class="say" id="pvSay"></p>
+  </section>
+  <section class="panel">
+    <h2>Stock profit: prefix min meets suffix max</h2>
+    <p class="sub">Buy low on an earlier day, sell high on a later day. Prefix min answers "cheapest so far", suffix max answers "best price still coming". The two sides store different things, which is allowed.</p>
+    <div class="rows" id="stRows"></div>
+    <div class="slider">sell on day <b id="stI">1</b><input type="range" id="stSlider" min="1" max="5" value="4" aria-label="sell day"></div>
+    <p class="say" id="stSay"></p>
+  </section>
+  <section class="panel">
+    <h2>Trapping rain water: prefix max and suffix max</h2>
+    <p class="sub">Water above a bar is held in by the tallest wall on each side: <code>water[i] = min(leftMax[i], rightMax[i]) − height[i]</code>. Move i to see the two walls that matter for that column.</p>
+    <svg class="rain" id="rain" viewBox="0 0 640 220"></svg>
+    <div class="rows" id="rwRows"></div>
+    <div class="slider">i = <b id="rwI">5</b><input type="range" id="rwSlider" min="0" max="11" value="5" aria-label="column"></div>
+    <p class="say" id="rwSay"></p>
+  </section>
+  <section class="panel">
+    <h2>Difference array: range updates in O(1)</h2>
+    <p class="sub">The inverse trick. To add x to every element in A[L … R], write <code>+x</code> at L and <code>−x</code> at R+1 in a difference array. One prefix sum at the end rebuilds the real values, no matter how many updates you made.</p>
+    <div class="ctrl">
+      <label class="f">L<input type="number" id="dL" value="1" min="0" max="5"></label>
+      <label class="f">R<input type="number" id="dR" value="3" min="0" max="5"></label>
+      <label class="f">x<input type="number" id="dX" value="3"></label>
+      <button class="btn primary" id="dAdd" style="align-self:flex-end">Add update</button>
+      <button class="btn" id="dReset" style="align-self:flex-end">Clear</button>
+    </div>
+    <div class="rows" id="dRows"></div>
+    <p class="say" id="dSay"></p>
+  </section>
+  <section class="panel">
+    <h2>More places it hides</h2>
+    <div class="cards">
+      <div class="card2"><h4>Valid split</h4><p>Split so that everything on the left ≤ everything on the right. That's <code>prefixMax[i] ≤ suffixMin[i+1]</code>, checked for every i in one pass.</p></div>
+      <div class="card2"><h4>Parentheses balance</h4><p>Treat ( as +1 and ) as −1. The prefix sum is the running balance. Valid means it never dips below 0 and ends at exactly 0.</p><pre>( ( ) ( ) )
+1 2 1 2 1 0  ✓</pre></div>
+      <div class="card2"><h4>Prefix count</h4><p>"How many 1s between L and R?" is a prefix sum of a condition: <code>prefix[i+1] = prefix[i] + (A[i] == 1)</code>, then subtract. Same for letters in a string.</p></div>
+      <div class="card2"><h4>GCD except me</h4><p>GCD of the array after removing index i is <code>gcd(prefixGcd[i−1], suffixGcd[i+1])</code>. Same shape as product-except-self.</p></div>
+      <div class="card2"><h4>2D prefix sums</h4><p>Rectangle sums on a grid: <code>P[i+1][j+1] = M[i][j] + P[i][j+1] + P[i+1][j] − P[i][j]</code>. Add the two overlapping rectangles, subtract the corner counted twice.</p></div>
+      <div class="card2"><h4>Kadane, viewed as a prefix</h4><p><code>bestEnding[i] = max(A[i], bestEnding[i−1] + A[i])</code> is a left-to-right recurrence too. "Prefix" is about direction, not about sums.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"><h2>Which operations can answer any range?</h2></div>
+  <section class="panel">
+    <p class="sub">Subtraction only works when the operation has an inverse. Without one, prefix arrays still answer "from the start up to i", but not arbitrary L … R.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Operation</th><th>Range L … R from prefix?</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>sum</td><td class="yes">yes</td><td>prefix[R+1] − prefix[L]: subtraction undoes addition</td></tr>
+        <tr><td>xor</td><td class="yes">yes</td><td>prefix[R+1] ^ prefix[L]: x ^ x = 0, so XOR undoes itself</td></tr>
+        <tr><td>count</td><td class="yes">yes</td><td>a count is a sum of 0s and 1s</td></tr>
+        <tr><td>product</td><td class="maybe">sometimes</td><td>division works unless there are zeros or you're working modulo M</td></tr>
+        <tr><td>max / min</td><td class="no">no</td><td>there's no "un-max"; use a sparse table, segment tree, or a sliding-window deque</td></tr>
+        <tr><td>gcd / and / or</td><td class="no">no</td><td>no inverse either; prefix versions are still great when the range starts at 0 or for "except me"</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="divider"><h2>Mistakes everyone makes once</h2></div>
+  <section class="panel">
+    <div class="cards">
+      <div class="card2 bad"><h4>Wrong loop direction for suffix</h4><p>suffix[i] depends on suffix[i+1], so the loop must run from n−2 down to 0. Starting at 0 reads cells you haven't filled yet.</p></div>
+      <div class="card2 bad"><h4>Off the end of the array</h4><p>prefix[i−1] at i = 0 and suffix[i+1] at i = n−1 don't exist. Guard them with an identity value or use the n+1 layout with a leading 0.</p></div>
+      <div class="card2 bad"><h4>Integer overflow</h4><p>10⁵ values up to 10⁹ sum to about 10¹⁴, far past 32-bit. Use 64-bit integers for prefix sums; in Python this isn't an issue, in C++ and Java it is.</p></div>
+      <div class="card2 bad"><h4>Mixing indexing styles</h4><p>Style 1: prefix[i] = sum of A[0 … i], range = prefix[R] − prefix[L−1], with a special case at L = 0. Style 2: leading 0, range = prefix[R+1] − prefix[L], no special case. Pick style 2 and stick with it.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"><h2>Spot it, then solve it</h2></div>
+  <section class="panel">
+    <h2>Phrases that give it away</h2>
+    <div class="chips"><span class="chip">sum up to index i</span><span class="chip">maximum before i</span><span class="chip">minimum after i</span><span class="chip">everything to the left</span><span class="chip">all elements except the current one</span><span class="chip">split the array</span><span class="chip">remove one element</span><span class="chip">many range queries</span><span class="chip">occurrences between L and R</span><span class="chip">best seen so far</span></div>
+    <h3>A short strategy</h3>
+    <ol class="steps-list">
+      <li>Am I rescanning the same left or right portion over and over?</li>
+      <li>What single piece of information do I need from that side: sum, max, min, count, XOR, GCD, a boolean?</li>
+      <li>Is it about the left side (prefix), the right side (suffix), or both sides of every index (prefix + suffix)?</li>
+      <li>Do I need all the values later (keep the array), or just the running value as I sweep (keep one variable)?</li>
+      <li>Check the edges: what's the identity value when there's nothing to the left or right?</li>
+    </ol>
+    <h3>Templates</h3>
+    <div class="seg" id="langSeg" role="group" aria-label="Language"><button data-lang="js" aria-pressed="true">JavaScript</button><button data-lang="py" aria-pressed="false">Python</button><button data-lang="cpp" aria-pressed="false">C++</button></div>
+    <div class="code" id="tmplCode"></div>
+    <h3>Check yourself</h3>
+    <div class="quiz">
+      <details><summary>A = [2, 4, 1, 7, 3]. What's the sum of A[1 … 3] using the n+1 prefix array?</summary><p>prefix = [0, 2, 6, 7, 14, 17]. Sum = prefix[4] − prefix[1] = 14 − 2 = <b>12</b>, which is 4 + 1 + 7.</p></details>
+      <details><summary>Why can't you get the max of A[2 … 4] from a prefix max array?</summary><p>prefixMax[4] tells you the biggest value in A[0 … 4], but you can't "subtract" A[0 … 1] out of it: if the overall max sits at index 0, you have no idea what the max of A[2 … 4] is. Max has no inverse.</p></details>
+      <details><summary>For "product except self", what should left[0] and right[n−1] be?</summary><p><b>1</b>, the identity for multiplication: there's nothing to the left of index 0 and nothing to the right of the last index, and multiplying by 1 changes nothing.</p></details>
+      <details><summary>You add 5 to A[2 … 4] and 2 to A[0 … 1] using a difference array of length 6. What does diff look like?</summary><p>diff = [2, 0, 3, 0, 0, −5]. Start +2 at 0, cancel with −2 at 2, start +5 at 2 (so index 2 nets +3), cancel with −5 at 5. Prefix-summing gives [2, 2, 5, 5, 5, 0].</p></details>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cell = (v, cls='', tag='') => `<div class="c ${cls}">${v}${tag?`<span class="tag">${tag}</span>`:''}</div>`;
+const idxRow = n => `<div class="row"><div class="lbl"></div>${Array.from({length:n},(_,i)=>cell(i,'ix')).join('')}</div>`;
+const rowOf = (label, cells, sub='', tagged=false) => `<div class="row ${tagged?'tagged':''}"><div class="lbl">${label}${sub?`<small>${sub}</small>`:''}</div>${cells.join('')}</div>`;
+
+/* ---------- 1. definitions ---------- */
+const DEF = [2,4,1,7,3];
+function renderDef(){
+  const i = +$('defSlider').value; $('defI').textContent = i;
+  const R = $('defRows'); R.style.setProperty('--n', DEF.length);
+  R.innerHTML = idxRow(DEF.length)
+    + rowOf('A', DEF.map((v,x)=>cell(v, x===i?'cur':'')))
+    + rowOf('prefix at i', DEF.map((v,x)=>cell(v, x<=i?'p':'dim')), 'A[0 … i]')
+    + rowOf('suffix at i', DEF.map((v,x)=>cell(v, x>=i?'s':'dim')), 'A[i … n−1]');
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', DEF.length));
+  $('defSay').innerHTML = `The prefix ending at ${i} is <span class="cp">[${DEF.slice(0,i+1).join(', ')}]</span>, the suffix starting at ${i} is <span class="cs">[${DEF.slice(i).join(', ')}]</span>. "Prefix sum at ${i}" would be ${DEF.slice(0,i+1).reduce((a,b)=>a+b)}, "suffix max at ${i}" would be ${Math.max(...DEF.slice(i))}. Any question about one side of ${i} can be pre-answered this way.`;
+}
+$('defSlider').addEventListener('input', renderDef); renderDef();
+
+/* ---------- 2. builder ---------- */
+const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const OPS = {
+  sum:    {label:'Sum',     f:(a,b)=>a+b, show:(a,b)=>`${a} + ${b}`, id:0,  js:'prev + a[i]', py:'prev + a[i]', cpp:'prev + a[i]'},
+  max:    {label:'Max',     f:Math.max,   show:(a,b)=>`max(${a}, ${b})`, id:-Infinity, js:'Math.max(prev, a[i])', py:'max(prev, a[i])', cpp:'max(prev, a[i])'},
+  min:    {label:'Min',     f:Math.min,   show:(a,b)=>`min(${a}, ${b})`, id:Infinity, js:'Math.min(prev, a[i])', py:'min(prev, a[i])', cpp:'min(prev, a[i])'},
+  xor:    {label:'XOR',     f:(a,b)=>a^b, show:(a,b)=>`${a} ^ ${b}`, id:0, js:'prev ^ a[i]', py:'prev ^ a[i]', cpp:'prev ^ a[i]'},
+  gcd:    {label:'GCD',     f:gcd,        show:(a,b)=>`gcd(${a}, ${b})`, id:0, js:'gcd(prev, a[i])', py:'gcd(prev, a[i])', cpp:'gcd(prev, a[i])'},
+  product:{label:'Product', f:(a,b)=>a*b, show:(a,b)=>`${a} × ${b}`, id:1, js:'prev * a[i]', py:'prev * a[i]', cpp:'prev * a[i]'},
+  count:  {label:'Count of odd', f:(a,b)=>a+(Math.abs(b)%2), show:(a,b)=>`${a} + (${b} is odd ? 1 : 0)`, id:0, js:'prev + (a[i] % 2 !== 0 ? 1 : 0)', py:'prev + (a[i] % 2 != 0)', cpp:'prev + (a[i] % 2 != 0)'}
+};
+let bArr = [3,1,5,2,8,4], bOp = 'max', bDir = 'prefix', bK = -1, bPlaying = false, bTimer = null;
+$('opSeg').innerHTML = Object.entries(OPS).map(([k,o])=>`<button data-op="${k}" aria-pressed="${k===bOp}">${o.label}</button>`).join('');
+$('opSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ bOp=b.dataset.op; $('opSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); bPause(); bK=-1; renderB(); });
+$('dirSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ bDir=b.dataset.dir; $('dirSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); bPause(); bK=-1; renderB(); });
+
+function bSteps(){
+  const n = bArr.length, out = new Array(n).fill(null), steps = [], op = OPS[bOp];
+  if (bDir==='prefix'){
+    for (let i=0;i<n;i++){ const prev = i? out[i-1] : null; const v = i? op.f(prev, bArr[i]) : (bOp==='count'? (Math.abs(bArr[0])%2) : bArr[0]); out[i]=v; steps.push({i, prev, v, snap: out.slice()}); }
+  } else {
+    for (let i=n-1;i>=0;i--){ const prev = i<n-1? out[i+1] : null; const v = i<n-1? op.f(prev, bArr[i]) : (bOp==='count'? (Math.abs(bArr[n-1])%2) : bArr[n-1]); out[i]=v; steps.push({i, prev, v, snap: out.slice()}); }
+  }
+  return steps;
+}
+function renderB(){
+  const steps = bSteps(), s = steps[bK], n = bArr.length, op = OPS[bOp], name = bDir + op.label.replace(/ .*/,'');
+  const snap = s ? s.snap : new Array(n).fill(null);
+  const R = $('bRows');
+  R.innerHTML = idxRow(n)
+    + rowOf('A', bArr.map((v,x)=>cell(v, s && x===s.i ? 'cur' : '')))
+    + rowOf(name, snap.map((v,x)=> v===null ? cell('·','empty') : cell(v, s && x===s.i ? 'hit' : (bDir==='prefix'?'p':'s'))), bDir==='prefix' ? 'left → right' : 'right → left');
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+  const F = $('bFormula'), S = $('bSay');
+  if (!s){
+    F.innerHTML = bDir==='prefix' ? `${name}[i] = ${op.show('<span class="v">'+name+'[i−1]</span>','<span class="w">A[i]</span>')}` : `${name}[i] = ${op.show('<span class="w">A[i]</span>','<span class="v">'+name+'[i+1]</span>')}`;
+    S.innerHTML = bDir==='prefix' ? `The first cell has nothing before it, so ${name}[0] is just A[0]${bOp==='count'?' turned into 0 or 1':''}. After that, each cell is one combine of the previous cell with the current element.` : `Suffix arrays are built backwards: ${name}[n−1] is just A[n−1], then each cell combines the current element with the cell to its right.`;
+  } else if (s.prev===null){
+    F.innerHTML = `${name}[${s.i}] = <span class="w">A[${s.i}]</span>${bOp==='count'?' is odd ? 1 : 0':''} = <span class="r">${s.v}</span>`;
+    S.innerHTML = `Base case. There's nothing ${bDir==='prefix'?'to the left of':'to the right of'} index ${s.i}, so the answer is the element itself${bOp==='count'?' (counted as '+s.v+')':''}.`;
+  } else {
+    const nb = bDir==='prefix' ? s.i-1 : s.i+1;
+    F.innerHTML = `${name}[${s.i}] = ${bDir==='prefix' ? op.show('<span class="v">'+s.prev+'</span>','<span class="w">'+bArr[s.i]+'</span>') : op.show('<span class="w">'+bArr[s.i]+'</span>','<span class="v">'+s.prev+'</span>')} = <span class="r">${s.v}</span>`;
+    S.innerHTML = `Take the already-known answer for index ${nb} (<span class="cp">${s.prev}</span>), combine it with A[${s.i}] = ${bArr[s.i]}, and that's the answer for index ${s.i}. No rescanning of the ${bDir==='prefix'?'left':'right'} part.`
+      + (bK===steps.length-1 ? ` Done in ${n} steps.` : '');
+  }
+  $('bCode').innerHTML = codeFor(bOp, bDir);
+  $('bBack').disabled = bK<0; $('bNext').disabled = bK===steps.length-1;
+  $('bPlay').textContent = bPlaying ? 'Pause' : (bK===steps.length-1 ? 'Replay' : 'Play');
+}
+function codeFor(opKey, dir){
+  const o = OPS[opKey], name = dir + o.label.replace(/ .*/,'');
+  const body = o.js.replace(/prev/g, dir==='prefix' ? `${name}[i - 1]` : `${name}[i + 1]`);
+  const base = opKey==='count' ? `a[${dir==='prefix'?'0':'n - 1'}] % 2 !== 0 ? 1 : 0` : `a[${dir==='prefix'?'0':'n - 1'}]`;
+  return dir==='prefix'
+    ? `<span class="kw">const</span> ${name} = <span class="kw">new</span> Array(n);\n${name}[0] = ${base};\n<span class="kw">for</span> (<span class="kw">let</span> i = 1; i &lt; n; i++) {\n  ${name}[i] = ${body};\n}`
+    : `<span class="kw">const</span> ${name} = <span class="kw">new</span> Array(n);\n${name}[n - 1] = ${base};\n<span class="kw">for</span> (<span class="kw">let</span> i = n - 2; i &gt;= 0; i--) {\n  ${name}[i] = ${body};\n}`;
+}
+function bTick(){ const L = bSteps().length; if (bK<L-1){ bK++; renderB(); } if (bK>=L-1){ bPause(); return; } bTimer=setTimeout(bTick, 1000); }
+function bPlayFn(){ if (bK>=bSteps().length-1){ bK=-1; renderB(); } bPlaying=true; renderB(); bTimer=setTimeout(bTick, 400); }
+function bPause(){ bPlaying=false; clearTimeout(bTimer); }
+$('bPlay').onclick=()=>{ bPlaying ? (bPause(), renderB()) : bPlayFn(); };
+$('bNext').onclick=()=>{ bPause(); if (bK<bSteps().length-1){bK++;} renderB(); };
+$('bBack').onclick=()=>{ bPause(); if (bK>=0){bK--;} renderB(); };
+$('bReset').onclick=()=>{ bPause(); bK=-1; renderB(); };
+$('bApply').onclick=()=>{
+  const parts = $('bIn').value.split(',').map(x=>x.trim()).filter(Boolean).map(Number);
+  if (parts.length<2||parts.length>10) return $('bErr').textContent='Enter between 2 and 10 numbers.';
+  if (parts.some(x=>!Number.isInteger(x))) return $('bErr').textContent='Whole numbers only.';
+  $('bErr').textContent=''; bArr=parts; bPause(); bK=-1; renderB();
+};
+renderB();
+
+/* ---------- 3. range query ---------- */
+const QA = [2,4,1,7,3];
+let qOp = 'sum';
+$('qSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ qOp=b.dataset.op; $('qSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); renderQ(); });
+['qL','qR'].forEach(id=>$(id).addEventListener('input', renderQ));
+function renderQ(){
+  const n = QA.length, R = $('qRows');
+  let L = Math.max(0, Math.min(n-1, +$('qL').value||0)), Rr = Math.max(0, Math.min(n-1, +$('qR').value||0));
+  if (L>Rr) [L,Rr]=[Rr,L];
+  const F = $('qFormula'), S = $('qSay');
+  if (qOp==='max'){
+    const pm = QA.map((v,i)=>Math.max(...QA.slice(0,i+1)));
+    R.innerHTML = idxRow(n) + rowOf('A', QA.map((v,x)=>cell(v, x>=L&&x<=Rr?'cur':''))) + rowOf('prefixMax', pm.map((v,x)=>cell(v, x===Rr?'hit':'p')));
+    R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+    F.innerHTML = `max(A[${L} … ${Rr}]) = ?   prefixMax[${Rr}] = ${pm[Rr]}, but that covers A[0 … ${Rr}]`;
+    S.innerHTML = `The true answer is <b>${Math.max(...QA.slice(L,Rr+1))}</b>. prefixMax[${Rr}] = ${pm[Rr]} includes everything from index 0, and there's no way to "subtract" A[0 … ${L-1}] out of a maximum. Max, min, GCD, AND and OR have no inverse, so prefix arrays only answer ranges that start at 0. For arbitrary ranges you need a sparse table or segment tree.`;
+    return;
+  }
+  const f = qOp==='sum' ? (a,b)=>a+b : qOp==='xor' ? (a,b)=>a^b : (a,b)=>a+(Math.abs(b)%2);
+  const P=[0]; for (let i=0;i<n;i++) P.push(f(P[i], QA[i]));
+  const inv = qOp==='xor' ? '^' : '−';
+  const ans = qOp==='xor' ? (P[Rr+1]^P[L]) : (P[Rr+1]-P[L]);
+  const nm = qOp==='sum'?'prefix':qOp==='xor'?'prefixXor':'prefixOdd';
+  R.innerHTML = idxRow(n) + rowOf('A', QA.map((v,x)=>cell(v, x>=L&&x<=Rr?'cur':'dim')))
+    + rowOf(nm, P.map((v,x)=>cell(v, x===Rr+1?'hit':x===L?'hit':'p', x===Rr+1?`[R+1]`:x===L?`[L]`:'')), 'size n+1, starts at 0', true);
+  R.querySelectorAll('.row').forEach((r,i)=>r.style.setProperty('--n', i===2? n+1 : n));
+  F.innerHTML = `${qOp==='count'?'odd count':qOp}(A[${L} … ${Rr}]) = <span class="v">${nm}[${Rr+1}]</span> ${inv} <span class="v">${nm}[${L}]</span> = ${P[Rr+1]} ${inv} ${P[L]} = <span class="r">${ans}</span>`;
+  const direct = QA.slice(L,Rr+1);
+  S.innerHTML = `${nm}[${Rr+1}] covers A[0 … ${Rr}]. ${nm}[${L}] covers A[0 … ${L-1}], the part you don't want. ${qOp==='xor' ? 'XOR-ing it away works because x ^ x = 0' : 'Subtracting it leaves exactly A[' + L + ' … ' + Rr + ']'}. Check: ${direct.join(qOp==='xor'?' ^ ':' + ')} = ${qOp==='count' ? direct.filter(x=>Math.abs(x)%2).length : qOp==='xor' ? direct.reduce((a,b)=>a^b) : direct.reduce((a,b)=>a+b)}. Two lookups instead of ${direct.length} additions.`;
+}
+renderQ();
+function renderC(){
+  const n=+$('cN').value||0, q=+$('cQ').value||0, brute=n*q, pre=n+q;
+  const fmt = x => x>=1e12?(x/1e12).toFixed(1)+' trillion':x>=1e9?(x/1e9).toFixed(1)+' billion':x>=1e6?(x/1e6).toFixed(1)+' million':x.toLocaleString();
+  $('cOut').innerHTML = `<div class="bad"><b>${fmt(brute)}</b><span>rescanning: about n × q steps</span></div><div class="good"><b>${fmt(pre)}</b><span>prefix sums: n + q steps</span></div><div><b>${brute>0? Math.round(brute/pre).toLocaleString():0}×</b><span>less work</span></div>`;
+}
+['cN','cQ'].forEach(id=>$(id).addEventListener('input', renderC)); renderC();
+
+/* ---------- 4. product except self ---------- */
+const EA = [1,2,3,4];
+let eK=-1, ePlaying=false, eTimer=null;
+function eSteps(){
+  const n=EA.length, left=new Array(n).fill(null), right=new Array(n).fill(null), ans=new Array(n).fill(null), st=[];
+  for (let i=0;i<n;i++){ left[i] = i? left[i-1]*EA[i-1] : 1; st.push({ph:'left', i, left:left.slice(), right:right.slice(), ans:ans.slice()}); }
+  for (let i=n-1;i>=0;i--){ right[i] = i<n-1? right[i+1]*EA[i+1] : 1; st.push({ph:'right', i, left:left.slice(), right:right.slice(), ans:ans.slice()}); }
+  for (let i=0;i<n;i++){ ans[i]=left[i]*right[i]; st.push({ph:'ans', i, left:left.slice(), right:right.slice(), ans:ans.slice()}); }
+  return st;
+}
+function renderE(){
+  const st=eSteps(), s=st[eK], n=EA.length, R=$('eRows');
+  const left = s?s.left:new Array(n).fill(null), right=s?s.right:new Array(n).fill(null), ans=s?s.ans:new Array(n).fill(null);
+  const rng = (arr, i, lo, hi) => arr.map((v,x)=>cell(v, s && s.i===i && x>=lo && x<=hi ? 'cur' : ''));
+  const aCells = s && s.ph==='left' ? rng(EA, s.i, 0, s.i-1) : s && s.ph==='right' ? rng(EA, s.i, s.i+1, n-1) : EA.map((v,x)=>cell(v, s&&s.ph==='ans'&&x===s.i?'dim':''));
+  const hl = (arr, ph, cls) => arr.map((v,x)=> v===null? cell('·','empty') : cell(v, s && s.ph===ph && x===s.i ? 'hit' : (s && s.ph==='ans' && x===s.i ? 'cur' : cls)));
+  R.innerHTML = idxRow(n) + rowOf('A', aCells) + rowOf('left', hl(left,'left','p'), 'product before i') + rowOf('right', hl(right,'right','s'), 'product after i') + rowOf('answer', hl(ans,'ans','hit'), 'left × right');
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+  const F=$('eFormula'), S=$('eSay');
+  if (!s){ F.innerHTML = `left[i] = left[i−1] × A[i−1]     right[i] = right[i+1] × A[i+1]     ans[i] = left[i] × right[i]`; S.innerHTML = `Three passes: build <span class="cp">left</span> going right, build <span class="cs">right</span> going left, then multiply. Press play.`; }
+  else if (s.ph==='left'){ F.innerHTML = s.i? `left[${s.i}] = <span class="v">left[${s.i-1}]</span> × <span class="w">A[${s.i-1}]</span> = ${s.left[s.i-1]} × ${EA[s.i-1]} = <span class="r">${s.left[s.i]}</span>` : `left[0] = <span class="r">1</span>  (nothing to the left)`; S.innerHTML = s.i? `The highlighted cells are A[0 … ${s.i-1}], strictly before ${s.i}. Their product is the previous left value times one more element.` : `Index 0 has nothing to its left, so its "product of nothing" is 1, the identity for multiplication.`; }
+  else if (s.ph==='right'){ F.innerHTML = s.i<n-1? `right[${s.i}] = <span class="w">A[${s.i+1}]</span> × <span class="v">right[${s.i+1}]</span> = ${EA[s.i+1]} × ${s.right[s.i+1]} = <span class="r">${s.right[s.i]}</span>` : `right[${n-1}] = <span class="r">1</span>  (nothing to the right)`; S.innerHTML = s.i<n-1? `Now sweeping backwards. The highlighted cells are A[${s.i+1} … ${n-1}], strictly after ${s.i}.` : `The last index has nothing to its right, so right[${n-1}] = 1.`; }
+  else { F.innerHTML = `ans[${s.i}] = <span class="v">left[${s.i}]</span> × <span class="v">right[${s.i}]</span> = ${s.left[s.i]} × ${s.right[s.i]} = <span class="r">${s.ans[s.i]}</span>`; S.innerHTML = `Everything before ${s.i} times everything after ${s.i}: the product of the whole array except A[${s.i}] = ${EA[s.i]}, without ever using division.` + (eK===st.length-1 ? ` Final answer [${s.ans.join(', ')}].` : ''); }
+  $('eBack').disabled=eK<0; $('eNext').disabled=eK===st.length-1; $('ePlay').textContent = ePlaying?'Pause':(eK===st.length-1?'Replay':'Play');
+}
+function eTick(){ const L=eSteps().length; if (eK<L-1){eK++;renderE();} if (eK>=L-1){ePause();return;} eTimer=setTimeout(eTick,900); }
+function ePause(){ ePlaying=false; clearTimeout(eTimer); }
+$('ePlay').onclick=()=>{ if (ePlaying){ePause();renderE();return;} if (eK>=eSteps().length-1){eK=-1;} ePlaying=true; renderE(); eTimer=setTimeout(eTick,400); };
+$('eNext').onclick=()=>{ePause(); if (eK<eSteps().length-1) eK++; renderE();};
+$('eBack').onclick=()=>{ePause(); if (eK>=0) eK--; renderE();};
+$('eReset').onclick=()=>{ePause(); eK=-1; renderE();};
+renderE();
+
+/* ---------- 5. pivot ---------- */
+const PV=[1,7,3,6,5,6];
+function renderPv(){
+  const i=+$('pvSlider').value, n=PV.length; $('pvI').textContent=i;
+  const left=PV.slice(0,i).reduce((a,b)=>a+b,0), right=PV.slice(i+1).reduce((a,b)=>a+b,0), total=PV.reduce((a,b)=>a+b,0);
+  const R=$('pvRows');
+  R.innerHTML = idxRow(n) + rowOf('A', PV.map((v,x)=>cell(v, x<i?'p':x>i?'s':'cur')));
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+  $('pvSay').innerHTML = `left = <span class="cp">${left}</span>, right = <span class="cs">${right}</span>${left===right?`. <span class="cg">They match: index ${i} is the pivot.</span>`:'. Not equal, keep going.'} Notice right can be computed as total − left − A[i] = ${total} − ${left} − ${PV[i]} = ${right}, so a single running variable replaces the suffix array.`;
+}
+$('pvSlider').addEventListener('input', renderPv); renderPv();
+
+/* ---------- 6. stock ---------- */
+const ST=[7,1,5,3,6,4];
+function renderSt(){
+  const i=+$('stSlider').value, n=ST.length; $('stI').textContent=i;
+  const pmin=ST.map((v,x)=>Math.min(...ST.slice(0,x+1))), smax=ST.map((v,x)=>Math.max(...ST.slice(x)));
+  const buy = pmin[i-1], profit = ST[i]-buy;
+  let best=0, bi=0; for (let d=1;d<n;d++){ const p=ST[d]-pmin[d-1]; if (p>best){best=p;bi=d;} }
+  const R=$('stRows');
+  R.innerHTML = idxRow(n) + rowOf('price', ST.map((v,x)=>cell(v, x===i?'cur':''))) + rowOf('prefixMin', pmin.map((v,x)=>cell(v, x===i-1?'hit':'p')), 'cheapest so far') + rowOf('suffixMax', smax.map((v,x)=>cell(v, 's')), 'best price ahead');
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+  $('stSay').innerHTML = `Selling on day ${i} at ${ST[i]}: the cheapest earlier day is prefixMin[${i-1}] = <span class="cp">${buy}</span>, so the profit is ${ST[i]} − ${buy} = <b>${profit}</b>. ${i===bi?`<span class="cg">That's the best possible, ${best}.</span>`:`The best overall is ${best}, selling on day ${bi}.`} Only prefix min is needed for this version; suffix max is what you'd use if you fixed the buy day instead.`;
+}
+$('stSlider').addEventListener('input', renderSt); renderSt();
+
+/* ---------- 7. rain water ---------- */
+const H=[0,1,0,2,1,0,1,3,2,1,2,1];
+function renderRw(){
+  const i=+$('rwSlider').value, n=H.length; $('rwI').textContent=i;
+  const lm=H.map((v,x)=>Math.max(...H.slice(0,x+1))), rm=H.map((v,x)=>Math.max(...H.slice(x)));
+  const water=H.map((h,x)=>Math.max(0, Math.min(lm[x],rm[x])-h));
+  const W=640, Hh=220, bw=W/n, unit=48, base=Hh-20;
+  let svg='';
+  H.forEach((h,x)=>{ svg += `<rect class="bar ${x===i?'cur':''}" x="${x*bw+4}" y="${base-h*unit}" width="${bw-8}" height="${h*unit}" rx="4"/>`; if (water[x]>0) svg += `<rect class="water ${x===i?'cur':''}" x="${x*bw+4}" y="${base-(h+water[x])*unit}" width="${bw-8}" height="${water[x]*unit}"/>`; svg += `<text x="${x*bw+bw/2}" y="${Hh-5}" text-anchor="middle">${x}</text>`; });
+  const lvl = Math.min(lm[i],rm[i]);
+  svg += `<line class="lvl" x1="0" x2="${W}" y1="${base-lvl*unit}" y2="${base-lvl*unit}"/>`;
+  $('rain').innerHTML = svg;
+  const R=$('rwRows');
+  R.innerHTML = idxRow(n) + rowOf('height', H.map((v,x)=>cell(v, x===i?'cur':''))) + rowOf('leftMax', lm.map((v,x)=>cell(v, x===i?'hit':'p')), 'tallest so far') + rowOf('rightMax', rm.map((v,x)=>cell(v, x===i?'hit':'s')), 'tallest ahead') + rowOf('water', water.map((v,x)=>cell(v, x===i?'hit':v>0?'p':'dim')));
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', n));
+  $('rwSay').innerHTML = `At column ${i}: leftMax = <span class="cp">${lm[i]}</span>, rightMax = <span class="cs">${rm[i]}</span>. Water can only rise to the lower wall, min(${lm[i]}, ${rm[i]}) = ${lvl} (dashed line), minus the bar itself: ${lvl} − ${H[i]} = <b>${water[i]}</b>. Total trapped: ${water.reduce((a,b)=>a+b)}. Two O(n) passes replace an O(n²) search for walls.`;
+}
+$('rwSlider').addEventListener('input', renderRw); renderRw();
+
+/* ---------- 8. difference array ---------- */
+const DN=6; let diff=new Array(DN).fill(0), updates=[];
+function renderD(){
+  const A=[]; let run=0; for (let i=0;i<DN;i++){ run+=diff[i]; A.push(run); }
+  const R=$('dRows');
+  R.innerHTML = idxRow(DN) + rowOf('diff', diff.map((v)=>cell(v, v>0?'p':v<0?'s':''))) + rowOf('prefix sum', A.map((v)=>cell(v, v!==0?'hit':'')), 'the real array');
+  R.querySelectorAll('.row').forEach(r=>r.style.setProperty('--n', DN));
+  $('dSay').innerHTML = updates.length ? `${updates.map(u=>`+${u.x} on [${u.l} … ${u.r}]`).join(', ')}. Each update touched at most two cells of diff. The prefix sum rebuilds the array: ${updates.length} update${updates.length>1?'s':''} for O(${updates.length}) work instead of O(${updates.reduce((a,u)=>a+(u.r-u.l+1),0)}).` : `No updates yet. Add one: it writes +x at L and −x at R+1 (if R+1 exists), and the prefix sum shows the effect.`;
+}
+$('dAdd').onclick=()=>{
+  let l=Math.max(0,Math.min(DN-1,+$('dL').value||0)), r=Math.max(0,Math.min(DN-1,+$('dR').value||0)), x=+$('dX').value||0;
+  if (l>r) [l,r]=[r,l];
+  diff[l]+=x; if (r+1<DN) diff[r+1]-=x; updates.push({l,r,x}); renderD();
+};
+$('dReset').onclick=()=>{ diff=new Array(DN).fill(0); updates=[]; renderD(); };
+renderD();
+
+/* ---------- 9. templates ---------- */
+const TMPL = {
+  js: `<span class="cm">// prefix sum, n+1 style (prefix[0] = 0)</span>
+<span class="kw">const</span> prefix = <span class="kw">new</span> Array(n + 1).fill(0);
+<span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; n; i++) prefix[i + 1] = prefix[i] + a[i];
+<span class="kw">const</span> rangeSum = (l, r) =&gt; prefix[r + 1] - prefix[l];
+
+<span class="cm">// generic prefix / suffix (combine = max, min, gcd, ...)</span>
+<span class="kw">const</span> pre = <span class="kw">new</span> Array(n); pre[0] = a[0];
+<span class="kw">for</span> (<span class="kw">let</span> i = 1; i &lt; n; i++) pre[i] = combine(pre[i - 1], a[i]);
+<span class="kw">const</span> suf = <span class="kw">new</span> Array(n); suf[n - 1] = a[n - 1];
+<span class="kw">for</span> (<span class="kw">let</span> i = n - 2; i &gt;= 0; i--) suf[i] = combine(a[i], suf[i + 1]);
+
+<span class="cm">// "except me", with identity at the edges</span>
+<span class="kw">const</span> left  = i &gt; 0     ? pre[i - 1] : IDENTITY;
+<span class="kw">const</span> right = i + 1 &lt; n ? suf[i + 1] : IDENTITY;`,
+  py: `<span class="cm"># prefix sum, n+1 style (prefix[0] = 0)</span>
+prefix = [0] * (n + 1)
+<span class="kw">for</span> i <span class="kw">in</span> range(n):
+    prefix[i + 1] = prefix[i] + a[i]
+<span class="kw">def</span> range_sum(l, r):
+    <span class="kw">return</span> prefix[r + 1] - prefix[l]
+
+<span class="cm"># generic prefix / suffix (combine = max, min, gcd, ...)</span>
+pre = [0] * n; pre[0] = a[0]
+<span class="kw">for</span> i <span class="kw">in</span> range(1, n):
+    pre[i] = combine(pre[i - 1], a[i])
+suf = [0] * n; suf[-1] = a[-1]
+<span class="kw">for</span> i <span class="kw">in</span> range(n - 2, -1, -1):
+    suf[i] = combine(a[i], suf[i + 1])
+
+<span class="cm"># "except me", with identity at the edges</span>
+left  = pre[i - 1] <span class="kw">if</span> i &gt; 0 <span class="kw">else</span> IDENTITY
+right = suf[i + 1] <span class="kw">if</span> i + 1 &lt; n <span class="kw">else</span> IDENTITY`,
+  cpp: `<span class="cm">// prefix sum, n+1 style (prefix[0] = 0); long long to avoid overflow</span>
+vector&lt;<span class="kw">long long</span>&gt; prefix(n + 1, 0);
+<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; n; i++) prefix[i + 1] = prefix[i] + a[i];
+<span class="kw">long long</span> rangeSum(<span class="kw">int</span> l, <span class="kw">int</span> r) { <span class="kw">return</span> prefix[r + 1] - prefix[l]; }
+
+<span class="cm">// generic prefix / suffix (combine = max, min, gcd, ...)</span>
+vector&lt;<span class="kw">int</span>&gt; pre(n); pre[0] = a[0];
+<span class="kw">for</span> (<span class="kw">int</span> i = 1; i &lt; n; i++) pre[i] = combine(pre[i - 1], a[i]);
+vector&lt;<span class="kw">int</span>&gt; suf(n); suf[n - 1] = a[n - 1];
+<span class="kw">for</span> (<span class="kw">int</span> i = n - 2; i &gt;= 0; i--) suf[i] = combine(a[i], suf[i + 1]);
+
+<span class="cm">// "except me", with identity at the edges</span>
+<span class="kw">int</span> left  = (i &gt; 0)     ? pre[i - 1] : IDENTITY;
+<span class="kw">int</span> right = (i + 1 &lt; n) ? suf[i + 1] : IDENTITY;`
+};
+$('langSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('langSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); $('tmplCode').innerHTML=TMPL[b.dataset.lang]; });
+$('tmplCode').innerHTML=TMPL.js;
+</script>
+</body>
+</html>
