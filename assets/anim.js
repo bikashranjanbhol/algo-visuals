@@ -280,5 +280,6 @@
     root.classList.add('anim-mounted');
     (KINDS[spec.kind || 'flow'])(root, spec);
   }
-  document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('.anim').forEach(mount));
+  window.ANIM = { mount, mountAll: root => (root || document).querySelectorAll('.anim:not(.anim-mounted)').forEach(mount) };
+  document.addEventListener('DOMContentLoaded', () => window.ANIM.mountAll());
 })();

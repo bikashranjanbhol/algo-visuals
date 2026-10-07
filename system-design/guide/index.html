@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design Components: the complete guide, Algo Visuals</title>
+<meta name="description" content="System design components explained one concept at a time, with animated diagrams.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/anim.css">
+<script src="/assets/site.js" defer></script>
+<script type="module" src="/assets/auth.js"></script>
+<script src="/system-design/guide/specs.js"></script>
+<script src="/system-design/guide/manifest.js"></script>
+<script src="/assets/anim.js"></script>
+<style>
+:root{--code-bg:#1B2233} @media (prefers-color-scheme:dark){:root{--code-bg:#0F1420}}
+.wrap{max-width:1320px;padding:24px 20px 40px}
+.lib{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:900px){.lib{grid-template-columns:1fr}}
+.side{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:12px;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto}
+@media (max-width:900px){.side{position:static;max-height:280px}}
+.side h2{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 8px 8px}
+.side .prog{font-size:.8rem;color:var(--muted);margin:0 8px 10px}
+.grp{border-top:1px solid var(--line)}
+.grp:first-of-type{border-top:none}
+.grp > button{width:100%;text-align:left;background:none;border:none;font-family:var(--sans);font-size:.95rem;font-weight:700;color:var(--ink);padding:10px 8px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.grp > button .n{margin-left:auto;font-family:var(--mono);font-size:.72rem;color:var(--muted);background:var(--cell);border-radius:999px;padding:2px 8px}
+.grp > button .chev{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s;flex:none}
+.grp.open > button .chev{transform:rotate(45deg)}
+.grp ul{list-style:none;margin:0;padding:0 0 8px}
+.grp:not(.open) ul{display:none}
+.grp li a{display:block;padding:7px 10px 7px 24px;border-radius:10px;text-decoration:none;color:var(--muted);font-size:.9rem;line-height:1.3}
+.grp li a:hover{background:var(--cell);color:var(--ink)}
+.grp li a[aria-current="true"]{background:var(--i-soft);color:var(--i);font-weight:600}
+.grp li span.soon{display:block;padding:7px 10px 7px 24px;color:var(--muted);opacity:.5;font-size:.9rem;line-height:1.3;cursor:default}
+.grp li span.soon::after{content:" · coming";font-size:.72rem}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px clamp(16px,3vw,32px) 28px;min-width:0}
+.doc .sec-title{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 14px;max-width:none}
+.doc h2{font-size:1.25rem;font-weight:800;margin:28px 0 8px}
+.doc h3{font-size:1.05rem;font-weight:700;margin:20px 0 6px}
+.doc h4{font-size:1rem;font-weight:700;margin:16px 0 4px}
+.doc p{max-width:72ch;margin:0 0 12px}
+.doc ul,.doc ol{max-width:72ch;margin:0 0 12px;padding-left:1.4em}
+.doc li{margin:3px 0}
+.doc blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--i);background:var(--i-soft);border-radius:0 12px 12px 0;max-width:72ch}
+.doc blockquote p{margin:0}
+.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
+.doc pre code{background:transparent;padding:0;font-size:inherit;color:inherit}
+.doc code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
+.doc table{border-collapse:collapse;font-size:.92rem;margin:10px 0 14px;max-width:72ch}
+.doc th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:8px 10px;border-bottom:1px solid var(--line)}
+.doc td{padding:8px 10px;border-bottom:1px solid var(--line)}
+details.orig{max-width:760px;margin:0 0 16px}
+details.orig summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
+details.orig pre{margin-top:8px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:28px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pager a{font-weight:600;color:var(--i);text-decoration:none;font-size:.95rem}
+.pager span{color:var(--muted);font-size:.95rem}
+.intro{color:var(--muted)}
+.intro blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--i);background:var(--i-soft);border-radius:0 12px 12px 0;max-width:72ch;color:var(--ink)}
+.intro blockquote p{margin:0}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Complete guide</p>
+  <div class="lib">
+    <aside class="side" aria-label="Concepts">
+      <h2>Concepts</h2>
+      <p class="prog" id="prog"></p>
+      <div id="groups"></div>
+    </aside>
+    <section class="stage"><div class="doc" id="doc"></div></section>
+  </div>
+</div>
+</main>
+<script>
+const G = window.GUIDE, $ = id => document.getElementById(id);
+const all = G.groups.flatMap(g => g.items), ready = all.filter(i => i.ready);
+let cur = null;
+function renderSide(){
+  const open = g => g.items.some(i => i.id === cur);
+  $('prog').textContent = `${ready.length} of ${all.length} built`;
+  $('groups').innerHTML = G.groups.map(g => `<div class="grp ${open(g) || cur === null && g === G.groups[0] ? 'open' : ''}"><button type="button">${g.group}<span class="n">${g.items.filter(i=>i.ready).length}/${g.items.length}</span><span class="chev"></span></button><ul>${g.items.map(i => i.ready ? `<li><a href="#${i.id}" data-id="${i.id}" ${i.id===cur?'aria-current="true"':''}>${i.title}</a></li>` : `<li><span class="soon">${i.title}</span></li>`).join('')}</ul></div>`).join('');
+  $('groups').querySelectorAll('.grp > button').forEach(b => b.onclick = () => b.parentElement.classList.toggle('open'));
+  $('groups').querySelectorAll('li a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+}
+async function go(id, scroll){
+  cur = id; history.replaceState(null, '', '#' + id); renderSide();
+  const doc = $('doc'); doc.innerHTML = '<p class="intro">Loading…</p>';
+  try { const r = await fetch(`/system-design/guide/sections/${id}.html`); if (!r.ok) throw 0; doc.innerHTML = await r.text(); }
+  catch { doc.innerHTML = '<p>This concept is not built yet.</p>'; }
+  const i = ready.findIndex(x => x.id === id), prev = ready[i-1], next = ready[i+1];
+  doc.insertAdjacentHTML('beforeend', `<div class="pager">${prev?`<a href="#${prev.id}" data-id="${prev.id}">‹ ${prev.title}</a>`:'<span></span>'}${next?`<a href="#${next.id}" data-id="${next.id}">${next.title} ›</a>`:'<span>More concepts coming</span>'}</div>`);
+  doc.querySelectorAll('.pager a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+  window.ANIM && window.ANIM.mountAll(doc);
+  if (scroll) document.querySelector('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function showIntro(){
+  cur = null; renderSide();
+  $('doc').innerHTML = `<h1 class="sec-title">System Design Components Explained</h1><div class="intro">${G.intro}</div><p class="sub">Pick a concept on the left. Built concepts are clickable; the rest are listed so you can see where they fit.</p>` + (ready[0] ? `<div class="pager"><span></span><a href="#${ready[0].id}" data-id="${ready[0].id}">Start: ${ready[0].title} ›</a></div>` : '');
+  $('doc').querySelectorAll('.pager a').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.id, true); });
+}
+const h = location.hash.replace('#', '');
+if (h && ready.some(x => x.id === h)) go(h, false); else showIntro();
+window.addEventListener('hashchange', () => { const k = location.hash.replace('#',''); if (k && ready.some(x => x.id === k) && k !== cur) go(k, false); });
+</script>
+</body>
+</html>

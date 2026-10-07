@@ -1,0 +1,117 @@
+<h1 class="sec-title">1. The Big Picture: What Is System Design?</h1>
+<p>System design is the process of deciding <strong>how the different parts of a software system should work together</strong>.</p>
+<p>Suppose we build a small online store.</p>
+<p>The first version might look like this:</p>
+<div class="anim" data-spec="g1_simple"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>User
+  |
+  v
+Web / Mobile App
+  |
+  v
+Backend Server
+  |
+  v
+Database
+</code></pre></details>
+
+<p>The user sends an HTTP request.</p>
+<p>The backend:</p>
+<ol>
+<li>receives the request,</li>
+<li>executes business logic,</li>
+<li>reads or writes data,</li>
+<li>sends a response.</li>
+</ol>
+<p>For 100 users, this may be all we need.</p>
+<p>But imagine the application becomes popular.</p>
+<p>Now:</p>
+<ul>
+<li>100,000 users arrive simultaneously.</li>
+<li>Users from different continents experience high latency.</li>
+<li>One backend server cannot process every request.</li>
+<li>The database becomes overwhelmed.</li>
+<li>Sending emails slows down checkout.</li>
+<li>Product search becomes slow.</li>
+<li>A server crashes.</li>
+<li>Attackers send millions of requests.</li>
+<li>You want to deploy without downtime.</li>
+<li>One data center loses power.</li>
+</ul>
+<p>The architecture begins to evolve.</p>
+<div class="anim" data-spec="g1_evolved"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>                         Users
+                           |
+                           v
+                          DNS
+                           |
+                           v
+                          CDN
+                           |
+                           v
+                    Load Balancer
+                           |
+                           v
+                     API Gateway
+                           |
+             +-------------+-------------+
+             |             |             |
+             v             v             v
+          App #1         App #2         App #3
+             |
+             +---------------------------+
+                           |
+                    +------+------+
+                    |             |
+                    v             v
+                  Cache        Database
+                                |
+                         Replicas / Shards
+                                |
+                                v
+                       Message / Event Bus
+                          /      |      \
+                         v       v       v
+                      Email   Inventory Analytics
+                      Worker   Worker     Worker
+</code></pre></details>
+
+<p>Other components surround this request path:</p>
+<div class="anim" data-spec="g1_surround"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Object Storage     Search Engine
+      \                 /
+       \               /
+        Application Services
+               |
+        Observability
+   Logs + Metrics + Traces
+
+Authentication
+Rate Limiting
+Service Discovery
+Secrets Management
+Firewalls / WAF
+Backups
+Multi-region replication
+</code></pre></details>
+
+<p>Large systems must balance several competing goals.</p>
+<h2>Scalability</h2>
+<p>Can the system support more users, requests, and data?</p>
+<h2>Availability</h2>
+<p>Can users still access the system when something fails?</p>
+<h2>Reliability</h2>
+<p>Does the system behave correctly over time?</p>
+<h2>Performance</h2>
+<p>How quickly does it respond?</p>
+<h2>Security</h2>
+<p>Can unauthorized users access data or functionality?</p>
+<h2>Fault tolerance</h2>
+<p>Can components fail without taking down the whole system?</p>
+<h2>Maintainability</h2>
+<p>Can engineers understand, modify, and operate the system?</p>
+<h2>Consistency</h2>
+<p>When multiple copies of data exist, how quickly must they agree?</p>
+<h2>Cost</h2>
+<p>How much infrastructure and engineering effort are justified?</p>
+<p>Every component discussed below addresses one or more of these concerns.</p>
