@@ -1,11 +1,10 @@
-// Paste your Firebase web app config here.
-// Firebase console → Project settings → Your apps → Web app → "SDK setup and configuration" → Config.
-// Until apiKey is filled in, sign-in and member gating stay switched off and the site behaves as fully public.
+// Firebase web app config for the algo-visuals project.
+// These values are public identifiers (not secrets); access is controlled by Firestore rules and Auth settings.
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDOqIms_GCovdPdM58qg1pcokTBIwE5uAI",
+  authDomain: "algo-visuals-65cf8.firebaseapp.com",
+  projectId: "algo-visuals-65cf8",
+  storageBucket: "algo-visuals-65cf8.firebasestorage.app",
+  messagingSenderId: "833754126878",
+  appId: "1:833754126878:web:7c871efed74175a8686c0f"
 };
