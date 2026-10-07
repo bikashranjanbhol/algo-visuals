@@ -1,0 +1,47 @@
+/* animated diagrams (assets/anim.js) */
+.anim{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px 10px;margin:12px 0 6px;max-width:760px}
+.anim-svg{width:100%;height:auto;display:block;font-family:var(--sans)}
+.anim-cap{font-size:.92rem;color:var(--ink);min-height:1.5em;margin:8px 2px 0;transition:opacity .2s}
+.an-node rect{fill:var(--cell);stroke:var(--line);stroke-width:1.6;transition:fill .3s,stroke .3s}
+.an-node .an-label{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.an-node .an-sub{font-size:10px;fill:var(--muted)}
+.an-node .an-badge{font-family:var(--mono);font-size:10px;font-weight:600;fill:var(--j,#B97C06)}
+.an-node.client rect{fill:var(--surface);stroke:var(--i,#4B57D1)}
+.an-node.db rect{fill:var(--i-soft,#E3E6FB);stroke:var(--i,#4B57D1)}
+.an-node.mem rect{fill:var(--j-soft,#FBEFD3);stroke:var(--j,#B97C06)}
+.an-node.queue rect{fill:var(--cell);stroke:var(--muted);stroke-dasharray:5 4}
+.an-node.ghost rect{fill:transparent;stroke:transparent}
+.an-node.ghost .an-label{fill:var(--muted);font-weight:400;font-style:italic}
+.an-node.ok rect{fill:var(--hit-soft,#D6F2E5);stroke:var(--hit,#14875C)}
+.an-node.on rect{fill:var(--i-soft,#E3E6FB);stroke:var(--i,#4B57D1);stroke-width:2.5}
+.an-node.warn rect{fill:var(--j-soft,#FBEFD3);stroke:var(--j,#B97C06)}
+.an-node.fail rect{fill:var(--miss-soft,#F8DDE0);stroke:var(--miss,#C2414F)}
+.an-node.off{opacity:.3}
+.an-node.hidden,.an-edge.hidden{display:none}
+.an-node.pulse rect{stroke-width:3}
+.an-group rect{fill:var(--cell);stroke:var(--line);stroke-dasharray:6 4;opacity:.7}
+.an-glabel{font-size:11px;font-weight:600;fill:var(--muted)}
+.an-edge{fill:none;stroke:var(--muted);stroke-width:1.6;opacity:.8}
+.an-edge.dashed{stroke-dasharray:5 4}
+.an-edge.temp{opacity:0}
+.an-ah{fill:var(--muted)}
+.an-elabel{font-size:10px;fill:var(--muted)}
+.an-packet circle{fill:var(--i,#4B57D1);stroke:#fff;stroke-width:2}
+.an-packet text{font-family:var(--mono);font-size:10px;font-weight:600;fill:var(--ink)}
+.an-packet.ok circle{fill:var(--hit,#14875C)}
+.an-packet.fail circle{fill:var(--miss,#C2414F)}
+.an-packet.warn circle{fill:var(--j,#B97C06)}
+.an-ring{fill:none;stroke:var(--line);stroke-width:3}
+.an-key circle{fill:var(--j,#B97C06);stroke:#fff;stroke-width:2}
+.an-key text{font-family:var(--mono);font-size:10px;font-weight:600;fill:var(--ink)}
+.an-bucket{fill:var(--cell);stroke:var(--line);stroke-width:2}
+.an-token{fill:var(--j,#B97C06);opacity:.9}
+.ok-t{fill:var(--hit,#14875C)!important}.fail-t{fill:var(--miss,#C2414F)!important}
+.an-bar{fill:var(--i,#4B57D1);opacity:.75}.an-bar.hot{fill:var(--miss,#C2414F)}
+.an-mark{stroke-width:2;stroke-dasharray:4 3}.an-mark.p50{stroke:var(--i,#4B57D1)}.an-mark.p95{stroke:var(--j,#B97C06)}.an-mark.p99{stroke:var(--miss,#C2414F)}
+text.p50{fill:var(--i,#4B57D1)}text.p95{fill:var(--j,#B97C06)}text.p99{fill:var(--miss,#C2414F)}
+.an-wbar{fill:var(--i,#4B57D1);opacity:.8}.an-wbar.hot{fill:var(--miss,#C2414F)}
+.an-wval{font-family:var(--mono);font-size:11px;font-weight:600;fill:#fff}
+.an-axis{stroke:var(--line);stroke-width:2}
+.an-dot.fail{fill:var(--miss,#C2414F)}.an-dot.ok{fill:var(--hit,#14875C)}
+.anim-svg .an-label,.anim-svg .an-sub{font-family:var(--sans)}

@@ -1,0 +1,3174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design Components Explained, Algo Visuals</title>
+<meta name="description" content="Every major system design component explained from first principles, with every diagram animated.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/pages.css">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/anim.css">
+<script src="/assets/site.js" defer></script>
+<script type="module" src="/assets/auth.js"></script>
+<script src="/system-design/components/specs.js"></script>
+<script src="/assets/anim.js"></script>
+<style>
+:root{--code-bg:#1B2233} @media (prefers-color-scheme:dark){:root{--code-bg:#0F1420}}
+.wrap{padding-bottom:40px}
+.toc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin:0 0 24px}
+.toc summary{cursor:pointer;font-weight:600}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 18px;margin-top:12px}
+.toc-grid a{font-size:.88rem;color:var(--muted);text-decoration:none;padding:3px 0}
+.toc-grid a:hover{color:var(--ink)}
+.doc h2{font-size:clamp(1.35rem,3vw,1.8rem);font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:40px 0 10px;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+.doc h3{font-size:1.15rem;font-weight:700;margin:22px 0 6px}
+.doc h4{font-size:1rem;font-weight:700;margin:16px 0 4px}
+.doc p{max-width:72ch;margin:0 0 12px}
+.doc ul,.doc ol{max-width:72ch;margin:0 0 12px;padding-left:1.4em}
+.doc li{margin:3px 0}
+.doc blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--i);background:var(--i-soft);border-radius:0 12px 12px 0;max-width:72ch}
+.doc blockquote p{margin:0}
+.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
+.doc pre code{background:transparent;padding:0;font-size:inherit;color:inherit}
+.doc code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
+.doc table{border-collapse:collapse;font-size:.92rem;margin:10px 0 14px;max-width:72ch}
+.doc th{text-align:left;font-weight:600;color:var(--muted);font-size:.8rem;padding:8px 10px;border-bottom:1px solid var(--line)}
+.doc td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.doc td:first-child{font-weight:600;white-space:nowrap}
+details.orig{max-width:760px;margin:0 0 14px}
+details.orig summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
+details.orig pre{margin-top:8px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin:0 0 20px;max-width:72ch;font-size:.95rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Components</p>
+  <h1>System Design Components Explained: A Crystal-Clear Guide from Basics to Distributed Systems</h1>
+  <p class="lede">All 110 components, in the original order and with the original text. Every diagram in the guide has been turned into an animation that plays when it scrolls into view; the original text diagram is kept underneath each one.</p>
+  <details class="toc"><summary>Contents (117 sections)</summary><div class="toc-grid"><a href="#ssystem-design-components-explained-a-crystal-clear-guide-from-basics-to-distributed-systems">System Design Components Explained: A Crystal-Clear Guide from Basics to Distributed Systems</a><a href="#s1">1. Client</a><a href="#s2">2. DNS — Domain Name System</a><a href="#s3">3. Web Server</a><a href="#s4">4. Application Server</a><a href="#s5">5. Load Balancer</a><a href="#s6">6. Horizontal Scaling</a><a href="#s7">7. Reverse Proxy</a><a href="#s8">8. API Gateway</a><a href="#s9">9. CDN — Content Delivery Network</a><a href="#s10">10. Cache</a><a href="#s11">11. Cache Hit and Cache Miss</a><a href="#s12">12. Cache-Aside Pattern</a><a href="#s13">13. Cache Eviction</a><a href="#s14">14. Cache Invalidation</a><a href="#s15">15. Database</a><a href="#s16">16. SQL Databases</a><a href="#s17">17. NoSQL Databases</a><a href="#s18">18. Database Index</a><a href="#s19">19. Database Replication</a><a href="#s20">20. Database Partitioning</a><a href="#s21">21. Database Sharding</a><a href="#s22">22. Consistent Hashing</a><a href="#s23">23. Message Queue</a><a href="#s24">24. Producer and Consumer</a><a href="#s25">25. Event-Driven Architecture</a><a href="#s26">26. Apache Kafka</a><a href="#s27">27. Queue vs Kafka-Style Event Stream</a><a href="#s28">28. Publish/Subscribe</a><a href="#s29">29. Dead Letter Queue</a><a href="#s30">30. Retry Mechanism</a><a href="#s31">31. Idempotency</a><a href="#s32">32. Rate Limiter</a><a href="#s33">33. Token Bucket</a><a href="#s34">34. Authentication</a><a href="#s35">35. Authorization</a><a href="#s36">36. Session Storage</a><a href="#s37">37. Object Storage</a><a href="#s38">38. File Storage vs Object Storage</a><a href="#s39">39. Search Engine</a><a href="#s40">40. Service Discovery</a><a href="#s41">41. Microservices</a><a href="#s42">42. Monolith</a><a href="#s43">43. Service Mesh</a><a href="#s44">44. Circuit Breaker</a><a href="#s45">45. Health Check</a><a href="#s46">46. Heartbeat</a><a href="#s47">47. Leader Election</a><a href="#s48">48. Distributed Lock</a><a href="#s49">49. Database Transaction</a><a href="#s50">50. ACID</a><a href="#s51">51. Distributed Transactions</a><a href="#s52">52. Saga Pattern</a><a href="#s53">53. SQL Join</a><a href="#s54">54. Denormalization</a><a href="#s55">55. Read Replica</a><a href="#s56">56. CQRS</a><a href="#s57">57. Event Sourcing</a><a href="#s58">58. CAP Theorem</a><a href="#s59">59. Strong Consistency</a><a href="#s60">60. Eventual Consistency</a><a href="#s61">61. Availability</a><a href="#s62">62. Failover</a><a href="#s63">63. Single Point of Failure</a><a href="#s64">64. Redundancy</a><a href="#s65">65. Multi-Region Architecture</a><a href="#s66">66. Availability Zone</a><a href="#s67">67. Auto Scaling</a><a href="#s68">68. Container</a><a href="#s69">69. Container Orchestration</a><a href="#s70">70. Stateless Server</a><a href="#s71">71. Stateful System</a><a href="#s72">72. Batch Processing</a><a href="#s73">73. Stream Processing</a><a href="#s74">74. Scheduler</a><a href="#s75">75. Worker</a><a href="#s76">76. WebSocket</a><a href="#s77">77. Server-Sent Events</a><a href="#s78">78. Long Polling</a><a href="#s79">79. Bloom Filter</a><a href="#s80">80. Database Connection Pool</a><a href="#s81">81. API Pagination</a><a href="#s82">82. Data Compression</a><a href="#s83">83. Serialization</a><a href="#s84">84. REST</a><a href="#s85">85. gRPC</a><a href="#s86">86. GraphQL</a><a href="#s87">87. Observability</a><a href="#s88">88. Logging</a><a href="#s89">89. Metrics</a><a href="#s90">90. Distributed Tracing</a><a href="#s91">91. Alerting</a><a href="#s92">92. Latency</a><a href="#s93">93. Throughput</a><a href="#s94">94. P50, P95 and P99 Latency</a><a href="#s95">95. Backpressure</a><a href="#s96">96. Throttling</a><a href="#s97">97. Timeout</a><a href="#s98">98. Bulkhead Pattern</a><a href="#s99">99. Feature Flags</a><a href="#s100">100. Blue-Green Deployment</a><a href="#s101">101. Canary Deployment</a><a href="#s102">102. Configuration Management</a><a href="#s103">103. Secret Management</a><a href="#s104">104. Encryption</a><a href="#s105">105. Hashing</a><a href="#s106">106. Checksum</a><a href="#s107">107. Data Backup</a><a href="#s108">108. Disaster Recovery</a><a href="#s109">109. Data Warehouse</a><a href="#s110">110. Data Lake</a><a href="#sputting-everything-together">Putting Everything Together</a><a href="#sthe-most-important-lesson-in-system-design">The Most Important Lesson in System Design</a><a href="#sa-practical-system-design-mental-model">A Practical System Design Mental Model</a><a href="#ssystem-design-component-cheat-sheet">System Design Component Cheat Sheet</a><a href="#swhat-you-should-learn-first">What You Should Learn First</a><a href="#sfinal-principle">Final Principle</a></div></details>
+  <div class="doc">
+<h2 id="ssystem-design-components-explained-a-crystal-clear-guide-from-basics-to-distributed-systems">System Design Components Explained: A Crystal-Clear Guide from Basics to Distributed Systems</h2>
+
+<p>System design can feel overwhelming at first.</p>
+<p>You hear terms such as:</p>
+<p><strong>Load Balancer, CDN, Cache, Reverse Proxy, Message Queue, Database Sharding, Replication, API Gateway, Kafka, Consistent Hashing, Service Discovery, Circuit Breaker...</strong></p>
+<p>And suddenly designing something as simple as a URL shortener feels like designing Google.</p>
+<p>The good news is that most large systems are built using the <strong>same fundamental components</strong>.</p>
+<p>Once you understand:</p>
+<ol>
+<li><strong>What each component does</strong></li>
+<li><strong>Why it exists</strong></li>
+<li><strong>When you should use it</strong></li>
+<li><strong>What problem it solves</strong></li>
+<li><strong>What trade-offs it introduces</strong></li>
+</ol>
+<p>system design becomes much easier.</p>
+<p>This guide explains the major system-design components from first principles.</p>
+
+<h2 id="s1">1. Client</h2>
+
+<p>Every system starts with a <strong>client</strong>.</p>
+<p>A client is simply something that communicates with your system.</p>
+<p>Examples include:</p>
+<ul>
+<li>Web browsers</li>
+<li>Mobile applications</li>
+<li>Desktop applications</li>
+<li>Smart TVs</li>
+<li>IoT devices</li>
+<li>Other backend services</li>
+</ul>
+<p>Suppose you open Instagram.</p>
+<p>Your mobile application might send a request such as:</p>
+<pre><code class="language-text">GET /feed
+</code></pre>
+<p>The request travels through several components before reaching the database.</p>
+<p>A simplified architecture might look like:</p>
+<div class="anim" data-spec="client_flow"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+   |
+   v
+DNS
+   |
+   v
+CDN
+   |
+   v
+Load Balancer
+   |
+   v
+Application Servers
+   |
+   +------&gt; Cache
+   |
+   +------&gt; Database
+</code></pre></details>
+
+<p>The rest of system design is largely about deciding <strong>what should happen between the client and the data</strong>.</p>
+
+<h2 id="s2">2. DNS — Domain Name System</h2>
+
+<p>Computers communicate using IP addresses.</p>
+<p>Humans prefer names.</p>
+<p>Instead of remembering:</p>
+<pre><code class="language-text">142.250.193.46
+</code></pre>
+<p>we prefer:</p>
+<pre><code class="language-text">google.com
+</code></pre>
+<p>DNS translates a domain name into an IP address.</p>
+<p>Think of DNS as the <strong>phone book of the internet</strong>.</p>
+<p>When someone visits:</p>
+<pre><code class="language-text">api.example.com
+</code></pre>
+<p>DNS may resolve it to:</p>
+<pre><code class="language-text">203.0.113.20
+</code></pre>
+<p>The client can then connect to that server.</p>
+<h2>Why DNS matters in system design</h2>
+<p>DNS can also help route users geographically.</p>
+<p>For example:</p>
+<div class="anim" data-spec="dns_geo"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>User in India
+     |
+     v
+India Data Center
+
+User in Europe
+     |
+     v
+European Data Center
+</code></pre></details>
+
+<p>This reduces latency.</p>
+<p>DNS can therefore participate in:</p>
+<ul>
+<li>Geographic routing</li>
+<li>Disaster recovery</li>
+<li>Multi-region architectures</li>
+<li>Traffic distribution</li>
+</ul>
+
+<h2 id="s3">3. Web Server</h2>
+
+<p>A <strong>web server</strong> accepts HTTP requests and returns responses.</p>
+<p>Popular examples include:</p>
+<ul>
+<li>Nginx</li>
+<li>Apache HTTP Server</li>
+<li>Caddy</li>
+</ul>
+<p>A web server may serve static resources such as:</p>
+<pre><code class="language-text">HTML
+CSS
+JavaScript
+Images
+</code></pre>
+<p>It may also forward dynamic requests to an application server.</p>
+<p>For example:</p>
+<div class="anim" data-spec="web_server"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Browser
+   |
+   v
+Nginx
+   |
+   v
+Node.js / Java / Go Backend
+</code></pre></details>
+
+
+<h2 id="s4">4. Application Server</h2>
+
+<p>The application server contains your <strong>business logic</strong>.</p>
+<p>For example, suppose a user sends:</p>
+<pre><code class="language-text">POST /orders
+</code></pre>
+<p>The application server might:</p>
+<ol>
+<li>Validate the request.</li>
+<li>Check whether the product exists.</li>
+<li>Check inventory.</li>
+<li>Calculate the price.</li>
+<li>Create the order.</li>
+<li>Save it to the database.</li>
+<li>Trigger payment processing.</li>
+<li>Send an order-confirmation event.</li>
+</ol>
+<p>Application servers may be written using technologies such as:</p>
+<pre><code class="language-text">Java + Spring Boot
+Node.js
+Python + Django/FastAPI
+Go
+C#
+Rust
+</code></pre>
+<p>In modern architectures, you usually run <strong>multiple application servers</strong>.</p>
+<p>That leads us to the next component.</p>
+
+<h2 id="s5">5. Load Balancer</h2>
+
+<p>Imagine your system receives:</p>
+<pre><code class="language-text">100,000 requests/second
+</code></pre>
+<p>One server probably cannot handle everything.</p>
+<p>So you create multiple servers:</p>
+<pre><code class="language-text">Server 1
+Server 2
+Server 3
+Server 4
+</code></pre>
+<p>Now we need something that decides:</p>
+<blockquote>
+<p>Which server should receive each request?</p>
+</blockquote>
+<p>That component is the <strong>Load Balancer</strong>.</p>
+<div class="anim" data-spec="lb"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>             +------------+
+Client ----&gt; |   Load     |
+             |  Balancer  |
+             +------------+
+              /    |    \
+             /     |     \
+            v      v      v
+          App1   App2   App3
+</code></pre></details>
+
+<h2>Common load-balancing algorithms</h2>
+<h3>Round Robin</h3>
+<p>Requests are distributed one after another.</p>
+<div class="anim" data-spec="lb_rr"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Request 1 -&gt; Server A
+Request 2 -&gt; Server B
+Request 3 -&gt; Server C
+Request 4 -&gt; Server A
+</code></pre></details>
+
+<h3>Weighted Round Robin</h3>
+<p>More powerful servers receive more traffic.</p>
+<p>For example:</p>
+<div class="anim" data-spec="lb_weighted"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Server A weight = 5
+Server B weight = 2
+</code></pre></details>
+
+<p>Server A receives more requests.</p>
+<h3>Least Connections</h3>
+<p>Traffic goes to the server currently handling the fewest connections.</p>
+<h3>IP Hash</h3>
+<p>The client's IP determines which server receives the request.</p>
+<p>This can help provide session affinity.</p>
+<h2>Layer 4 vs Layer 7 Load Balancing</h2>
+<h3>Layer 4</h3>
+<p>Routes based on networking information such as:</p>
+<pre><code class="language-text">IP
+TCP
+UDP
+Port
+</code></pre>
+<p>It is usually very fast.</p>
+<h3>Layer 7</h3>
+<p>Understands application-level protocols such as HTTP.</p>
+<p>It can route based on:</p>
+<pre><code class="language-text">URL
+Headers
+Cookies
+HTTP Method
+Host
+</code></pre>
+<p>For example:</p>
+<div class="anim" data-spec="l7"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>/api/payments -&gt; Payment Service
+
+/api/users -&gt; User Service
+</code></pre></details>
+
+
+<h2 id="s6">6. Horizontal Scaling</h2>
+
+<p>When traffic increases, we need more computing capacity.</p>
+<p>There are two main approaches.</p>
+<h2>Vertical scaling</h2>
+<p>Increase the power of one machine.</p>
+<pre><code class="language-text">Before:
+4 CPU
+8 GB RAM
+
+After:
+32 CPU
+128 GB RAM
+</code></pre>
+<p>This is called <strong>scaling up</strong>.</p>
+<p>Advantages:</p>
+<ul>
+<li>Simple</li>
+<li>No distributed-system complexity</li>
+</ul>
+<p>Disadvantages:</p>
+<ul>
+<li>Hardware limits exist</li>
+<li>Expensive</li>
+<li>Larger failure domain</li>
+</ul>
+<h2>Horizontal scaling</h2>
+<p>Add more machines.</p>
+<div class="anim" data-spec="scale_out"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>1 server
+
+becomes
+
+10 servers
+</code></pre></details>
+
+<p>This is called <strong>scaling out</strong>.</p>
+<p>Modern distributed systems usually prefer horizontal scaling.</p>
+
+<h2 id="s7">7. Reverse Proxy</h2>
+
+<p>A reverse proxy sits in front of backend servers.</p>
+<div class="anim" data-spec="reverse_proxy"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+   |
+   v
+Reverse Proxy
+   |
+   v
+Backend Servers
+</code></pre></details>
+
+<p>The client does not communicate directly with your backend servers.</p>
+<p>The reverse proxy can provide:</p>
+<ul>
+<li>Load balancing</li>
+<li>TLS termination</li>
+<li>Compression</li>
+<li>Authentication</li>
+<li>Caching</li>
+<li>Routing</li>
+<li>Rate limiting</li>
+<li>Security filtering</li>
+</ul>
+<p>Popular reverse proxies include:</p>
+<ul>
+<li>Nginx</li>
+<li>HAProxy</li>
+<li>Envoy</li>
+<li>Traefik</li>
+</ul>
+<h2>Forward Proxy vs Reverse Proxy</h2>
+<p>A <strong>forward proxy</strong> hides the client.</p>
+<div class="anim" data-spec="forward_proxy"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client -&gt; Proxy -&gt; Internet
+</code></pre></details>
+
+<p>A <strong>reverse proxy</strong> hides the server.</p>
+<div class="anim" data-spec="reverse_proxy2"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Internet -&gt; Reverse Proxy -&gt; Backend
+</code></pre></details>
+
+
+<h2 id="s8">8. API Gateway</h2>
+
+<p>An API Gateway is the entry point for APIs, particularly in a microservices architecture.</p>
+<p>Suppose you have:</p>
+<pre><code class="language-text">User Service
+Order Service
+Payment Service
+Search Service
+Recommendation Service
+</code></pre>
+<p>Instead of exposing every service directly:</p>
+<div class="anim" data-spec="gateway"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+   |
+   v
+API Gateway
+   |
+   +--&gt; User Service
+   |
+   +--&gt; Order Service
+   |
+   +--&gt; Payment Service
+</code></pre></details>
+
+<p>The API Gateway can handle:</p>
+<ul>
+<li>Authentication</li>
+<li>Authorization</li>
+<li>Rate limiting</li>
+<li>Routing</li>
+<li>Request transformation</li>
+<li>Response aggregation</li>
+<li>Logging</li>
+<li>API versioning</li>
+</ul>
+<p>Example:</p>
+<div class="anim" data-spec="gw_users"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>GET /users/123
+</code></pre></details>
+
+<p>may route to:</p>
+<pre><code class="language-text">User Service
+</code></pre>
+<p>while:</p>
+<div class="anim" data-spec="gw_pay"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>POST /payments
+</code></pre></details>
+
+<p>routes to:</p>
+<pre><code class="language-text">Payment Service
+</code></pre>
+
+<h2 id="s9">9. CDN — Content Delivery Network</h2>
+
+<p>A CDN stores content near users geographically.</p>
+<p>Imagine your application's servers are in the United States.</p>
+<p>A user in India requests:</p>
+<pre><code class="language-text">logo.png
+</code></pre>
+<p>Without a CDN:</p>
+<div class="anim" data-spec="cdn_without"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>India
+  |
+  |
+  | Long network trip
+  |
+  v
+USA Server
+</code></pre></details>
+
+<p>With a CDN:</p>
+<div class="anim" data-spec="cdn_with"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>India User
+    |
+    v
+Nearby CDN Edge
+</code></pre></details>
+
+<p>The file may be served from Bengaluru, Mumbai, Chennai or another nearby edge location instead of traveling to the origin server.</p>
+<p>CDNs commonly cache:</p>
+<ul>
+<li>Images</li>
+<li>JavaScript</li>
+<li>CSS</li>
+<li>Videos</li>
+<li>Fonts</li>
+<li>Downloadable files</li>
+<li>Sometimes API responses</li>
+</ul>
+<p>Benefits include:</p>
+<ul>
+<li>Lower latency</li>
+<li>Reduced origin-server load</li>
+<li>Better availability</li>
+<li>Faster global delivery</li>
+</ul>
+<p>Popular CDN providers include Cloudflare, Akamai, Fastly and major cloud providers.</p>
+
+<h2 id="s10">10. Cache</h2>
+
+<p>A database query might take:</p>
+<pre><code class="language-text">50 ms
+</code></pre>
+<p>Fetching the same information from memory might take:</p>
+<pre><code class="language-text">1 ms
+</code></pre>
+<p>Instead of repeatedly querying the database, we can store frequently requested data inside a <strong>cache</strong>.</p>
+<div class="anim" data-spec="cache_flow"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+    |
+    v
+  Cache
+    |
+Cache hit?
+ /       \
+Yes       No
+ |         |
+ v         v
+Return   Database
+</code></pre></details>
+
+<p>Popular caching technologies include:</p>
+<ul>
+<li>Redis</li>
+<li>Memcached</li>
+</ul>
+<h2>Example</h2>
+<p>Without cache:</p>
+<div class="anim" data-spec="no_cache"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>GET user 123
+   |
+Database
+</code></pre></details>
+
+<p>Every request hits the database.</p>
+<p>With cache:</p>
+<div class="anim" data-spec="with_cache"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>GET user 123
+   |
+Redis
+   |
+Database only if missing
+</code></pre></details>
+
+
+<h2 id="s11">11. Cache Hit and Cache Miss</h2>
+
+<p>If requested data exists in cache:</p>
+<pre><code class="language-text">Cache Hit
+</code></pre>
+<p>If it does not exist:</p>
+<pre><code class="language-text">Cache Miss
+</code></pre>
+<p>Example:</p>
+<pre><code class="language-text">GET product:123
+</code></pre>
+<p>If Redis contains:</p>
+<pre><code class="language-text">product:123 = {...}
+</code></pre>
+<p>that is a cache hit.</p>
+<p>Otherwise the application queries the database and may place the result into Redis.</p>
+
+<h2 id="s12">12. Cache-Aside Pattern</h2>
+
+<p>One of the most common caching strategies is <strong>cache-aside</strong>.</p>
+<p>The application first checks the cache.</p>
+<div class="anim" data-spec="cache_aside"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Read Cache
+   |
+Found?
+ /   \
+Yes   No
+ |     |
+Return DB
+        |
+        v
+     Cache Data
+</code></pre></details>
+
+<p>Pseudo-flow:</p>
+<pre><code class="language-text">data = cache.get(key)
+
+if data is null:
+    data = database.get(key)
+    cache.set(key, data)
+
+return data
+</code></pre>
+<p>It is simple and widely used.</p>
+
+<h2 id="s13">13. Cache Eviction</h2>
+
+<p>Caches have limited memory.</p>
+<p>Eventually something must be removed.</p>
+<p>Common eviction strategies include:</p>
+<h3>LRU</h3>
+<p>Least Recently Used.</p>
+<p>Remove the item that has not been accessed for the longest time.</p>
+<h3>LFU</h3>
+<p>Least Frequently Used.</p>
+<p>Remove items accessed infrequently.</p>
+<h3>FIFO</h3>
+<p>First In, First Out.</p>
+<p>Remove the oldest item.</p>
+<h3>TTL</h3>
+<p>Time To Live.</p>
+<p>For example:</p>
+<pre><code class="language-text">cache.set(&quot;user:123&quot;, data, TTL = 5 minutes)
+</code></pre>
+<p>After five minutes the cache entry expires.</p>
+
+<h2 id="s14">14. Cache Invalidation</h2>
+
+<p>Caching creates a difficult problem.</p>
+<p>Suppose:</p>
+<pre><code class="language-text">Database:
+username = &quot;John&quot;
+
+Cache:
+username = &quot;John&quot;
+</code></pre>
+<p>The user changes their name:</p>
+<pre><code class="language-text">username = &quot;Mike&quot;
+</code></pre>
+<p>The database now contains Mike, but the cache may still contain John.</p>
+<p>This is called <strong>stale data</strong>.</p>
+<p>Possible solutions include:</p>
+<ul>
+<li>Delete the cache entry after database updates.</li>
+<li>Update both cache and database.</li>
+<li>Use short TTL values.</li>
+<li>Use events to invalidate caches.</li>
+</ul>
+<p>There is a famous joke in computer science:</p>
+<blockquote>
+<p>There are only two hard things in Computer Science: cache invalidation and naming things.</p>
+</blockquote>
+<p>Caching is extremely powerful, but keeping cached information correct requires careful design.</p>
+
+<h2 id="s15">15. Database</h2>
+
+<p>The database stores persistent application data.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Users
+Orders
+Products
+Payments
+Messages
+Posts
+Comments
+</code></pre>
+<p>Databases broadly fall into two major families:</p>
+<pre><code class="language-text">SQL
+NoSQL
+</code></pre>
+
+<h2 id="s16">16. SQL Databases</h2>
+
+<p>SQL databases organize information using tables.</p>
+<p>Example:</p>
+<pre><code class="language-text">Users
+
++----+---------+-------------------+
+| id | name    | email             |
++----+---------+-------------------+
+| 1  | Alice   | alice@example.com |
+| 2  | Bob     | bob@example.com   |
++----+---------+-------------------+
+</code></pre>
+<p>Common SQL databases include:</p>
+<ul>
+<li>PostgreSQL</li>
+<li>MySQL</li>
+<li>Oracle</li>
+<li>SQL Server</li>
+</ul>
+<p>SQL databases are often strong choices when you need:</p>
+<ul>
+<li>Transactions</li>
+<li>Structured relationships</li>
+<li>Joins</li>
+<li>Strong consistency</li>
+<li>Complex querying</li>
+<li>Well-defined schemas</li>
+</ul>
+
+<h2 id="s17">17. NoSQL Databases</h2>
+
+<p>NoSQL databases provide alternative data models.</p>
+<p>Several categories exist.</p>
+<h2>Key-value databases</h2>
+<p>Example:</p>
+<pre><code class="language-text">user:123 -&gt; {...}
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li>Redis</li>
+<li>DynamoDB-style key-value usage</li>
+</ul>
+<p>Good for:</p>
+<ul>
+<li>Sessions</li>
+<li>Caching</li>
+<li>Simple high-scale lookups</li>
+</ul>
+<h2>Document databases</h2>
+<p>Store JSON-like documents.</p>
+<p>Example:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: 123,
+  &quot;name&quot;: &quot;Alice&quot;,
+  &quot;skills&quot;: [&quot;Java&quot;, &quot;AWS&quot;]
+}
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li>MongoDB</li>
+<li>Couchbase</li>
+</ul>
+<h2>Wide-column databases</h2>
+<p>Examples:</p>
+<ul>
+<li>Cassandra</li>
+<li>HBase</li>
+</ul>
+<p>Useful for massive distributed workloads.</p>
+<h2>Graph databases</h2>
+<p>Data is modeled using nodes and relationships.</p>
+<p>Examples:</p>
+<ul>
+<li>Neo4j</li>
+<li>Amazon Neptune</li>
+</ul>
+<p>Useful for:</p>
+<pre><code class="language-text">Social networks
+Fraud detection
+Recommendation relationships
+Knowledge graphs
+</code></pre>
+
+<h2 id="s18">18. Database Index</h2>
+
+<p>Imagine a table containing:</p>
+<pre><code class="language-text">500 million users
+</code></pre>
+<p>You run:</p>
+<pre><code class="language-sql">SELECT *
+FROM users
+WHERE email = 'alice@example.com';
+</code></pre>
+<p>Without an index, the database might scan a huge portion of the table.</p>
+<p>An <strong>index</strong> creates a data structure that helps locate values quickly.</p>
+<p>Conceptually:</p>
+<pre><code class="language-text">alice@example.com -&gt; Row 823499
+bob@example.com   -&gt; Row 384293
+</code></pre>
+<p>Indexes dramatically improve read performance.</p>
+<p>However, they are not free.</p>
+<p>Every new index:</p>
+<ul>
+<li>Uses storage</li>
+<li>Consumes memory</li>
+<li>Makes writes somewhat slower</li>
+</ul>
+<p>because indexes must also be updated.</p>
+
+<h2 id="s19">19. Database Replication</h2>
+
+<p>Suppose your database server dies.</p>
+<p>If it is your only copy of the data, your application may stop working.</p>
+<p>Replication creates multiple copies.</p>
+<div class="anim" data-spec="replication"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>             Primary
+              /   \
+             /     \
+            v       v
+        Replica 1 Replica 2
+</code></pre></details>
+
+<p>The primary may handle writes:</p>
+<pre><code class="language-text">INSERT
+UPDATE
+DELETE
+</code></pre>
+<p>while replicas may handle reads.</p>
+<p>Example:</p>
+<div class="anim" data-spec="rw_split"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Write Request
+     |
+     v
+   Primary
+
+Read Requests
+   /      \
+  v        v
+Replica1 Replica2
+</code></pre></details>
+
+<p>Benefits include:</p>
+<ul>
+<li>Higher availability</li>
+<li>Read scalability</li>
+<li>Disaster recovery</li>
+</ul>
+<p>The main challenge is <strong>replication lag</strong>.</p>
+<p>A replica may temporarily contain slightly older information than the primary.</p>
+
+<h2 id="s20">20. Database Partitioning</h2>
+
+<p>As data becomes huge, one database server may no longer be enough.</p>
+<p>We can split the data into pieces.</p>
+<p>This is called <strong>partitioning</strong>.</p>
+<p>Example:</p>
+<div class="anim" data-spec="partition"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Users A-F -&gt; Partition 1
+Users G-M -&gt; Partition 2
+Users N-Z -&gt; Partition 3
+</code></pre></details>
+
+<p>Each partition contains only part of the dataset.</p>
+
+<h2 id="s21">21. Database Sharding</h2>
+
+<p>Sharding is a form of horizontal partitioning where different pieces of data are stored on different servers.</p>
+<p>For example:</p>
+<div class="anim" data-spec="shard_range"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>user_id 1-1,000,000
+        |
+        v
+     Shard A
+
+user_id 1,000,001-2,000,000
+        |
+        v
+     Shard B
+</code></pre></details>
+
+<p>Or using hashing:</p>
+<pre><code class="language-text">shard = hash(user_id) % number_of_shards
+</code></pre>
+<p>For four shards:</p>
+<div class="anim" data-spec="shard_hash"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>hash(user123) % 4 = 2
+
+-&gt; Shard 2
+</code></pre></details>
+
+<p>Benefits:</p>
+<ul>
+<li>More storage</li>
+<li>Higher write capacity</li>
+<li>Horizontal scalability</li>
+</ul>
+<p>Challenges include:</p>
+<ul>
+<li>Cross-shard queries</li>
+<li>Cross-shard transactions</li>
+<li>Rebalancing</li>
+<li>Choosing the right shard key</li>
+<li>Hot shards</li>
+</ul>
+
+<h2 id="s22">22. Consistent Hashing</h2>
+
+<p>Suppose we have three cache servers:</p>
+<pre><code class="language-text">Cache A
+Cache B
+Cache C
+</code></pre>
+<p>A simple strategy might be:</p>
+<pre><code class="language-text">server = hash(key) % 3
+</code></pre>
+<p>But if we add another server:</p>
+<pre><code class="language-text">hash(key) % 4
+</code></pre>
+<p>many keys suddenly map to different servers.</p>
+<p>That causes massive cache reshuffling.</p>
+<p><strong>Consistent hashing</strong> solves this problem.</p>
+<p>Servers and keys are placed conceptually on a hash ring:</p>
+<div class="anim" data-spec="ring"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>        Server A
+       /        \
+      /          \
+Server D        Server B
+      \          /
+       \        /
+        Server C
+</code></pre></details>
+
+<p>Keys map to the next server on the ring.</p>
+<p>If a server is added or removed, only a relatively small portion of keys need to move.</p>
+<p>Consistent hashing is commonly used in:</p>
+<ul>
+<li>Distributed caches</li>
+<li>Distributed databases</li>
+<li>Storage systems</li>
+</ul>
+
+<h2 id="s23">23. Message Queue</h2>
+
+<p>Not every task needs to happen immediately.</p>
+<p>Suppose a user places an order.</p>
+<p>The system may need to:</p>
+<pre><code class="language-text">Create order
+Process payment
+Send email
+Update analytics
+Notify warehouse
+Update recommendations
+Generate invoice
+</code></pre>
+<p>If one HTTP request performs all of these synchronously, it becomes slow and fragile.</p>
+<p>Instead:</p>
+<div class="anim" data-spec="mq"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+     |
+     v
+Message Queue
+ /      |       \
+v       v        v
+Email  Analytics Warehouse
+</code></pre></details>
+
+<p>The request can finish quickly while background workers handle other tasks.</p>
+<p>Common messaging technologies include:</p>
+<ul>
+<li>RabbitMQ</li>
+<li>Amazon SQS</li>
+<li>Apache Kafka</li>
+<li>Google Pub/Sub</li>
+<li>Azure Service Bus</li>
+</ul>
+
+<h2 id="s24">24. Producer and Consumer</h2>
+
+<p>Messaging systems usually involve:</p>
+<pre><code class="language-text">Producer
+Queue/Topic
+Consumer
+</code></pre>
+<p>A producer sends messages.</p>
+<p>Example:</p>
+<pre><code class="language-text">OrderCreated
+</code></pre>
+<p>A consumer processes them.</p>
+<div class="anim" data-spec="prod_cons"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+     |
+Producer
+     |
+     v
+   Queue
+     |
+     v
+Consumer
+     |
+     v
+Email Service
+</code></pre></details>
+
+
+<h2 id="s25">25. Event-Driven Architecture</h2>
+
+<p>Instead of services constantly calling each other, services can react to events.</p>
+<p>Example:</p>
+<pre><code class="language-text">OrderCreated
+</code></pre>
+<p>Several services may listen:</p>
+<div class="anim" data-spec="event_driven"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>OrderCreated
+    |
+    +--&gt; Payment Service
+    |
+    +--&gt; Inventory Service
+    |
+    +--&gt; Email Service
+    |
+    +--&gt; Analytics Service
+</code></pre></details>
+
+<p>Services become more loosely coupled.</p>
+<p>The Order Service does not necessarily need to know who consumes the event.</p>
+
+<h2 id="s26">26. Apache Kafka</h2>
+
+<p>Kafka is commonly used for high-throughput event streaming.</p>
+<p>A simplified Kafka architecture is:</p>
+<div class="anim" data-spec="kafka"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Producer
+   |
+   v
+ Topic
+   |
+   +--&gt; Partition 0
+   +--&gt; Partition 1
+   +--&gt; Partition 2
+             |
+             v
+         Consumers
+</code></pre></details>
+
+<p>Kafka is particularly useful for:</p>
+<ul>
+<li>Event-driven systems</li>
+<li>Streaming pipelines</li>
+<li>Analytics</li>
+<li>Log processing</li>
+<li>Change-data capture</li>
+<li>High-throughput messaging</li>
+</ul>
+<p>Unlike a simple queue, Kafka typically retains events for a configured period, allowing consumers to replay them.</p>
+
+<h2 id="s27">27. Queue vs Kafka-Style Event Stream</h2>
+
+<p>A traditional queue often behaves like:</p>
+<div class="anim" data-spec="queue_plain"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Producer -&gt; Queue -&gt; Consumer
+</code></pre></details>
+
+<p>After successful processing, the message may disappear.</p>
+<p>An event log behaves more like:</p>
+<div class="anim" data-spec="event_log"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Event 1
+Event 2
+Event 3
+Event 4
+Event 5
+</code></pre></details>
+
+<p>Consumers maintain their own position in that log.</p>
+<p>This enables replaying history.</p>
+
+<h2 id="s28">28. Publish/Subscribe</h2>
+
+<p>Publish/Subscribe, or <strong>Pub/Sub</strong>, allows multiple subscribers to receive the same event.</p>
+<p>Example:</p>
+<div class="anim" data-spec="pubsub"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>OrderCreated
+     |
+     +--&gt; Email Service
+     |
+     +--&gt; Analytics Service
+     |
+     +--&gt; Inventory Service
+</code></pre></details>
+
+<p>Compare that with a work queue where usually one worker processes each task.</p>
+<p>Pub/Sub is powerful when several independent systems need to react to the same event.</p>
+
+<h2 id="s29">29. Dead Letter Queue</h2>
+
+<p>What happens when a message repeatedly fails?</p>
+<p>Example:</p>
+<div class="anim" data-spec="retry_chain"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Process payment
+   |
+Failure
+   |
+Retry
+   |
+Failure
+   |
+Retry
+   |
+Failure
+</code></pre></details>
+
+<p>Instead of retrying forever, the message can be placed into a <strong>Dead Letter Queue (DLQ)</strong>.</p>
+<div class="anim" data-spec="dlq"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Main Queue
+   |
+Failed repeatedly
+   |
+   v
+Dead Letter Queue
+</code></pre></details>
+
+<p>Engineers can inspect or reprocess the failed events later.</p>
+
+<h2 id="s30">30. Retry Mechanism</h2>
+
+<p>Distributed systems fail.</p>
+<p>A service may temporarily be unavailable.</p>
+<p>Instead of failing immediately, clients may retry.</p>
+<p>Bad retry strategy:</p>
+<pre><code class="language-text">retry
+retry
+retry
+retry
+retry
+</code></pre>
+<p>This can make an overloaded service even worse.</p>
+<p>A better strategy is <strong>exponential backoff</strong>:</p>
+<div class="anim" data-spec="backoff"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Retry after 1 second
+Retry after 2 seconds
+Retry after 4 seconds
+Retry after 8 seconds
+</code></pre></details>
+
+<p>Often a small amount of randomness called <strong>jitter</strong> is added so thousands of clients do not retry at exactly the same moment.</p>
+
+<h2 id="s31">31. Idempotency</h2>
+
+<p>Suppose a payment request times out.</p>
+<p>The client does not know whether the payment succeeded.</p>
+<p>It retries:</p>
+<pre><code class="language-text">POST /payment
+</code></pre>
+<p>Without protection, the customer might be charged twice.</p>
+<p>An operation is <strong>idempotent</strong> if repeating the same request produces the same logical result.</p>
+<p>For payment APIs, a client might send:</p>
+<pre><code class="language-text">Idempotency-Key: order_123_payment_1
+</code></pre>
+<p>The server remembers that key.</p>
+<p>If the same request arrives again, the server returns the original result instead of charging the customer again.</p>
+<p>Idempotency is extremely important in:</p>
+<ul>
+<li>Payments</li>
+<li>Orders</li>
+<li>Financial transactions</li>
+<li>Messaging</li>
+<li>Retry-heavy distributed systems</li>
+</ul>
+
+<h2 id="s32">32. Rate Limiter</h2>
+
+<p>Imagine someone sends:</p>
+<pre><code class="language-text">1 million requests/second
+</code></pre>
+<p>to your API.</p>
+<p>Your system may collapse.</p>
+<p>A rate limiter controls how frequently a user or client can make requests.</p>
+<p>Example:</p>
+<div class="anim" data-spec="ratelimit"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>100 requests/minute per user
+</code></pre></details>
+
+<p>After that:</p>
+<pre><code class="language-text">HTTP 429 Too Many Requests
+</code></pre>
+<p>Popular algorithms include:</p>
+<ul>
+<li>Token Bucket</li>
+<li>Leaky Bucket</li>
+<li>Fixed Window</li>
+<li>Sliding Window</li>
+<li>Sliding Window Log</li>
+</ul>
+<p>Rate limiting protects systems from:</p>
+<ul>
+<li>Abuse</li>
+<li>Bots</li>
+<li>Accidental loops</li>
+<li>Resource exhaustion</li>
+<li>Some denial-of-service patterns</li>
+</ul>
+
+<h2 id="s33">33. Token Bucket</h2>
+
+<p>Imagine every user has a bucket containing tokens.</p>
+<p>Each request consumes one token.</p>
+<div class="anim" data-spec="bucket"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Bucket capacity = 10 tokens
+</code></pre></details>
+
+<p>If tokens exist:</p>
+<pre><code class="language-text">Allow request
+</code></pre>
+<p>If no tokens remain:</p>
+<pre><code class="language-text">Reject request
+</code></pre>
+<p>Tokens are gradually added back.</p>
+<p>This allows controlled bursts while enforcing an overall rate.</p>
+
+<h2 id="s34">34. Authentication</h2>
+
+<p>Authentication answers:</p>
+<blockquote>
+<p>Who are you?</p>
+</blockquote>
+<p>For example:</p>
+<pre><code class="language-text">Username + Password
+OAuth
+Session Cookie
+JWT
+API Key
+Biometric authentication
+</code></pre>
+<p>A user might log in and receive:</p>
+<pre><code class="language-text">access_token
+</code></pre>
+<p>Future requests contain the token.</p>
+<p>The server validates it before processing requests.</p>
+
+<h2 id="s35">35. Authorization</h2>
+
+<p>Authorization answers:</p>
+<blockquote>
+<p>What are you allowed to do?</p>
+</blockquote>
+<p>Suppose:</p>
+<pre><code class="language-text">Alice = Admin
+Bob = Normal User
+</code></pre>
+<p>Alice may be allowed to:</p>
+<pre><code class="language-text">DELETE /users/123
+</code></pre>
+<p>Bob may not.</p>
+<p>Common authorization models include:</p>
+<ul>
+<li>RBAC — Role-Based Access Control</li>
+<li>ABAC — Attribute-Based Access Control</li>
+<li>ACL — Access Control List</li>
+</ul>
+<p>Authentication identifies the user.</p>
+<p>Authorization checks permissions.</p>
+
+<h2 id="s36">36. Session Storage</h2>
+
+<p>After login, a server may create a session:</p>
+<pre><code class="language-text">session_id = abc123
+</code></pre>
+<p>The server stores:</p>
+<pre><code class="language-text">abc123 -&gt; user_id 42
+</code></pre>
+<p>Because a system may have multiple application servers, session information should usually not live only in one server's local memory.</p>
+<p>Instead:</p>
+<div class="anim" data-spec="session"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>App Server 1
+App Server 2
+App Server 3
+       |
+       v
+     Redis
+</code></pre></details>
+
+<p>All servers can access shared session information.</p>
+
+<h2 id="s37">37. Object Storage</h2>
+
+<p>Relational databases are usually not the best place for huge files.</p>
+<p>For objects such as:</p>
+<pre><code class="language-text">Images
+Videos
+PDFs
+Backups
+Audio
+Documents
+</code></pre>
+<p>systems commonly use object storage.</p>
+<p>Examples include:</p>
+<ul>
+<li>Amazon S3</li>
+<li>Google Cloud Storage</li>
+<li>Azure Blob Storage</li>
+</ul>
+<p>Architecture:</p>
+<div class="anim" data-spec="object_storage"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+    |
+    v
+Object Storage
+    |
+    v
+CDN
+    |
+    v
+Users
+</code></pre></details>
+
+
+<h2 id="s38">38. File Storage vs Object Storage</h2>
+
+<p>Traditional file storage looks like:</p>
+<pre><code class="language-text">/folder/subfolder/image.jpg
+</code></pre>
+<p>Object storage typically uses objects identified by keys:</p>
+<pre><code class="language-text">bucket:
+users/123/profile.jpg
+</code></pre>
+<p>Object storage is designed to scale to enormous amounts of data.</p>
+
+<h2 id="s39">39. Search Engine</h2>
+
+<p>Databases can perform text searches, but very large or sophisticated search functionality often benefits from specialized search systems.</p>
+<p>Examples include:</p>
+<ul>
+<li>Elasticsearch</li>
+<li>OpenSearch</li>
+<li>Solr</li>
+</ul>
+<p>Suppose a user searches:</p>
+<pre><code class="language-text">&quot;wireless headphones&quot;
+</code></pre>
+<p>A search engine may consider:</p>
+<ul>
+<li>Keyword relevance</li>
+<li>Typo tolerance</li>
+<li>Stemming</li>
+<li>Synonyms</li>
+<li>Filters</li>
+<li>Ranking</li>
+<li>Popularity</li>
+</ul>
+<p>Architecture:</p>
+<div class="anim" data-spec="search"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Primary Database
+      |
+      v
+Search Index
+      |
+      v
+Search API
+</code></pre></details>
+
+<p>The primary database remains the source of truth, while the search engine maintains a searchable representation.</p>
+
+<h2 id="s40">40. Service Discovery</h2>
+
+<p>In microservices, services constantly appear and disappear.</p>
+<p>Suppose the Payment Service currently has:</p>
+<pre><code class="language-text">10.1.0.4
+10.1.0.8
+10.1.0.11
+</code></pre>
+<p>Tomorrow those addresses may change.</p>
+<p>How does the Order Service find the Payment Service?</p>
+<p>Through <strong>service discovery</strong>.</p>
+<p>Conceptually:</p>
+<div class="anim" data-spec="discovery"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+     |
+     v
+Service Registry
+     |
+     v
+Payment Service Instances
+</code></pre></details>
+
+<p>In modern container environments, orchestration platforms often provide service discovery automatically.</p>
+
+<h2 id="s41">41. Microservices</h2>
+
+<p>Instead of building one huge application:</p>
+<pre><code class="language-text">User + Order + Payment + Inventory + Search
+</code></pre>
+<p>we may separate functionality into services:</p>
+<pre><code class="language-text">User Service
+Order Service
+Payment Service
+Inventory Service
+Search Service
+</code></pre>
+<p>Benefits:</p>
+<ul>
+<li>Independent deployment</li>
+<li>Independent scaling</li>
+<li>Team ownership</li>
+<li>Fault isolation</li>
+<li>Technology flexibility</li>
+</ul>
+<p>Challenges:</p>
+<ul>
+<li>Network failures</li>
+<li>Distributed transactions</li>
+<li>Observability</li>
+<li>Debugging</li>
+<li>Deployment complexity</li>
+<li>Data consistency</li>
+<li>Versioning</li>
+</ul>
+<p>Microservices are not automatically better.</p>
+<p>For many applications, starting with a well-structured monolith is simpler.</p>
+
+<h2 id="s42">42. Monolith</h2>
+
+<p>A monolith packages most functionality inside one application.</p>
+<div class="anim" data-spec="monolith"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>            Application
+      +----------------------+
+      | Users                |
+      | Orders               |
+      | Payments             |
+      | Inventory            |
+      | Notifications        |
+      +----------------------+
+                |
+                v
+             Database
+</code></pre></details>
+
+<p>Advantages:</p>
+<ul>
+<li>Easy development</li>
+<li>Simple deployment</li>
+<li>Easy debugging</li>
+<li>Easy transactions</li>
+<li>Fewer network calls</li>
+</ul>
+<p>Disadvantages appear as the application and organization grow.</p>
+<p>The right architecture depends on scale and organizational needs.</p>
+
+<h2 id="s43">43. Service Mesh</h2>
+
+<p>When hundreds of microservices communicate, network concerns become complex.</p>
+<p>Every service needs things such as:</p>
+<pre><code class="language-text">TLS
+Retries
+Tracing
+Traffic policies
+Metrics
+Authentication
+Circuit breaking
+</code></pre>
+<p>A <strong>service mesh</strong> moves many networking concerns into infrastructure.</p>
+<p>Architecture conceptually becomes:</p>
+<div class="anim" data-spec="mesh"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Service A
+   |
+Proxy
+   |
+Proxy
+   |
+Service B
+</code></pre></details>
+
+<p>Examples include systems built around technologies such as Istio and Envoy.</p>
+
+<h2 id="s44">44. Circuit Breaker</h2>
+
+<p>Imagine:</p>
+<div class="anim" data-spec="breaker_flow"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Order Service
+    |
+    v
+Payment Service
+</code></pre></details>
+
+<p>The Payment Service goes down.</p>
+<p>If the Order Service keeps calling it thousands of times per second, resources are wasted.</p>
+<p>A <strong>circuit breaker</strong> temporarily stops requests.</p>
+<p>It typically has three states:</p>
+<div class="anim" data-spec="breaker"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>CLOSED
+OPEN
+HALF-OPEN
+</code></pre></details>
+
+<h3>Closed</h3>
+<p>Requests flow normally.</p>
+<h3>Open</h3>
+<p>Requests fail immediately without calling the broken service.</p>
+<h3>Half-open</h3>
+<p>A small number of test requests are allowed.</p>
+<p>If they succeed:</p>
+<pre><code class="language-text">Circuit closes.
+</code></pre>
+<p>If they fail:</p>
+<pre><code class="language-text">Circuit opens again.
+</code></pre>
+
+<h2 id="s45">45. Health Check</h2>
+
+<p>Load balancers must know whether a server is healthy.</p>
+<p>They periodically call endpoints such as:</p>
+<div class="anim" data-spec="health"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>GET /health
+</code></pre></details>
+
+<p>If a server responds successfully:</p>
+<pre><code class="language-text">Healthy
+</code></pre>
+<p>If it repeatedly fails:</p>
+<pre><code class="language-text">Unhealthy
+</code></pre>
+<p>The load balancer stops sending traffic to it.</p>
+<p>Health checks are fundamental to high availability.</p>
+
+<h2 id="s46">46. Heartbeat</h2>
+
+<p>A heartbeat is a periodic signal meaning:</p>
+<blockquote>
+<p>I am still alive.</p>
+</blockquote>
+<p>Example:</p>
+<div class="anim" data-spec="heartbeat"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Server -&gt; Coordinator
+Server -&gt; Coordinator
+Server -&gt; Coordinator
+</code></pre></details>
+
+<p>If heartbeats stop arriving, the coordinator can assume the server is unavailable.</p>
+<p>Heartbeats are commonly used in distributed systems to detect failures.</p>
+
+<h2 id="s47">47. Leader Election</h2>
+
+<p>Some distributed tasks should be performed by only one node.</p>
+<p>For example:</p>
+<pre><code class="language-text">Running scheduled billing
+Coordinating a cluster
+Updating a shared resource
+</code></pre>
+<p>Several servers may be available, but one becomes the <strong>leader</strong>.</p>
+<div class="anim" data-spec="leader"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Node A -&gt; Leader
+Node B -&gt; Follower
+Node C -&gt; Follower
+</code></pre></details>
+
+<p>If the leader fails, the system elects a new one.</p>
+<p>Distributed coordination systems and consensus algorithms help with this process.</p>
+
+<h2 id="s48">48. Distributed Lock</h2>
+
+<p>Suppose two servers try to process the same critical operation.</p>
+<pre><code class="language-text">Server A -&gt; Update inventory
+Server B -&gt; Update inventory
+</code></pre>
+<p>We may need only one server to execute it at a time.</p>
+<p>A distributed lock allows one participant to acquire a lock:</p>
+<div class="anim" data-spec="lock"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Lock acquired by Server A
+</code></pre></details>
+
+<p>Server B must wait or fail.</p>
+<p>Distributed locking must be designed very carefully because network partitions and process failures can make lock correctness difficult.</p>
+
+<h2 id="s49">49. Database Transaction</h2>
+
+<p>Suppose transferring ₹1,000 requires:</p>
+<pre><code class="language-text">Subtract ₹1,000 from Alice
+Add ₹1,000 to Bob
+</code></pre>
+<p>It would be disastrous if only one step succeeded.</p>
+<p>A transaction allows multiple operations to behave as one logical unit.</p>
+<p>Traditional database transactions commonly aim to satisfy ACID properties.</p>
+
+<h2 id="s50">50. ACID</h2>
+
+<p>ACID stands for:</p>
+<h2>Atomicity</h2>
+<p>Everything succeeds or everything fails.</p>
+<h2>Consistency</h2>
+<p>Database rules remain valid.</p>
+<h2>Isolation</h2>
+<p>Concurrent transactions should not corrupt each other.</p>
+<h2>Durability</h2>
+<p>After committing, data should survive failures.</p>
+<p>ACID transactions are especially valuable for financial and strongly consistent operations.</p>
+
+<h2 id="s51">51. Distributed Transactions</h2>
+
+<p>Things become harder when one logical operation touches multiple services.</p>
+<p>Example:</p>
+<pre><code class="language-text">Order Service
+Payment Service
+Inventory Service
+</code></pre>
+<p>An order may require:</p>
+<pre><code class="language-text">Create order
+Charge card
+Reduce inventory
+</code></pre>
+<p>If one action fails after the others succeed, how do we recover?</p>
+<p>Traditional distributed transactions may use protocols such as two-phase commit, but modern systems frequently use patterns such as the <strong>Saga pattern</strong>.</p>
+
+<h2 id="s52">52. Saga Pattern</h2>
+
+<p>A Saga represents a long business transaction as a series of smaller transactions.</p>
+<p>Example:</p>
+<div class="anim" data-spec="saga"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>1. Create Order
+2. Reserve Inventory
+3. Charge Payment
+4. Arrange Shipment
+</code></pre></details>
+
+<p>If payment fails, compensating actions may run:</p>
+<pre><code class="language-text">Release Inventory
+Cancel Order
+</code></pre>
+<p>Instead of a single global rollback, each service performs a compensating operation.</p>
+
+<h2 id="s53">53. SQL Join</h2>
+
+<p>A join combines related records.</p>
+<p>Suppose we have:</p>
+<pre><code class="language-text">Users
+Orders
+</code></pre>
+<p>An SQL query can join them:</p>
+<pre><code class="language-sql">SELECT users.name, orders.total
+FROM users
+JOIN orders
+ON users.id = orders.user_id;
+</code></pre>
+<p>Joins are powerful in relational databases but become more complicated when related data is distributed across different shards or microservices.</p>
+
+<h2 id="s54">54. Denormalization</h2>
+
+<p>Normalized databases try to avoid duplicated information.</p>
+<p>Distributed systems sometimes intentionally duplicate information to improve reads.</p>
+<p>For example, instead of repeatedly joining:</p>
+<pre><code class="language-text">Post
++
+User
+</code></pre>
+<p>you might store:</p>
+<pre><code class="language-text">post_id
+content
+author_id
+author_name
+author_avatar
+</code></pre>
+<p>This is called <strong>denormalization</strong>.</p>
+<p>Benefits:</p>
+<ul>
+<li>Faster reads</li>
+<li>Fewer joins</li>
+</ul>
+<p>Cost:</p>
+<ul>
+<li>Duplicate data</li>
+<li>Harder updates</li>
+<li>Possible temporary inconsistencies</li>
+</ul>
+
+<h2 id="s55">55. Read Replica</h2>
+
+<p>When a system has many reads but relatively few writes, read replicas are extremely useful.</p>
+<p>Example:</p>
+<div class="anim" data-spec="read_replica"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>             Primary
+            /   |   \
+           v    v    v
+        Read1 Read2 Read3
+</code></pre></details>
+
+<p>Writes:</p>
+<pre><code class="language-text">-&gt; Primary
+</code></pre>
+<p>Reads:</p>
+<pre><code class="language-text">-&gt; Replicas
+</code></pre>
+<p>This pattern is common for read-heavy applications.</p>
+
+<h2 id="s56">56. CQRS</h2>
+
+<p>CQRS stands for:</p>
+<p><strong>Command Query Responsibility Segregation</strong></p>
+<p>The idea is to separate:</p>
+<pre><code class="language-text">Writes
+</code></pre>
+<p>from:</p>
+<pre><code class="language-text">Reads
+</code></pre>
+<p>For example:</p>
+<div class="anim" data-spec="cqrs"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Write API
+   |
+   v
+Transactional Database
+   |
+   v
+Events
+   |
+   v
+Read Database
+   |
+   v
+Read API
+</code></pre></details>
+
+<p>The write model can be optimized for correctness.</p>
+<p>The read model can be optimized for fast queries.</p>
+<p>CQRS is powerful but adds complexity and should not be used unnecessarily.</p>
+
+<h2 id="s57">57. Event Sourcing</h2>
+
+<p>Traditional databases usually store the current state.</p>
+<p>For example:</p>
+<pre><code class="language-text">Account Balance = ₹10,000
+</code></pre>
+<p>Event sourcing stores the events that created the state:</p>
+<div class="anim" data-spec="event_sourcing"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>AccountCreated
+Deposit ₹5,000
+Deposit ₹7,000
+Withdraw ₹2,000
+</code></pre></details>
+
+<p>Current state can be reconstructed from those events.</p>
+<p>Benefits include:</p>
+<ul>
+<li>Complete history</li>
+<li>Auditability</li>
+<li>Replay</li>
+<li>Temporal debugging</li>
+</ul>
+<p>Challenges include:</p>
+<ul>
+<li>Complexity</li>
+<li>Event versioning</li>
+<li>Storage</li>
+<li>Rebuilding state</li>
+</ul>
+
+<h2 id="s58">58. CAP Theorem</h2>
+
+<p>CAP is one of the most famous distributed-system concepts.</p>
+<p>It states that when a network partition occurs, a distributed system cannot simultaneously guarantee both:</p>
+<div class="anim" data-spec="cap"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Consistency
+Availability
+</code></pre></details>
+
+<p>The three letters are:</p>
+<h3>C — Consistency</h3>
+<p>Every read sees the latest successful write.</p>
+<h3>A — Availability</h3>
+<p>Every request receives a non-error response.</p>
+<h3>P — Partition Tolerance</h3>
+<p>The system continues operating despite network communication failures between nodes.</p>
+<p>Because network partitions can happen in distributed systems, engineers often have to choose the behavior they prefer during such failures.</p>
+
+<h2 id="s59">59. Strong Consistency</h2>
+
+<p>Strong consistency means that after a successful write, subsequent reads observe the latest value.</p>
+<p>Example:</p>
+<pre><code class="language-text">Write:
+balance = ₹5,000
+
+Read:
+balance = ₹5,000
+</code></pre>
+<p>Immediately.</p>
+<p>This matters greatly in areas such as:</p>
+<ul>
+<li>Banking</li>
+<li>Inventory constraints</li>
+<li>Financial transactions</li>
+<li>Security permissions</li>
+</ul>
+
+<h2 id="s60">60. Eventual Consistency</h2>
+
+<p>Eventual consistency means different replicas may temporarily disagree.</p>
+<p>For example:</p>
+<pre><code class="language-text">Replica A:
+followers = 1,001
+
+Replica B:
+followers = 1,000
+</code></pre>
+<p>After replication catches up:</p>
+<pre><code class="language-text">Replica A = 1,001
+Replica B = 1,001
+</code></pre>
+<p>For something like a social-media follower count, temporary inconsistency may be perfectly acceptable.</p>
+<p>The right consistency model depends on the business requirement.</p>
+
+<h2 id="s61">61. Availability</h2>
+
+<p>Availability describes how often your system is operational.</p>
+<p>For example:</p>
+<pre><code class="language-text">99% availability
+99.9%
+99.99%
+99.999%
+</code></pre>
+<p>Each extra nine significantly reduces acceptable downtime.</p>
+<p>High availability generally requires:</p>
+<ul>
+<li>Redundancy</li>
+<li>Multiple servers</li>
+<li>Database replicas</li>
+<li>Health checks</li>
+<li>Automatic failover</li>
+<li>Multiple availability zones</li>
+<li>Sometimes multiple geographic regions</li>
+</ul>
+
+<h2 id="s62">62. Failover</h2>
+
+<p>Suppose the primary database fails.</p>
+<p>The system may promote a replica:</p>
+<div class="anim" data-spec="failover"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Before:
+
+Primary A
+Replica B
+
+After A fails:
+
+Primary B
+</code></pre></details>
+
+<p>This is called <strong>failover</strong>.</p>
+<p>Failover can be:</p>
+<pre><code class="language-text">Manual
+Automatic
+</code></pre>
+<p>Automatic failover reduces downtime but requires careful coordination.</p>
+
+<h2 id="s63">63. Single Point of Failure</h2>
+
+<p>A <strong>Single Point of Failure</strong>, or SPOF, is a component whose failure brings the entire system down.</p>
+<p>Bad architecture:</p>
+<div class="anim" data-spec="spof_bad"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Users
+  |
+  v
+One Server
+  |
+  v
+One Database
+</code></pre></details>
+
+<p>Both components are single points of failure.</p>
+<p>More resilient architecture:</p>
+<div class="anim" data-spec="spof_good"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Users
+  |
+Load Balancer
+ /        \
+App1      App2
+ \        /
+Database Cluster
+</code></pre></details>
+
+<p>Good system design tries to remove critical single points of failure.</p>
+
+<h2 id="s64">64. Redundancy</h2>
+
+<p>Redundancy means having extra components available.</p>
+<p>Instead of:</p>
+<pre><code class="language-text">1 server
+</code></pre>
+<p>use:</p>
+<pre><code class="language-text">Server A
+Server B
+Server C
+</code></pre>
+<p>If one fails, the others continue.</p>
+<p>Redundancy may exist at many levels:</p>
+<pre><code class="language-text">Server
+Database
+Network
+Disk
+Power supply
+Availability zone
+Region
+</code></pre>
+
+<h2 id="s65">65. Multi-Region Architecture</h2>
+
+<p>Very large systems may operate in multiple geographic regions.</p>
+<div class="anim" data-spec="multi_region"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>              Global Routing
+               /          \
+              v            v
+         India Region    US Region
+          /      \        /      \
+        App      DB      App      DB
+</code></pre></details>
+
+<p>Benefits:</p>
+<ul>
+<li>Lower latency</li>
+<li>Disaster recovery</li>
+<li>Geographic resilience</li>
+</ul>
+<p>Challenges:</p>
+<ul>
+<li>Data replication</li>
+<li>Conflict resolution</li>
+<li>Cost</li>
+<li>Cross-region latency</li>
+<li>Consistency</li>
+</ul>
+
+<h2 id="s66">66. Availability Zone</h2>
+
+<p>Cloud regions often contain multiple physically separate facilities known as availability zones.</p>
+<p>For example:</p>
+<div class="anim" data-spec="az"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Region
+ |
+ +-- AZ-1
+ +-- AZ-2
+ +-- AZ-3
+</code></pre></details>
+
+<p>A resilient application might distribute servers across all three.</p>
+<p>If one data-center zone fails, the application continues operating.</p>
+
+<h2 id="s67">67. Auto Scaling</h2>
+
+<p>Traffic is rarely constant.</p>
+<p>Maybe your site receives:</p>
+<pre><code class="language-text">10 requests/sec at 3 AM
+10,000 requests/sec at 8 PM
+</code></pre>
+<p>Instead of permanently running hundreds of servers, auto scaling adds and removes capacity.</p>
+<div class="anim" data-spec="autoscale"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Low Traffic
+3 servers
+
+High Traffic
+30 servers
+
+Traffic falls
+5 servers
+</code></pre></details>
+
+<p>Scaling decisions may be based on:</p>
+<ul>
+<li>CPU</li>
+<li>Memory</li>
+<li>Request count</li>
+<li>Queue depth</li>
+<li>Latency</li>
+<li>Custom business metrics</li>
+</ul>
+
+<h2 id="s68">68. Container</h2>
+
+<p>Containers package applications together with the dependencies they need.</p>
+<p>For example:</p>
+<pre><code class="language-text">Application
+Runtime
+Libraries
+Configuration
+</code></pre>
+<p>Technologies such as Docker made containers popular because they provide consistent environments.</p>
+<p>Conceptually:</p>
+<div class="anim" data-spec="container"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Developer Laptop
+     |
+Docker Image
+     |
+     v
+Production Server
+</code></pre></details>
+
+<p>The same packaged application can run in both environments.</p>
+
+<h2 id="s69">69. Container Orchestration</h2>
+
+<p>If you have:</p>
+<pre><code class="language-text">5 containers
+</code></pre>
+<p>you can manage them manually.</p>
+<p>If you have:</p>
+<pre><code class="language-text">5,000 containers
+</code></pre>
+<p>you need orchestration.</p>
+<p>Container orchestrators such as Kubernetes can handle:</p>
+<ul>
+<li>Scheduling</li>
+<li>Auto scaling</li>
+<li>Restarting failed containers</li>
+<li>Service discovery</li>
+<li>Rolling deployments</li>
+<li>Configuration</li>
+<li>Secrets</li>
+<li>Networking</li>
+</ul>
+
+<h2 id="s70">70. Stateless Server</h2>
+
+<p>A stateless server does not depend on data stored only in its local memory between requests.</p>
+<p>For example:</p>
+<div class="anim" data-spec="stateless"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Request 1 -&gt; Server A
+Request 2 -&gt; Server C
+Request 3 -&gt; Server B
+</code></pre></details>
+
+<p>All requests still work.</p>
+<p>State is stored in shared systems such as:</p>
+<pre><code class="language-text">Database
+Redis
+Object Storage
+</code></pre>
+<p>Stateless application servers are much easier to horizontally scale.</p>
+
+<h2 id="s71">71. Stateful System</h2>
+
+<p>A stateful service maintains important local state.</p>
+<p>Examples may include:</p>
+<pre><code class="language-text">Database nodes
+Some messaging brokers
+Certain game servers
+Storage nodes
+</code></pre>
+<p>Stateful systems are usually harder to scale and recover than stateless application servers.</p>
+
+<h2 id="s72">72. Batch Processing</h2>
+
+<p>Batch processing handles data in groups.</p>
+<p>Example:</p>
+<pre><code class="language-text">Every night at 2 AM:
+
+Read yesterday's transactions
+Calculate reports
+Generate invoices
+Update analytics
+</code></pre>
+<p>This is useful when results do not need to be available instantly.</p>
+
+<h2 id="s73">73. Stream Processing</h2>
+
+<p>Stream processing handles events continuously.</p>
+<div class="anim" data-spec="stream"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Event
+Event
+Event
+Event
+Event
+   |
+   v
+Stream Processor
+</code></pre></details>
+
+<p>Examples include:</p>
+<ul>
+<li>Fraud detection</li>
+<li>Live dashboards</li>
+<li>Real-time analytics</li>
+<li>Monitoring</li>
+<li>Recommendation updates</li>
+</ul>
+<p>Technologies in this space include Kafka Streams, Apache Flink and Spark Structured Streaming.</p>
+
+<h2 id="s74">74. Scheduler</h2>
+
+<p>A scheduler triggers jobs at specific times.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Send monthly invoice
+Delete expired sessions
+Generate daily report
+Run backup
+</code></pre>
+<p>Conceptually:</p>
+<div class="anim" data-spec="scheduler"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Scheduler
+    |
+    v
+Job Queue
+    |
+    v
+Workers
+</code></pre></details>
+
+
+<h2 id="s75">75. Worker</h2>
+
+<p>A worker performs background processing.</p>
+<p>Example:</p>
+<pre><code class="language-text">Queue:
+GenerateThumbnail(image_123)
+</code></pre>
+<p>A worker receives the task:</p>
+<div class="anim" data-spec="worker"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Worker
+  |
+  v
+Resize image
+  |
+  v
+Store result
+</code></pre></details>
+
+<p>Running multiple workers allows tasks to be processed in parallel.</p>
+
+<h2 id="s76">76. WebSocket</h2>
+
+<p>Normal HTTP often looks like:</p>
+<div class="anim" data-spec="http"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client -&gt; Request
+Server -&gt; Response
+Connection finishes
+</code></pre></details>
+
+<p>For real-time communication we may want a long-lived connection.</p>
+<p>WebSocket allows bidirectional communication.</p>
+<div class="anim" data-spec="websocket"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client &lt;----------------&gt; Server
+</code></pre></details>
+
+<p>Both sides can send messages.</p>
+<p>Common use cases include:</p>
+<ul>
+<li>Chat</li>
+<li>Multiplayer games</li>
+<li>Live trading</li>
+<li>Collaborative editing</li>
+<li>Real-time notifications</li>
+</ul>
+
+<h2 id="s77">77. Server-Sent Events</h2>
+
+<p>Sometimes the client only needs the server to continuously push information.</p>
+<div class="anim" data-spec="sse"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Server -------&gt; Client
+</code></pre></details>
+
+<p>Server-Sent Events, or SSE, can be simpler than WebSocket for scenarios such as:</p>
+<ul>
+<li>Notifications</li>
+<li>Live dashboards</li>
+<li>Streaming AI responses</li>
+<li>Progress updates</li>
+</ul>
+
+<h2 id="s78">78. Long Polling</h2>
+
+<p>Before widespread WebSocket adoption, systems sometimes used long polling.</p>
+<p>The client sends a request:</p>
+<div class="anim" data-spec="longpoll"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Any new messages?
+</code></pre></details>
+
+<p>The server holds the connection until data becomes available or a timeout occurs.</p>
+<p>Then the client immediately opens another request.</p>
+<p>It can simulate real-time behavior but is generally less efficient than a true persistent connection.</p>
+
+<h2 id="s79">79. Bloom Filter</h2>
+
+<p>A Bloom filter is a memory-efficient probabilistic data structure.</p>
+<p>It answers:</p>
+<blockquote>
+<p>Might this item exist?</p>
+</blockquote>
+<p>or:</p>
+<blockquote>
+<p>This item definitely does not exist.</p>
+</blockquote>
+<p>For example, before querying a huge database:</p>
+<div class="anim" data-spec="bloom"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Bloom Filter
+     |
+Could exist?
+ /          \
+No           Maybe
+ |             |
+Stop        Database
+</code></pre></details>
+
+<p>Bloom filters can reduce unnecessary database or storage lookups.</p>
+<p>However, they can produce <strong>false positives</strong>.</p>
+<p>They do not produce false negatives when implemented correctly.</p>
+
+<h2 id="s80">80. Database Connection Pool</h2>
+
+<p>Creating a new database connection for every request is expensive.</p>
+<p>Instead:</p>
+<div class="anim" data-spec="pool"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Application
+    |
+    v
+Connection Pool
+ /    |    \
+C1    C2    C3
+ \    |    /
+   Database
+</code></pre></details>
+
+<p>Connections are reused.</p>
+<p>This improves performance and prevents the application from overwhelming the database with too many connections.</p>
+
+<h2 id="s81">81. API Pagination</h2>
+
+<p>Imagine an API contains:</p>
+<pre><code class="language-text">100 million posts
+</code></pre>
+<p>Returning them all is impossible.</p>
+<p>Instead we paginate.</p>
+<p>Example:</p>
+<pre><code class="language-text">GET /posts?limit=20
+</code></pre>
+<p>Pagination can use:</p>
+<h3>Offset pagination</h3>
+<pre><code class="language-text">?page=10&amp;limit=20
+</code></pre>
+<p>Simple, but inefficient at high offsets and unstable when records change.</p>
+<h3>Cursor pagination</h3>
+<pre><code class="language-text">?cursor=abc123
+</code></pre>
+<p>The cursor identifies where to continue.</p>
+<p>Cursor pagination usually performs better for large, frequently changing datasets.</p>
+
+<h2 id="s82">82. Data Compression</h2>
+
+<p>Network bandwidth is expensive and latency matters.</p>
+<p>Responses may be compressed using formats such as:</p>
+<pre><code class="language-text">gzip
+Brotli
+</code></pre>
+<p>For example:</p>
+<pre><code class="language-text">1 MB JSON
+</code></pre>
+<p>might compress to:</p>
+<pre><code class="language-text">200 KB
+</code></pre>
+<p>This makes responses faster, especially over slower networks.</p>
+
+<h2 id="s83">83. Serialization</h2>
+
+<p>Services need a format for transmitting data.</p>
+<p>Common formats include:</p>
+<h3>JSON</h3>
+<p>Easy for humans to read.</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: 123,
+  &quot;name&quot;: &quot;Alice&quot;
+}
+</code></pre>
+<h3>Protocol Buffers</h3>
+<p>Compact binary serialization often used with gRPC.</p>
+<h3>Avro</h3>
+<p>Common in data pipelines and Kafka ecosystems.</p>
+<p>Serialization format affects:</p>
+<ul>
+<li>Network size</li>
+<li>Parsing speed</li>
+<li>Schema evolution</li>
+<li>Developer usability</li>
+</ul>
+
+<h2 id="s84">84. REST</h2>
+
+<p>REST-style APIs typically operate around resources.</p>
+<p>Examples:</p>
+<pre><code class="language-text">GET /users/123
+
+POST /users
+
+PUT /users/123
+
+DELETE /users/123
+</code></pre>
+<p>REST is widely used because it works naturally with HTTP.</p>
+
+<h2 id="s85">85. gRPC</h2>
+
+<p>gRPC is a high-performance RPC framework commonly used for service-to-service communication.</p>
+<p>It often uses:</p>
+<pre><code class="language-text">HTTP/2
+Protocol Buffers
+</code></pre>
+<p>Benefits include:</p>
+<ul>
+<li>Efficient serialization</li>
+<li>Strong schemas</li>
+<li>Streaming</li>
+<li>Code generation</li>
+<li>Good internal-service performance</li>
+</ul>
+<p>A common architecture is:</p>
+<div class="anim" data-spec="grpc"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>External Client
+      |
+     REST
+      |
+ API Gateway
+      |
+     gRPC
+      |
+Internal Services
+</code></pre></details>
+
+
+<h2 id="s86">86. GraphQL</h2>
+
+<p>GraphQL allows clients to request exactly the fields they need.</p>
+<p>Instead of:</p>
+<pre><code class="language-text">GET /user
+GET /user/posts
+GET /user/followers
+</code></pre>
+<p>a client might request:</p>
+<pre><code class="language-graphql">user {
+  name
+  posts {
+    title
+  }
+}
+</code></pre>
+<p>GraphQL provides flexibility, but server-side caching, authorization and query-cost management can be more complicated.</p>
+
+<h2 id="s87">87. Observability</h2>
+
+<p>Once your system contains hundreds of servers, you cannot manually inspect each one.</p>
+<p>You need <strong>observability</strong>.</p>
+<p>The three major pillars are often described as:</p>
+<pre><code class="language-text">Logs
+Metrics
+Traces
+</code></pre>
+
+<h2 id="s88">88. Logging</h2>
+
+<p>Logs record events.</p>
+<p>Example:</p>
+<pre><code class="language-text">2026-10-07 10:30:15
+Payment failed
+order_id=123
+user_id=456
+reason=insufficient_funds
+</code></pre>
+<p>Centralized logging allows engineers to search logs across thousands of machines.</p>
+
+<h2 id="s89">89. Metrics</h2>
+
+<p>Metrics are numerical measurements over time.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Requests/sec
+CPU usage
+Memory usage
+Error rate
+Database connections
+P95 latency
+Queue depth
+</code></pre>
+<p>Metrics help answer:</p>
+<blockquote>
+<p>Is the system healthy?</p>
+</blockquote>
+
+<h2 id="s90">90. Distributed Tracing</h2>
+
+<p>Imagine one request flows through:</p>
+<div class="anim" data-spec="trace_flow"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>API Gateway
+   |
+User Service
+   |
+Order Service
+   |
+Payment Service
+   |
+Database
+</code></pre></details>
+
+<p>The request takes:</p>
+<pre><code class="language-text">2.4 seconds
+</code></pre>
+<p>Where is the delay?</p>
+<p>Distributed tracing assigns a trace identifier to the request and records timing across services.</p>
+<p>Example:</p>
+<div class="anim" data-spec="trace_waterfall"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>API Gateway      30 ms
+Order Service   100 ms
+Payment Service 2.1 sec
+Database         50 ms
+</code></pre></details>
+
+<p>Now the bottleneck is clear.</p>
+
+<h2 id="s91">91. Alerting</h2>
+
+<p>Monitoring is useless if nobody knows when something breaks.</p>
+<p>Alerts may trigger when:</p>
+<pre><code class="language-text">Error rate &gt; 5%
+
+CPU &gt; 90%
+
+P99 latency &gt; 3 seconds
+
+Queue backlog &gt; 1 million
+
+Database disk &gt; 90%
+</code></pre>
+<p>Alerts can notify engineers through incident-management systems, chat, SMS or phone calls.</p>
+
+<h2 id="s92">92. Latency</h2>
+
+<p>Latency is the amount of time required for an operation.</p>
+<p>Example:</p>
+<div class="anim" data-spec="latency"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Request sent
+      |
+    100 ms
+      |
+Response received
+</code></pre></details>
+
+<p>Latency can come from:</p>
+<ul>
+<li>Network travel</li>
+<li>Database queries</li>
+<li>Cache misses</li>
+<li>Disk operations</li>
+<li>Cross-region calls</li>
+<li>Queue processing</li>
+<li>CPU-intensive work</li>
+</ul>
+<p>Reducing latency is one of the central goals of system design.</p>
+
+<h2 id="s93">93. Throughput</h2>
+
+<p>Throughput measures how much work a system can perform over time.</p>
+<p>Examples:</p>
+<pre><code class="language-text">10,000 requests/second
+
+1 million messages/minute
+
+500 MB/second
+</code></pre>
+<p>Latency and throughput are related but different.</p>
+<p>A system can have high throughput while individual requests are relatively slow.</p>
+
+<h2 id="s94">94. P50, P95 and P99 Latency</h2>
+
+<p>Average latency can hide problems.</p>
+<p>Suppose:</p>
+<div class="anim" data-spec="percentile"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>99 requests = 100 ms
+1 request   = 10 seconds
+</code></pre></details>
+
+<p>The average does not tell the full story.</p>
+<p>Instead engineers examine percentiles.</p>
+<h3>P50</h3>
+<p>50% of requests are faster than this.</p>
+<h3>P95</h3>
+<p>95% are faster.</p>
+<h3>P99</h3>
+<p>99% are faster.</p>
+<p>P99 is particularly important for understanding the slowest user experiences.</p>
+
+<h2 id="s95">95. Backpressure</h2>
+
+<p>Suppose producers generate:</p>
+<pre><code class="language-text">100,000 events/sec
+</code></pre>
+<p>but consumers can process only:</p>
+<div class="anim" data-spec="backpressure"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>10,000 events/sec
+</code></pre></details>
+
+<p>The queue keeps growing.</p>
+<p>Backpressure prevents producers from overwhelming downstream components.</p>
+<p>Strategies may include:</p>
+<ul>
+<li>Slow producers</li>
+<li>Buffer temporarily</li>
+<li>Reject requests</li>
+<li>Scale consumers</li>
+<li>Drop low-priority data</li>
+</ul>
+
+<h2 id="s96">96. Throttling</h2>
+
+<p>Throttling intentionally limits resource usage.</p>
+<p>Example:</p>
+<pre><code class="language-text">Free users:
+100 API calls/minute
+
+Premium users:
+10,000 API calls/minute
+</code></pre>
+<p>Throttling protects infrastructure and enforces product limits.</p>
+
+<h2 id="s97">97. Timeout</h2>
+
+<p>Never allow network calls to wait forever.</p>
+<p>Example:</p>
+<div class="anim" data-spec="timeout"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Call Payment Service
+
+Timeout = 3 seconds
+</code></pre></details>
+
+<p>If no response arrives within three seconds, stop waiting.</p>
+<p>Without timeouts, blocked requests can consume threads, memory and connections until the entire system becomes unhealthy.</p>
+
+<h2 id="s98">98. Bulkhead Pattern</h2>
+
+<p>Ships contain separate compartments so damage in one area does not sink the whole vessel.</p>
+<p>Distributed systems can use the same principle.</p>
+<p>Suppose:</p>
+<pre><code class="language-text">Recommendation Service
+</code></pre>
+<p>starts hanging.</p>
+<p>If it shares every thread and connection with checkout traffic, checkout might also fail.</p>
+<p>Separate resource pools isolate failures:</p>
+<div class="anim" data-spec="bulkhead"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Checkout Pool
+Search Pool
+Recommendation Pool
+</code></pre></details>
+
+<p>One overloaded feature does not necessarily destroy the others.</p>
+
+<h2 id="s99">99. Feature Flags</h2>
+
+<p>A feature flag lets you turn functionality on or off without deploying new code.</p>
+<pre><code class="language-text">new_checkout = true
+</code></pre>
+<p>You can enable it for:</p>
+<pre><code class="language-text">1% users
+10% users
+50% users
+100% users
+</code></pre>
+<p>Feature flags are useful for:</p>
+<ul>
+<li>Gradual rollouts</li>
+<li>Experiments</li>
+<li>Emergency shutdowns</li>
+<li>Beta testing</li>
+</ul>
+
+<h2 id="s100">100. Blue-Green Deployment</h2>
+
+<p>Suppose the current production version is:</p>
+<pre><code class="language-text">Blue
+</code></pre>
+<p>You deploy the new version separately:</p>
+<pre><code class="language-text">Green
+</code></pre>
+<p>Architecture:</p>
+<div class="anim" data-spec="bluegreen"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>            Load Balancer
+             /        \
+          Blue        Green
+         Old App     New App
+</code></pre></details>
+
+<p>After testing Green, traffic switches from Blue to Green.</p>
+<p>Rollback is easy because Blue still exists.</p>
+
+<h2 id="s101">101. Canary Deployment</h2>
+
+<p>Instead of sending everyone to the new version immediately:</p>
+<div class="anim" data-spec="canary"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>95% -&gt; Version 1
+5%  -&gt; Version 2
+</code></pre></details>
+
+<p>Observe metrics.</p>
+<p>If everything looks good:</p>
+<pre><code class="language-text">50% -&gt; Version 2
+</code></pre>
+<p>Eventually:</p>
+<pre><code class="language-text">100% -&gt; Version 2
+</code></pre>
+<p>This limits the impact of bad deployments.</p>
+
+<h2 id="s102">102. Configuration Management</h2>
+
+<p>Applications require configuration:</p>
+<pre><code class="language-text">Database URL
+Cache Address
+Feature Flags
+Timeout Values
+Service Endpoints
+</code></pre>
+<p>Configuration should usually be separate from application code.</p>
+<p>That allows different settings for:</p>
+<pre><code class="language-text">Development
+Testing
+Staging
+Production
+</code></pre>
+
+<h2 id="s103">103. Secret Management</h2>
+
+<p>Sensitive values should not be stored directly in source code.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Database passwords
+API keys
+Encryption keys
+Private certificates
+</code></pre>
+<p>Secrets should be stored in secure secret-management systems with restricted access and rotation policies.</p>
+
+<h2 id="s104">104. Encryption</h2>
+
+<p>Systems commonly need encryption in two places.</p>
+<h2>Encryption in transit</h2>
+<p>Protects data moving across networks.</p>
+<p>Usually implemented through TLS/HTTPS.</p>
+<div class="anim" data-spec="tls"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Client
+  |
+Encrypted Connection
+  |
+Server
+</code></pre></details>
+
+<h2>Encryption at rest</h2>
+<p>Protects stored information.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Database disks
+Backups
+Object storage
+</code></pre>
+
+<h2 id="s105">105. Hashing</h2>
+
+<p>Hashing converts data into a fixed-size value.</p>
+<p>Example:</p>
+<div class="anim" data-spec="hashing"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>&quot;hello&quot;
+   |
+ hash
+   |
+   v
+2cf24d...
+</code></pre></details>
+
+<p>Hashing is used for:</p>
+<ul>
+<li>Integrity checks</li>
+<li>Data partitioning</li>
+<li>Password-storage systems when combined with appropriate password-hashing algorithms</li>
+<li>Deduplication</li>
+<li>Consistent hashing</li>
+</ul>
+<p>Hashing is not the same thing as encryption.</p>
+<p>Encryption is designed to be reversible with a key.</p>
+<p>Cryptographic hashing is designed to be one-way.</p>
+
+<h2 id="s106">106. Checksum</h2>
+
+<p>Checksums help detect data corruption.</p>
+<p>Suppose you download a file.</p>
+<p>The sender provides:</p>
+<pre><code class="language-text">SHA-256 checksum
+</code></pre>
+<p>You calculate the checksum locally.</p>
+<p>If the values differ, the file may have been corrupted or altered.</p>
+<p>Checksums are widely used in storage and distributed data transfer.</p>
+
+<h2 id="s107">107. Data Backup</h2>
+
+<p>Replication is not the same as backup.</p>
+<p>Suppose someone accidentally runs:</p>
+<pre><code class="language-sql">DELETE FROM users;
+</code></pre>
+<p>Replication may faithfully copy that deletion to every replica.</p>
+<p>A backup provides historical recovery.</p>
+<p>Common backup strategies include:</p>
+<pre><code class="language-text">Full backups
+Incremental backups
+Snapshots
+Point-in-time recovery
+</code></pre>
+
+<h2 id="s108">108. Disaster Recovery</h2>
+
+<p>Disaster recovery answers:</p>
+<blockquote>
+<p>What happens if an entire region or critical infrastructure fails?</p>
+</blockquote>
+<p>A disaster-recovery plan may include:</p>
+<pre><code class="language-text">Secondary region
+Database backups
+Cross-region replication
+DNS failover
+Recovery procedures
+</code></pre>
+<p>Two important terms are:</p>
+<h3>RPO — Recovery Point Objective</h3>
+<p>How much data can you afford to lose?</p>
+<p>Example:</p>
+<pre><code class="language-text">RPO = 5 minutes
+</code></pre>
+<h3>RTO — Recovery Time Objective</h3>
+<p>How long can the system remain unavailable?</p>
+<p>Example:</p>
+<pre><code class="language-text">RTO = 30 minutes
+</code></pre>
+
+<h2 id="s109">109. Data Warehouse</h2>
+
+<p>Transactional databases are optimized for operations such as:</p>
+<pre><code class="language-text">Create order
+Update user
+Process payment
+</code></pre>
+<p>Analytics may involve completely different workloads.</p>
+<p>Example:</p>
+<pre><code class="language-text">What were total sales per country over the last five years?
+</code></pre>
+<p>Large analytical workloads often belong in a <strong>data warehouse</strong>.</p>
+<p>Examples include systems such as:</p>
+<ul>
+<li>BigQuery</li>
+<li>Snowflake</li>
+<li>Redshift</li>
+</ul>
+<p>A simplified pipeline is:</p>
+<div class="anim" data-spec="warehouse"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Application Databases
+        |
+        v
+   Data Pipeline
+        |
+        v
+   Data Warehouse
+        |
+        v
+BI / Analytics
+</code></pre></details>
+
+
+<h2 id="s110">110. Data Lake</h2>
+
+<p>A data lake stores large amounts of raw or semi-structured data.</p>
+<p>Examples:</p>
+<pre><code class="language-text">Logs
+JSON
+Images
+Events
+CSV files
+Parquet files
+Clickstream data
+</code></pre>
+<p>Unlike a traditional warehouse, data does not necessarily need to be fully transformed before storage.</p>
+<p>Modern analytical architectures may combine data-lake and warehouse concepts.</p>
+
+<h2 id="sputting-everything-together">Putting Everything Together</h2>
+
+<p>Now consider a large e-commerce platform.</p>
+<p>A request might flow like this:</p>
+<div class="anim" data-spec="big"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>                         USER
+                           |
+                           v
+                          DNS
+                           |
+                           v
+                          CDN
+                           |
+                           v
+                     Load Balancer
+                           |
+                           v
+                       API Gateway
+                           |
+              +------------+------------+
+              |            |            |
+              v            v            v
+          User Service  Order Service  Search Service
+              |            |            |
+              v            v            v
+            Cache       Database    Search Engine
+                           |
+                           v
+                      Message Broker
+                     /      |       \
+                    v       v        v
+                Payment   Email   Inventory
+                Service  Service   Service
+</code></pre></details>
+
+<p>Supporting all of this may be:</p>
+<pre><code class="language-text">Object Storage
+Monitoring
+Logging
+Metrics
+Tracing
+Rate Limiting
+Service Discovery
+Auto Scaling
+Container Orchestration
+Backups
+Replication
+Failover
+Secret Management
+</code></pre>
+<p>This is what a modern distributed system begins to look like.</p>
+
+<h2 id="sthe-most-important-lesson-in-system-design">The Most Important Lesson in System Design</h2>
+
+<p>You do <strong>not</strong> add all of these components to every system.</p>
+<p>That would create unnecessary complexity.</p>
+<p>Instead, system design is the process of asking:</p>
+<pre><code class="language-text">What problem do I currently have?
+</code></pre>
+<p>and then introducing the component that solves that problem.</p>
+<p>For example:</p>
+<div class="anim" data-spec="chain1"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>One server cannot handle traffic
+        ↓
+Add horizontal scaling
+        ↓
+Need to distribute traffic
+        ↓
+Add load balancer
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain2"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Database receives too many repeated reads
+        ↓
+Add cache
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain3"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Images load slowly around the world
+        ↓
+Add CDN
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain4"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Background work makes requests slow
+        ↓
+Add message queue
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain5"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Database cannot handle read traffic
+        ↓
+Add read replicas
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain6"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Database becomes too large for one machine
+        ↓
+Introduce partitioning/sharding
+</code></pre></details>
+
+<p>Then:</p>
+<div class="anim" data-spec="chain7"></div>
+<details class="orig"><summary>Original text diagram</summary><pre><code>Microservices depend on unreliable networks
+        ↓
+Add timeout + retry + circuit breaker
+</code></pre></details>
+
+<p>This way of thinking is far more important than memorizing architecture diagrams.</p>
+
+<h2 id="sa-practical-system-design-mental-model">A Practical System Design Mental Model</h2>
+
+<p>When solving a system-design problem, think through the following layers.</p>
+<h2>Layer 1 — Users</h2>
+<p>Ask:</p>
+<pre><code class="language-text">How many users?
+Where are they located?
+What devices do they use?
+</code></pre>
+<h2>Layer 2 — Traffic</h2>
+<p>Estimate:</p>
+<pre><code class="language-text">Requests per second
+Read/write ratio
+Peak traffic
+Bandwidth
+</code></pre>
+<h2>Layer 3 — Entry Layer</h2>
+<p>Consider:</p>
+<pre><code class="language-text">DNS
+CDN
+Load Balancer
+API Gateway
+Rate Limiter
+</code></pre>
+<h2>Layer 4 — Compute Layer</h2>
+<p>Consider:</p>
+<pre><code class="language-text">Application Servers
+Microservices
+Workers
+Auto Scaling
+Containers
+</code></pre>
+<h2>Layer 5 — Data Layer</h2>
+<p>Consider:</p>
+<pre><code class="language-text">SQL
+NoSQL
+Indexes
+Cache
+Replication
+Sharding
+Object Storage
+Search Engine
+</code></pre>
+<h2>Layer 6 — Asynchronous Processing</h2>
+<p>Consider:</p>
+<pre><code class="language-text">Queues
+Kafka
+Pub/Sub
+Workers
+Schedulers
+Event-driven architecture
+</code></pre>
+<h2>Layer 7 — Reliability</h2>
+<p>Consider:</p>
+<pre><code class="language-text">Replication
+Failover
+Health Checks
+Retries
+Timeouts
+Circuit Breakers
+Backups
+Multi-AZ
+Multi-Region
+</code></pre>
+<h2>Layer 8 — Security</h2>
+<p>Consider:</p>
+<pre><code class="language-text">Authentication
+Authorization
+TLS
+Encryption
+Secret Management
+Rate Limiting
+</code></pre>
+<h2>Layer 9 — Observability</h2>
+<p>Consider:</p>
+<pre><code class="language-text">Logs
+Metrics
+Tracing
+Alerts
+Dashboards
+</code></pre>
+
+<h2 id="ssystem-design-component-cheat-sheet">System Design Component Cheat Sheet</h2>
+
+<p>Here is a simple summary.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Main Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS</td>
+<td>Convert domain names to addresses and help route traffic</td>
+</tr>
+<tr>
+<td>CDN</td>
+<td>Serve content close to users</td>
+</tr>
+<tr>
+<td>Load Balancer</td>
+<td>Distribute traffic across servers</td>
+</tr>
+<tr>
+<td>Reverse Proxy</td>
+<td>Protect and route traffic to backend servers</td>
+</tr>
+<tr>
+<td>API Gateway</td>
+<td>Front door for APIs and microservices</td>
+</tr>
+<tr>
+<td>Application Server</td>
+<td>Execute business logic</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td>Make repeated reads faster</td>
+</tr>
+<tr>
+<td>SQL Database</td>
+<td>Structured transactional storage</td>
+</tr>
+<tr>
+<td>NoSQL Database</td>
+<td>Flexible or highly scalable storage</td>
+</tr>
+<tr>
+<td>Index</td>
+<td>Speed up database searches</td>
+</tr>
+<tr>
+<td>Replication</td>
+<td>Create copies for reliability/read scaling</td>
+</tr>
+<tr>
+<td>Sharding</td>
+<td>Split huge datasets across servers</td>
+</tr>
+<tr>
+<td>Consistent Hashing</td>
+<td>Distribute keys with minimal remapping</td>
+</tr>
+<tr>
+<td>Message Queue</td>
+<td>Process tasks asynchronously</td>
+</tr>
+<tr>
+<td>Kafka/Event Stream</td>
+<td>High-throughput event distribution and replay</td>
+</tr>
+<tr>
+<td>Pub/Sub</td>
+<td>Deliver one event to multiple subscribers</td>
+</tr>
+<tr>
+<td>Worker</td>
+<td>Perform background jobs</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>Run jobs at certain times</td>
+</tr>
+<tr>
+<td>Object Storage</td>
+<td>Store files and large objects</td>
+</tr>
+<tr>
+<td>Search Engine</td>
+<td>Provide fast full-text search</td>
+</tr>
+<tr>
+<td>Rate Limiter</td>
+<td>Control request frequency</td>
+</tr>
+<tr>
+<td>Service Discovery</td>
+<td>Locate service instances</td>
+</tr>
+<tr>
+<td>Circuit Breaker</td>
+<td>Stop calls to unhealthy dependencies</td>
+</tr>
+<tr>
+<td>Retry</td>
+<td>Recover from temporary failures</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>Stop waiting indefinitely</td>
+</tr>
+<tr>
+<td>DLQ</td>
+<td>Store repeatedly failing messages</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>Persistent two-way communication</td>
+</tr>
+<tr>
+<td>SSE</td>
+<td>Server-to-client streaming</td>
+</tr>
+<tr>
+<td>Bloom Filter</td>
+<td>Avoid unnecessary lookups</td>
+</tr>
+<tr>
+<td>Connection Pool</td>
+<td>Reuse database connections</td>
+</tr>
+<tr>
+<td>Auto Scaling</td>
+<td>Automatically adjust compute capacity</td>
+</tr>
+<tr>
+<td>Containers</td>
+<td>Package applications consistently</td>
+</tr>
+<tr>
+<td>Orchestration</td>
+<td>Manage large numbers of containers</td>
+</tr>
+<tr>
+<td>Feature Flags</td>
+<td>Control functionality without redeployment</td>
+</tr>
+<tr>
+<td>Logs</td>
+<td>Record system events</td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td>Measure system behavior</td>
+</tr>
+<tr>
+<td>Tracing</td>
+<td>Follow requests across services</td>
+</tr>
+<tr>
+<td>Alerts</td>
+<td>Notify teams about failures</td>
+</tr>
+<tr>
+<td>Backups</td>
+<td>Recover old data</td>
+</tr>
+<tr>
+<td>Failover</td>
+<td>Replace failed components</td>
+</tr>
+<tr>
+<td>Multi-Region</td>
+<td>Improve geographic resilience and latency</td>
+</tr>
+<tr>
+<td>Data Warehouse</td>
+<td>Perform large analytical queries</td>
+</tr>
+<tr>
+<td>Data Lake</td>
+<td>Store large volumes of raw data</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="swhat-you-should-learn-first">What You Should Learn First</h2>
+
+<p>If you are preparing for system-design interviews, do not try to memorize everything at once.</p>
+<p>A useful learning order is:</p>
+<pre><code class="language-text">1. Client-server architecture
+2. DNS
+3. HTTP
+4. Load balancing
+5. Horizontal scaling
+6. SQL databases
+7. Indexes
+8. Replication
+9. Cache
+10. CDN
+11. Message queues
+12. NoSQL
+13. Sharding
+14. Consistent hashing
+15. Rate limiting
+16. API Gateway
+17. Object storage
+18. Search engines
+19. Microservices
+20. Event-driven architecture
+21. Kafka
+22. WebSockets
+23. CAP theorem
+24. Consistency models
+25. Reliability patterns
+26. Observability
+27. Multi-region architecture
+</code></pre>
+<p>Once these concepts become familiar, systems such as:</p>
+<pre><code class="language-text">YouTube
+Netflix
+Uber
+WhatsApp
+Instagram
+Twitter/X
+Amazon
+Google Drive
+Dropbox
+Slack
+Spotify
+</code></pre>
+<p>stop looking like mysterious giant architectures.</p>
+<p>They become combinations of familiar building blocks.</p>
+
+<h2 id="sfinal-principle">Final Principle</h2>
+
+<p>The biggest mistake beginners make in system design is asking:</p>
+<blockquote>
+<p>Which technologies should I use?</p>
+</blockquote>
+<p>A better question is:</p>
+<blockquote>
+<p>What problem am I trying to solve?</p>
+</blockquote>
+<p>Then choose the component that solves it.</p>
+<p>If reads are slow:</p>
+<pre><code class="language-text">Think cache or indexes.
+</code></pre>
+<p>If one server cannot handle traffic:</p>
+<pre><code class="language-text">Think horizontal scaling and load balancing.
+</code></pre>
+<p>If background operations make requests slow:</p>
+<pre><code class="language-text">Think queues and workers.
+</code></pre>
+<p>If the database cannot handle read volume:</p>
+<pre><code class="language-text">Think caching and read replicas.
+</code></pre>
+<p>If one database cannot hold the dataset:</p>
+<pre><code class="language-text">Think partitioning and sharding.
+</code></pre>
+<p>If users around the world experience slow static content:</p>
+<pre><code class="language-text">Think CDN.
+</code></pre>
+<p>If services are failing because dependencies are unhealthy:</p>
+<pre><code class="language-text">Think timeouts, retries and circuit breakers.
+</code></pre>
+<p>If you cannot understand why production is slow:</p>
+<pre><code class="language-text">Think logs, metrics and traces.
+</code></pre>
+<p>That is the essence of system design:</p>
+<p><strong>Understand the bottleneck, understand the trade-off, and introduce the simplest component that solves the problem.</strong></p>
+<p>Once you learn to think this way, system design becomes much less about memorizing diagrams and much more about engineering decisions.</p>
+  </div>
+</div>
+</main>
+</body>
+</html>
