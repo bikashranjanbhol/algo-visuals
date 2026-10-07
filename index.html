@@ -7,7 +7,7 @@
 <meta name="description" content="Engineering topics explained with step-by-step visuals.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
@@ -16,45 +16,63 @@
 <body>
 <main>
 <div class="wrap">
-  <h1>See it run, step by step.</h1>
-  <p class="lede">Visual, interactive walkthroughs for the topics engineers get asked about: algorithms, system design, low-level design, generative AI and frontend architecture. Pick a track to start.</p>
+  <section class="hero">
+    <a class="eyebrow-tag" href="/system-design/guide"><b>New</b>The complete System Design guide, one lesson at a time</a>
+    <h1>See it run, step by step.</h1>
+    <p class="lede">Visual, interactive walkthroughs for the topics engineers get asked about: algorithms, system design, low-level design, generative AI and frontend architecture. Pick a track to start.</p>
+    <div class="cta"><a class="btn primary" href="/algo-dsa">Start with Algo &amp; DSA <span aria-hidden="true">→</span></a><a class="btn" href="/system-design">Explore System Design</a></div>
+  </section>
+
+  <div class="sec-h"><h2>Available now</h2><span>Free and members-only tracks</span></div>
   <div class="grid">
     <a class="card" href="/algo-dsa">
-      <h2>Algo & DSA</h2>
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6 3 12l5 6M16 6l5 6-5 6"/></svg></span>
+      <h2>Algo &amp; DSA</h2>
       <p>Algorithms and data structures, one problem at a time: understand it, plan it, then watch the solution run.</p>
       <ul><li>Two Sum</li><li>Add Two Numbers</li><li>Prefix and suffix techniques</li></ul>
-      <span class="go">3 walkthroughs</span>
+      <div class="meta-row"><span>3 walkthroughs · Free</span><span class="go">Open track</span></div>
     </a>
     <a class="card" href="/system-design">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg></span>
       <h2>System Design</h2>
       <p>How large systems are put together: scaling, storage, caching, queues and the trade-offs behind real architectures.</p>
       <ul><li>A framework for any system design</li><li>System design components, explained</li><li>The complete guide, concept by concept</li></ul>
-      <span class="go">3 walkthroughs</span>
-    </a>
-    <a class="card" href="/lld">
-      <h2>LLD</h2>
-      <span class="soon">Coming soon</span>
-      <p style="margin-top:10px">Low-level design: classes, interfaces, design patterns and how to turn requirements into clean, testable code.</p>
-    </a>
-    <a class="card" href="/gen-ai">
-      <h2>Gen AI</h2>
-      <span class="soon">Coming soon</span>
-      <p style="margin-top:10px">How large language models work and how to build with them: prompts, embeddings, retrieval, agents and evaluation.</p>
-    </a>
-    <a class="card" href="/frontend-system-design">
-      <h2>Frontend System Design</h2>
-      <span class="soon">Coming soon</span>
-      <p style="margin-top:10px">Designing large frontend applications: rendering strategies, state, performance, data fetching and architecture.</p>
-    </a>
-    <a class="card" href="/frontend-lld">
-      <h2>Frontend LLD</h2>
-      <span class="soon">Coming soon</span>
-      <p style="margin-top:10px">Low-level frontend design: component APIs, hooks, state machines, accessibility and building reusable UI from scratch.</p>
+      <div class="meta-row"><span>3 walkthroughs · Members</span><span class="go">Open track</span></div>
     </a>
     <a class="card" href="/concepts">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m21 16-5-5-8 8"/></svg></span>
       <h2>Visual library</h2>
       <p>Concept images in a sliding view, grouped by track. Pick a concept on the left and flip through its slides.</p>
-      <span class="go">Browse the library</span>
+      <ul><li>Two Sum, linked lists, prefix sums</li><li>Caching and the design framework</li><li>Virtual DOM, slide by slide</li></ul>
+      <div class="meta-row"><span>Slides</span><span class="go">Browse</span></div>
+    </a>
+  </div>
+
+  <div class="sec-h"><h2>Coming soon</h2><span>Same format: understand, plan, watch it run</span></div>
+  <div class="grid compact">
+    <a class="card muted" href="/lld">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="8.5" y="14" width="7" height="7" rx="1"/><path d="M6.5 10v2h11v-2M12 12v2"/></svg></span>
+      <h2>LLD</h2>
+      <p>Low-level design: classes, interfaces, design patterns and how to turn requirements into clean, testable code.</p>
+      <div class="meta-row"><span class="soon" style="margin:0">Coming soon</span></div>
+    </a>
+    <a class="card muted" href="/gen-ai">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17v4M17 19h4"/></svg></span>
+      <h2>Gen AI</h2>
+      <p>How large language models work and how to build with them: prompts, embeddings, retrieval, agents and evaluation.</p>
+      <div class="meta-row"><span class="soon" style="margin:0">Coming soon</span></div>
+    </a>
+    <a class="card muted" href="/frontend-system-design">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg></span>
+      <h2>Frontend System Design</h2>
+      <p>Designing large frontend applications: rendering strategies, state, performance, data fetching and architecture.</p>
+      <div class="meta-row"><span class="soon" style="margin:0">Coming soon</span></div>
+    </a>
+    <a class="card muted" href="/frontend-lld">
+      <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg></span>
+      <h2>Frontend LLD</h2>
+      <p>Low-level frontend design: component APIs, hooks, state machines, accessibility and building reusable UI from scratch.</p>
+      <div class="meta-row"><span class="soon" style="margin:0">Coming soon</span></div>
     </a>
   </div>
 </div>

@@ -7,30 +7,31 @@
 <meta name="description" content="Prefix and suffix arrays explained interactively: build them, query ranges in O(1), and apply the everything-except-me pattern.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
+<script src="/assets/docs.js" defer></script>
 <script type="module" src="/assets/auth.js"></script>
 <style>
-:root{--p:#4B57D1;--p-soft:#E3E6FB;--s:#B05FB8;--s-soft:#F5E4F6;--cur:#B97C06;--cur-soft:#FBEFD3;--code-bg:#1B2233}
-@media (prefers-color-scheme:dark){:root{--p:#949EFF;--p-soft:#272E58;--s:#E19BE8;--s-soft:#3B2440;--cur:#F2BE4A;--cur-soft:#3B3120;--code-bg:#0F1420}}
+:root{--p:#4F46E5;--p-soft:#EEF0FF;--s:#B05FB8;--s-soft:#F5E4F6;--cur:#B45309;--cur-soft:#FDF3DC;--code-bg:#0F172A}
+@media (prefers-color-scheme:dark){:root{--p:#8C93FF;--p-soft:#1D2042;--s:#E19BE8;--s-soft:#3B2440;--cur:#F5B94A;--cur-soft:#2C2312;--code-bg:#07090D}}
 .wrap{padding-bottom:40px}
 h1{max-width:18ch}
-h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
-h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+h2{font-size:1.0625rem;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+h2.big{font-size:clamp(1.3rem,2.4vw,1.625rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:0 0 8px}
 h3{font-size:1rem;margin:18px 0 6px}
 .sub{color:var(--muted);font-size:.92rem;margin:0 0 14px;max-width:70ch}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:20px}
 .mono{font-family:var(--mono)}
 code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
 .cp{color:var(--p);font-weight:600}.cs{color:var(--s);font-weight:600}.cc{color:var(--cur);font-weight:600}.cg{color:var(--hit);font-weight:600}
 p{max-width:70ch}
 .divider{display:flex;align-items:center;gap:14px;margin:34px 0 18px}
-.divider h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;margin:0;white-space:nowrap}
+.divider h2{font-size:clamp(1.3rem,2.4vw,1.625rem);font-weight:700;letter-spacing:-.02em;margin:0;white-space:nowrap}
 .divider::after{content:"";flex:1;height:2px;background:var(--line)}
 .idea{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
-.idea div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.idea div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
 .idea b{display:block;margin-bottom:4px}.idea p{margin:0;color:var(--muted);font-size:.93rem}
 
 /* generic array rows */
@@ -38,7 +39,7 @@ p{max-width:70ch}
 .row{display:grid;grid-template-columns:110px repeat(var(--n),56px);gap:6px;align-items:center;width:max-content}
 .row .lbl{font-size:.82rem;color:var(--muted);font-weight:600;white-space:nowrap}
 .row .lbl small{display:block;font-family:var(--mono);font-weight:400;font-size:.72rem}
-.c{height:50px;border-radius:12px;background:var(--cell);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;transition:background .25s,border-color .25s,opacity .25s;position:relative}
+.c{height:50px;border-radius:12px;background:var(--cell);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.15rem;transition:background .25s,border-color .25s,opacity .25s;position:relative}
 .c.ix{height:auto;background:transparent;font-family:var(--mono);font-weight:400;font-size:.75rem;color:var(--muted)}
 .c.p{background:var(--p-soft);border-color:var(--p)}
 .c.s{background:var(--s-soft);border-color:var(--s)}
@@ -69,7 +70,7 @@ input[type=text],input[type=number]{font-family:var(--mono);font-size:.95rem;pad
 input[type=number]{width:80px}
 label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted)}
 .err{color:var(--miss);font-size:.88rem;min-height:1.3em;margin:4px 0 0}
-.code{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;overflow-x:auto;line-height:1.55;margin:10px 0 0}
+.code{background:var(--code-bg);color:#D9DFEA;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;overflow-x:auto;line-height:1.55;margin:10px 0 0}
 .code .kw{color:#9FA8FF}.code .cm{color:#7F8AA0}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
 @media (max-width:860px){.two{grid-template-columns:1fr}}
@@ -97,7 +98,7 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
 
 /* cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:12px}
-.card2{background:var(--cell);border-radius:14px;padding:16px}
+.card2{background:var(--cell);border-radius:10px;padding:16px}
 .card2 h4{margin:0 0 6px;font-size:1rem}
 .card2 p{margin:0 0 8px;font-size:.93rem}
 .card2 pre{margin:8px 0 0;font-family:var(--mono);font-size:.8rem;background:var(--surface);border-radius:10px;padding:10px 12px;overflow-x:auto;line-height:1.5}
@@ -113,20 +114,15 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
 .quiz p{margin:8px 0 2px;font-size:.95rem}
 
 /* guide document */
-.toc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin:0 0 24px}
-.toc summary{cursor:pointer;font-weight:600}
-.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 18px;margin-top:12px}
-.toc-grid a{font-size:.9rem;color:var(--muted);text-decoration:none;padding:3px 0}
-.toc-grid a:hover{color:var(--ink)}
 .doc{max-width:none}
-.doc h2{font-size:clamp(1.35rem,3vw,1.8rem);font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:40px 0 10px;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+.doc h2{font-size:clamp(1.25rem,2.4vw,1.5rem);font-weight:650;letter-spacing:-.02em;line-height:1.3;margin:48px 0 10px;padding-top:24px;border-top:1px solid var(--line);scroll-margin-top:16px}
 .doc h3{font-size:1.1rem;font-weight:700;margin:20px 0 6px}
 .doc p{max-width:72ch;margin:0 0 12px}
 .doc ul,.doc ol{max-width:72ch;margin:0 0 12px;padding-left:1.4em}
 .doc li{margin:3px 0}
 .doc blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--p);background:var(--p-soft);border-radius:0 12px 12px 0;max-width:72ch}
 .doc blockquote p{margin:0}
-.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
+.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
 .doc pre code{background:transparent;padding:0;font-size:inherit;color:inherit}
 .doc code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
 .doc table{border-collapse:collapse;font-size:.92rem;margin:10px 0 14px;max-width:72ch}
@@ -143,7 +139,7 @@ label.f{display:inline-flex;flex-direction:column;gap:4px;font-size:.82rem;color
 <body>
 <main>
 <div class="wrap">
-  <p class="crumb"><a href="/">Home</a> / <a href="/algo-dsa">Algo &amp; DSA</a> / Prefix and suffix</p>
+  <p class="crumb"><a href="/">Home</a><span>/</span><a href="/algo-dsa">Algo &amp; DSA</a><span>/</span><span>Prefix and suffix</span></p>
   <h1>Prefix and Suffix Techniques: A Complete Beginner-Friendly Guide</h1>
   <p class="lede">The full guide, all 61 sections, with interactive explorers placed right after the sections they illustrate. Read it top to bottom, or jump in from the contents.</p>
   <details class="toc"><summary>Contents (61 sections)</summary><div class="toc-grid"><a href="#s1">1. What Does "Prefix" Mean?</a><a href="#s2">2. What Does "Suffix" Mean?</a><a href="#s3">3. Prefix Sum</a><a href="#s4">4. The Most Useful Prefix Sum Version</a><a href="#s5">5. Range Sum Using Prefix Sum</a><a href="#s6">6. Why Prefix Sum Is Powerful</a><a href="#s7">7. Suffix Sum</a><a href="#s8">8. Prefix Maximum</a><a href="#s9">9. Suffix Maximum</a><a href="#s10">10. Prefix Minimum</a><a href="#s11">11. Suffix Minimum</a><a href="#s12">12. The General Prefix Formula</a><a href="#s13">13. Prefix XOR</a><a href="#s14">14. Prefix Frequency / Prefix Count</a><a href="#s15">15. Prefix Count for Characters</a><a href="#s16">16. Prefix GCD</a><a href="#s17">17. Prefix Product</a><a href="#s18">18. Product of Array Except Self</a><a href="#s19">19. The "Everything Except Me" Pattern</a><a href="#s20">20. Including the Current Element vs Excluding It</a><a href="#s21">21. Prefix Maximum + Suffix Maximum Example</a><a href="#s22">22. Prefix Min + Suffix Max Pattern</a><a href="#s23">23. Prefix Boolean Information</a><a href="#s24">24. Prefix OR and Prefix AND</a><a href="#s25">25. Running Count Is Also a Prefix Concept</a><a href="#s26">26. Prefix Balance</a><a href="#s27">27. Difference Arrays and Prefix Sums</a><a href="#s28">28. Difference Array for Range Updates</a><a href="#s29">29. Prefix Sum in Two Dimensions</a><a href="#s30">30. Prefix Max Cannot Be Used Like Prefix Sum for Arbitrary Range Maximum</a><a href="#s31">31. Which Operations Support Easy Range Queries?</a><a href="#s32">32. Common Prefix/Suffix Template</a><a href="#s33">33. A Helpful Mental Model</a><a href="#s34">34. Example: Find an Index Where Left Sum Equals Right Sum</a><a href="#s35">35. When Do We Actually Need the Full Prefix Array?</a><a href="#s36">36. Prefix/Suffix Without Extra Arrays</a><a href="#s37">37. Prefix Best + Current + Suffix Best</a><a href="#s38">38. Prefix Best Is Not Always Prefix Maximum</a><a href="#s39">39. Prefix and Kadane's Algorithm</a><a href="#s40">40. Prefix/Suffix in String Problems</a><a href="#s41">41. Prefix Hashing</a><a href="#s42">42. Prefix and Suffix in Trapping Rain Water</a><a href="#s43">43. Prefix/Suffix in Partition Problems</a><a href="#s44">44. Example: Find a Valid Split Using Prefix Max and Suffix Min</a><a href="#s45">45. Common Mistake: Wrong Suffix Loop Direction</a><a href="#s46">46. Common Mistake: Out-of-Bounds Access</a><a href="#s47">47. Common Mistake: Integer Overflow</a><a href="#s48">48. Common Mistake: Confusing Indexing Conventions</a><a href="#s49">49. Recommended Prefix Sum Template</a><a href="#s50">50. Recommended Prefix Maximum Template</a><a href="#s51">51. Recommended Suffix Maximum Template</a><a href="#s52">52. Recommended Prefix/Suffix Min Template</a><a href="#s53">53. A Table of Common Prefix/Suffix Concepts</a><a href="#s54">54. How to Recognize Prefix/Suffix Problems</a><a href="#s55">55. A Step-by-Step Strategy</a><a href="#s56">56. Prefix/Suffix vs Brute Force</a><a href="#s57">57. Prefix/Suffix Is a Form of Precomputation</a><a href="#s58">58. Prefix/Suffix as Dynamic Programming</a><a href="#s59">59. Final Example</a><a href="#s60">60. Cheat Sheet</a><a href="#s61">61. The Most Important Idea to Remember</a></div></details>

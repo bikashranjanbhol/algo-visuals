@@ -27,7 +27,7 @@ window.SITE = SITE;
   const extra = `<a href="/concepts"${path === '/concepts' || path.startsWith('/concepts/') ? ' aria-current="page"' : ''}>Visual library</a>`;
   const nav = SITE.sections.map(s => {
     const here = section === s;
-    const lock = s.access === 'premium' ? '<span class="lock" title="Members only" aria-hidden="true"></span>' : '';
+    const lock = s.access === 'premium' ? '<svg class="lock" viewBox="0 0 16 16" aria-hidden="true"><title>Members only</title><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>' : '';
     return `<a href="${s.href}"${here ? ' aria-current="page"' : ''}>${s.label}${lock}</a>`;
   }).join('') + extra;
   const header = document.createElement('header');

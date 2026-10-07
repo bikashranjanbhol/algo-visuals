@@ -7,7 +7,7 @@
 <meta name="description" content="A seven-step framework for designing any system, shown on two worked examples.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
@@ -16,16 +16,16 @@
 .wrap{padding-bottom:40px}
 h1{max-width:20ch}
 .lede{margin-bottom:28px}
-h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
-h2.big{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15;margin:0 0 8px}
+h2{font-size:1.0625rem;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+h2.big{font-size:clamp(1.3rem,2.4vw,1.625rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:0 0 8px}
 .sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
 .mono{font-family:var(--mono)}
 code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
 
 /* big idea */
 .idea{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px}
-.idea div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.idea div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
 .idea b{display:block;margin-bottom:4px}
 .idea p{margin:0;color:var(--muted);font-size:.93rem}
 
@@ -61,7 +61,7 @@ button.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)
 :focus-visible{outline:3px solid var(--i);outline-offset:2px}
 
 /* whiteboard */
-.board{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px 20px;position:sticky;top:14px}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px 20px;position:sticky;top:14px}
 @media (max-width:900px){.board{position:static}}
 .board-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .board-head h2{margin:0}
@@ -79,7 +79,7 @@ button.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)
 .blk .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.blk .two{grid-template-columns:1fr}}
 .blk .two b{display:block;font-size:.8rem;color:var(--muted);margin-bottom:2px}
-.blk pre{margin:6px 0 0;background:var(--code-bg,#1B2233);color:#D9DFEA;border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:.8rem;overflow-x:auto;line-height:1.5}
+.blk pre{margin:6px 0 0;background:var(--code-bg,#0F172A);color:#D9DFEA;border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:.8rem;overflow-x:auto;line-height:1.5}
 .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:4px}
 .nums div{background:var(--cell);border-radius:10px;padding:8px 10px}
 .nums b{display:block;font-family:var(--mono);font-size:1rem}
@@ -128,7 +128,7 @@ button.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)
 <body>
 <main>
 <div class="wrap">
-  <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Framework</p>
+  <p class="crumb"><a href="/">Home</a><span>/</span><a href="/system-design">System Design</a><span>/</span><span>Framework</span></p>
   <h1>A framework for any system design</h1>
   <p class="lede">You don't need to memorize architectures. You need one repeatable process that turns a vague prompt like "design a chat app" into a design you can defend. This is that process, in seven steps, shown on two very different systems so you can see the same steps produce different answers.</p>
 

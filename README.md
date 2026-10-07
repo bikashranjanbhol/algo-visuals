@@ -13,7 +13,8 @@ To add a walkthrough: create `<track>/<slug>/index.html`, then add a card for it
 ## Customize
 
 - Site title, tagline and the main menu live in `assets/site.js`.
-- Shared styles for the landing and track pages live in `assets/pages.css`.
+- Design tokens (colours, type) and shared styles for the landing and track pages live in `assets/pages.css`. Pages with their own inline tokens use the same values.
+- Long-form docs with a `<details class="toc">` get a sticky "On this page" rail from `assets/docs.js`.
 - Header and footer styles live in `assets/site.css`.
 - Each page is a single self-contained HTML file under its own folder.
 

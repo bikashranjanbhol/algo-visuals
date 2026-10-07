@@ -7,23 +7,19 @@
 <meta name="description" content="Every major system design component explained from first principles, with every diagram animated.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="stylesheet" href="/assets/anim.css">
 <script src="/assets/site.js" defer></script>
+<script src="/assets/docs.js" defer></script>
 <script type="module" src="/assets/auth.js"></script>
 <script src="/system-design/components/specs.js"></script>
 <script src="/assets/anim.js"></script>
 <style>
-:root{--code-bg:#1B2233} @media (prefers-color-scheme:dark){:root{--code-bg:#0F1420}}
+:root{--code-bg:#0F172A} @media (prefers-color-scheme:dark){:root{--code-bg:#07090D}}
 .wrap{padding-bottom:40px}
-.toc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin:0 0 24px}
-.toc summary{cursor:pointer;font-weight:600}
-.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 18px;margin-top:12px}
-.toc-grid a{font-size:.88rem;color:var(--muted);text-decoration:none;padding:3px 0}
-.toc-grid a:hover{color:var(--ink)}
-.doc h2{font-size:clamp(1.35rem,3vw,1.8rem);font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:40px 0 10px;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+.doc h2{font-size:clamp(1.25rem,2.4vw,1.5rem);font-weight:650;letter-spacing:-.02em;line-height:1.3;margin:48px 0 10px;padding-top:24px;border-top:1px solid var(--line);scroll-margin-top:16px}
 .doc h3{font-size:1.15rem;font-weight:700;margin:22px 0 6px}
 .doc h4{font-size:1rem;font-weight:700;margin:16px 0 4px}
 .doc p{max-width:72ch;margin:0 0 12px}
@@ -31,7 +27,7 @@
 .doc li{margin:3px 0}
 .doc blockquote{margin:12px 0;padding:10px 16px;border-left:3px solid var(--i);background:var(--i-soft);border-radius:0 12px 12px 0;max-width:72ch}
 .doc blockquote p{margin:0}
-.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:14px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
+.doc pre{background:var(--code-bg);color:#D9DFEA;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:.84rem;line-height:1.55;overflow-x:auto;margin:10px 0 14px;max-width:72ch}
 .doc pre code{background:transparent;padding:0;font-size:inherit;color:inherit}
 .doc code{font-family:var(--mono);font-size:.9em;background:var(--cell);padding:1px 6px;border-radius:6px}
 .doc table{border-collapse:collapse;font-size:.92rem;margin:10px 0 14px;max-width:72ch}
@@ -41,13 +37,13 @@
 details.orig{max-width:760px;margin:0 0 14px}
 details.orig summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
 details.orig pre{margin-top:8px}
-.note{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin:0 0 20px;max-width:72ch;font-size:.95rem;color:var(--muted)}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 20px;max-width:72ch;font-size:.95rem;color:var(--muted)}
 </style>
 </head>
 <body>
 <main>
 <div class="wrap">
-  <p class="crumb"><a href="/">Home</a> / <a href="/system-design">System Design</a> / Components</p>
+  <p class="crumb"><a href="/">Home</a><span>/</span><a href="/system-design">System Design</a><span>/</span><span>Components</span></p>
   <h1>System Design Components Explained: A Crystal-Clear Guide from Basics to Distributed Systems</h1>
   <p class="lede">All 110 components, in the original order and with the original text. Every diagram in the guide has been turned into an animation that plays when it scrolls into view; the original text diagram is kept underneath each one.</p>
   <details class="toc"><summary>Contents (117 sections)</summary><div class="toc-grid"><a href="#ssystem-design-components-explained-a-crystal-clear-guide-from-basics-to-distributed-systems">System Design Components Explained: A Crystal-Clear Guide from Basics to Distributed Systems</a><a href="#s1">1. Client</a><a href="#s2">2. DNS — Domain Name System</a><a href="#s3">3. Web Server</a><a href="#s4">4. Application Server</a><a href="#s5">5. Load Balancer</a><a href="#s6">6. Horizontal Scaling</a><a href="#s7">7. Reverse Proxy</a><a href="#s8">8. API Gateway</a><a href="#s9">9. CDN — Content Delivery Network</a><a href="#s10">10. Cache</a><a href="#s11">11. Cache Hit and Cache Miss</a><a href="#s12">12. Cache-Aside Pattern</a><a href="#s13">13. Cache Eviction</a><a href="#s14">14. Cache Invalidation</a><a href="#s15">15. Database</a><a href="#s16">16. SQL Databases</a><a href="#s17">17. NoSQL Databases</a><a href="#s18">18. Database Index</a><a href="#s19">19. Database Replication</a><a href="#s20">20. Database Partitioning</a><a href="#s21">21. Database Sharding</a><a href="#s22">22. Consistent Hashing</a><a href="#s23">23. Message Queue</a><a href="#s24">24. Producer and Consumer</a><a href="#s25">25. Event-Driven Architecture</a><a href="#s26">26. Apache Kafka</a><a href="#s27">27. Queue vs Kafka-Style Event Stream</a><a href="#s28">28. Publish/Subscribe</a><a href="#s29">29. Dead Letter Queue</a><a href="#s30">30. Retry Mechanism</a><a href="#s31">31. Idempotency</a><a href="#s32">32. Rate Limiter</a><a href="#s33">33. Token Bucket</a><a href="#s34">34. Authentication</a><a href="#s35">35. Authorization</a><a href="#s36">36. Session Storage</a><a href="#s37">37. Object Storage</a><a href="#s38">38. File Storage vs Object Storage</a><a href="#s39">39. Search Engine</a><a href="#s40">40. Service Discovery</a><a href="#s41">41. Microservices</a><a href="#s42">42. Monolith</a><a href="#s43">43. Service Mesh</a><a href="#s44">44. Circuit Breaker</a><a href="#s45">45. Health Check</a><a href="#s46">46. Heartbeat</a><a href="#s47">47. Leader Election</a><a href="#s48">48. Distributed Lock</a><a href="#s49">49. Database Transaction</a><a href="#s50">50. ACID</a><a href="#s51">51. Distributed Transactions</a><a href="#s52">52. Saga Pattern</a><a href="#s53">53. SQL Join</a><a href="#s54">54. Denormalization</a><a href="#s55">55. Read Replica</a><a href="#s56">56. CQRS</a><a href="#s57">57. Event Sourcing</a><a href="#s58">58. CAP Theorem</a><a href="#s59">59. Strong Consistency</a><a href="#s60">60. Eventual Consistency</a><a href="#s61">61. Availability</a><a href="#s62">62. Failover</a><a href="#s63">63. Single Point of Failure</a><a href="#s64">64. Redundancy</a><a href="#s65">65. Multi-Region Architecture</a><a href="#s66">66. Availability Zone</a><a href="#s67">67. Auto Scaling</a><a href="#s68">68. Container</a><a href="#s69">69. Container Orchestration</a><a href="#s70">70. Stateless Server</a><a href="#s71">71. Stateful System</a><a href="#s72">72. Batch Processing</a><a href="#s73">73. Stream Processing</a><a href="#s74">74. Scheduler</a><a href="#s75">75. Worker</a><a href="#s76">76. WebSocket</a><a href="#s77">77. Server-Sent Events</a><a href="#s78">78. Long Polling</a><a href="#s79">79. Bloom Filter</a><a href="#s80">80. Database Connection Pool</a><a href="#s81">81. API Pagination</a><a href="#s82">82. Data Compression</a><a href="#s83">83. Serialization</a><a href="#s84">84. REST</a><a href="#s85">85. gRPC</a><a href="#s86">86. GraphQL</a><a href="#s87">87. Observability</a><a href="#s88">88. Logging</a><a href="#s89">89. Metrics</a><a href="#s90">90. Distributed Tracing</a><a href="#s91">91. Alerting</a><a href="#s92">92. Latency</a><a href="#s93">93. Throughput</a><a href="#s94">94. P50, P95 and P99 Latency</a><a href="#s95">95. Backpressure</a><a href="#s96">96. Throttling</a><a href="#s97">97. Timeout</a><a href="#s98">98. Bulkhead Pattern</a><a href="#s99">99. Feature Flags</a><a href="#s100">100. Blue-Green Deployment</a><a href="#s101">101. Canary Deployment</a><a href="#s102">102. Configuration Management</a><a href="#s103">103. Secret Management</a><a href="#s104">104. Encryption</a><a href="#s105">105. Hashing</a><a href="#s106">106. Checksum</a><a href="#s107">107. Data Backup</a><a href="#s108">108. Disaster Recovery</a><a href="#s109">109. Data Warehouse</a><a href="#s110">110. Data Lake</a><a href="#sputting-everything-together">Putting Everything Together</a><a href="#sthe-most-important-lesson-in-system-design">The Most Important Lesson in System Design</a><a href="#sa-practical-system-design-mental-model">A Practical System Design Mental Model</a><a href="#ssystem-design-component-cheat-sheet">System Design Component Cheat Sheet</a><a href="#swhat-you-should-learn-first">What You Should Learn First</a><a href="#sfinal-principle">Final Principle</a></div></details>

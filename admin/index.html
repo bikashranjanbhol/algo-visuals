@@ -6,13 +6,13 @@
 <title>Admin, Algo Visuals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
 <script type="module" src="/assets/auth.js"></script>
 <style>
-.users{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.users{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .users th{text-align:left;font-size:.8rem;color:var(--muted);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line)}
 .users td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
 .users tr:last-child td{border-bottom:none}
@@ -20,7 +20,7 @@
 .users select{font-family:var(--mono);font-size:.9rem;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cell);color:var(--ink)}
 .users .you{font-size:.75rem;color:var(--muted);margin-left:6px}
 .status{font-size:.9rem;color:var(--muted);min-height:1.4em;margin:10px 0 0}
-.note{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:60ch}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;max-width:60ch}
 .summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
 .summary div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:.9rem}
 .summary b{font-family:var(--mono)}
@@ -29,7 +29,7 @@
 <body>
 <main>
 <div class="wrap">
-  <p class="crumb"><a href="/">Home</a> / Admin</p>
+  <p class="crumb"><a href="/">Home</a><span>/</span><span>Admin</span></p>
   <h1>Members and roles</h1>
   <p class="lede">Everyone who has signed in appears here. Change a role and it takes effect the next time that person loads a page.</p>
   <div id="content"><div class="note">Checking your access…</div></div>

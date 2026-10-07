@@ -7,74 +7,75 @@
 <meta name="description" content="Concept images in a sliding view, grouped by track.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script src="/assets/site.js" defer></script>
 <script type="module" src="/assets/auth.js"></script>
 <script src="/assets/concepts.js"></script>
 <style>
-.wrap{max-width:1280px;padding:24px 20px 40px}
-.lib{display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:860px){.lib{grid-template-columns:1fr}}
-.side{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto}
-@media (max-width:860px){.side{position:static;max-height:none}}
-.side h2{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:4px 8px 10px}
-.grp{border-top:1px solid var(--line)}
-.grp:first-of-type{border-top:none}
-.grp > button{width:100%;text-align:left;background:none;border:none;font-family:var(--sans);font-size:.98rem;font-weight:700;color:var(--ink);padding:12px 8px;cursor:pointer;display:flex;align-items:center;gap:8px}
-.grp > button .n{margin-left:auto;font-family:var(--mono);font-size:.75rem;color:var(--muted);background:var(--cell);border-radius:999px;padding:2px 8px}
-.grp > button .chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s}
-.grp.open > button .chev{transform:rotate(45deg)}
-.grp ul{list-style:none;margin:0;padding:0 0 8px}
+.site-header .in{max-width:none}
+.site-footer .in{max-width:none}
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:start;min-height:calc(100vh - 61px)}
+@media (max-width:860px){.shell{grid-template-columns:1fr;min-height:0}}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--side);border-right:1px solid var(--line);padding:24px 12px 32px}
+@media (max-width:860px){.side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:16px 12px}}
+.side h2{font-size:.9375rem;font-weight:600;color:var(--ink);margin:0 8px 2px}
+.side p.sub{font-size:.8125rem;color:var(--muted);margin:0 8px 16px}
+.grp > button{width:100%;text-align:left;background:none;border:none;font:inherit;font-size:.8125rem;font-weight:600;color:var(--ink);padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.grp > button:hover{background:var(--cell)}
+.grp > button .n{margin-left:auto;font-size:.6875rem;font-weight:500;color:var(--muted)}
+.grp > button .chev{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .15s;flex:none}
+.grp.open > button .chev{transform:rotate(90deg)}
+.grp ul{list-style:none;margin:2px 0 8px 15px;padding:0 0 0 8px;border-left:1px solid var(--line)}
 .grp:not(.open) ul{display:none}
-.grp li a{display:block;padding:8px 12px 8px 26px;border-radius:10px;text-decoration:none;color:var(--muted);font-size:.93rem}
+.grp li a{display:block;padding:5px 8px;margin-left:-9px;border-left:1px solid transparent;border-radius:0 6px 6px 0;text-decoration:none;color:var(--ink-2);font-size:.8125rem}
 .grp li a:hover{background:var(--cell);color:var(--ink)}
-.grp li a[aria-current="true"]{background:var(--i-soft);color:var(--i);font-weight:600}
-.grp li.empty{padding:4px 12px 8px 26px;font-size:.85rem;color:var(--muted)}
-.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 18px 16px;min-width:0}
-.stage-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.stage-head h1{font-size:clamp(1.4rem,3vw,2rem);margin:0;max-width:none}
-.stage-head .sum{color:var(--muted);font-size:.95rem}
-.stage-head a.go{margin-left:auto;font-size:.9rem;font-weight:600;color:var(--i);text-decoration:none}
-.viewer{position:relative;border-radius:16px;background:var(--cell);overflow:hidden;touch-action:pan-y}
+.grp li a[aria-current="true"]{color:var(--i);font-weight:600;border-left-color:var(--i);background:var(--i-soft)}
+.grp li.empty{padding:5px 8px;font-size:.8125rem;color:var(--muted)}
+.content{min-width:0;padding:40px clamp(20px,5vw,64px) 64px}
+.stage{max-width:1000px;margin:0 auto}
+.stage-head{display:flex;align-items:flex-end;gap:12px 24px;flex-wrap:wrap;margin-bottom:20px}
+.stage-head .tt{flex:1;min-width:240px}
+.stage-head .crumb{margin-bottom:10px}
+.stage-head h1{font-size:clamp(1.6rem,3vw,2rem);margin:0 0 4px;max-width:none}
+.stage-head .sum{color:var(--muted);font-size:.9375rem;margin:0}
+.viewer{position:relative;border:1px solid var(--line);border-radius:12px 12px 0 0;background:var(--cell);overflow:hidden;touch-action:pan-y}
 .track{display:flex;transition:transform .4s cubic-bezier(.5,0,.2,1);will-change:transform}
 .slide{flex:0 0 100%;min-width:0}
-.slide img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;background:#F7F8FB}
-.arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-.arrow:disabled{opacity:.3;cursor:default}
+.slide img{display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;background:#FFFFFF}
+.arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(16,24,40,.1)}
+.arrow:disabled{opacity:0;pointer-events:none}
 .arrow.prev{left:12px}.arrow.next{right:12px}
-.arrow svg{width:18px;height:18px;fill:currentColor}
-.foot{display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
-.cap{flex:1;min-width:200px;font-size:1rem}
-.count{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
-.dots{display:flex;gap:6px}
-.dots button{width:10px;height:10px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
-.dots button[aria-current="true"]{background:var(--i);width:22px;border-radius:6px}
-.thumbs{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
-.thumbs button{flex:none;width:110px;border:2px solid transparent;border-radius:10px;padding:0;background:var(--cell);cursor:pointer;overflow:hidden}
-.thumbs button[aria-current="true"]{border-color:var(--i)}
-.thumbs img{display:block;width:100%;height:62px;object-fit:cover}
-.placeholder{padding:48px 24px;text-align:center;color:var(--muted)}
-.placeholder h2{font-size:1.2rem;margin:0 0 8px;color:var(--ink)}
-.keys{color:var(--muted);font-size:.82rem;margin:12px 0 0}
-kbd{font-family:var(--mono);font-size:.76rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;background:var(--surface)}
-:focus-visible{outline:3px solid var(--i);outline-offset:2px}
+.arrow svg{width:16px;height:16px;fill:currentColor}
+.foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px;border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;background:var(--surface)}
+.cap{flex:1;min-width:200px;font-size:.9rem;color:var(--ink-2)}
+.count{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:5px}
+.dots button{width:6px;height:6px;border-radius:50%;border:none;background:var(--line-2);cursor:pointer;padding:0}
+.dots button[aria-current="true"]{background:var(--ink);width:16px;border-radius:4px}
+.thumbs{display:flex;gap:8px;margin-top:16px;overflow-x:auto;padding-bottom:4px}
+.thumbs button{flex:none;width:120px;border:1px solid var(--line);border-radius:8px;padding:0;background:#FFFFFF;cursor:pointer;overflow:hidden;opacity:.7;transition:opacity .15s,border-color .15s}
+.thumbs button:hover{opacity:1}
+.thumbs button[aria-current="true"]{border-color:var(--i);box-shadow:0 0 0 1px var(--i);opacity:1}
+.thumbs img{display:block;width:100%;height:68px;object-fit:cover}
+.placeholder{padding:64px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:12px;background:var(--side)}
+.placeholder h2{font-size:1.0625rem;font-weight:600;margin:0 0 6px;color:var(--ink)}
+.placeholder p{margin:0}
+.keys{color:var(--muted);font-size:.75rem;margin:12px 0 0}
+kbd{font-family:var(--mono);font-size:.6875rem;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface)}
+:focus-visible{outline:2px solid var(--i);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.track{transition:none}}
 </style>
 </head>
 <body>
-<main>
-<div class="wrap">
-  <p class="crumb"><a href="/">Home</a> / Visual library</p>
-  <div class="lib">
-    <aside class="side" aria-label="Concepts">
-      <h2>Concepts</h2>
-      <div id="groups"></div>
-    </aside>
-    <section class="stage" id="stage"></section>
-  </div>
-</div>
+<main class="shell">
+  <aside class="side" aria-label="Concepts">
+    <h2>Visual library</h2>
+    <p class="sub">Concept slides, grouped by track</p>
+    <div id="groups"></div>
+  </aside>
+  <div class="content"><section class="stage" id="stage"></section></div>
 </main>
 <script>
 const G = window.CONCEPTS;
@@ -91,7 +92,7 @@ function find(){ const grp = G.find(x => x.id === cur.g); const con = grp && grp
 function renderSide(){
   $('groups').innerHTML = G.map(grp => `
     <div class="grp ${grp.id === cur.g ? 'open' : ''}" data-g="${grp.id}">
-      <button type="button" aria-expanded="${grp.id === cur.g}">${grp.label}<span class="n">${grp.concepts.length}</span><span class="chev"></span></button>
+      <button type="button" aria-expanded="${grp.id === cur.g}">${grp.label}<span class="n">${grp.concepts.length}</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
       <ul>${grp.concepts.length ? grp.concepts.map(c => `<li><a href="#${grp.id}/${c.slug}/0" data-g="${grp.id}" data-c="${c.slug}" ${cur.g === grp.id && cur.c === c.slug ? 'aria-current="true"' : ''}>${c.title}</a></li>`).join('') : '<li class="empty">No concepts yet</li>'}</ul>
     </div>`).join('');
   $('groups').querySelectorAll('.grp > button').forEach(b => b.onclick = () => { const d = b.parentElement; d.classList.toggle('open'); b.setAttribute('aria-expanded', d.classList.contains('open')); });
@@ -106,7 +107,7 @@ function renderStage(){
   }
   const n = con.slides.length; cur.s = Math.min(cur.s, n - 1);
   S.innerHTML = `
-    <div class="stage-head"><h1>${con.title}</h1><span class="sum">${con.summary || ''}</span>${con.link ? `<a class="go" href="${con.link}">Open the walkthrough →</a>` : ''}</div>
+    <div class="stage-head"><div class="tt"><p class="crumb"><a href="/concepts">Visual library</a><span>/</span><span>${grp.label}</span></p><h1>${con.title}</h1><p class="sum">${con.summary || ''}</p></div>${con.link ? `<a class="btn" href="${con.link}">Open the walkthrough →</a>` : ''}</div>
     <div class="viewer" id="viewer">
       <div class="track" id="track">${con.slides.map((sl, i) => `<div class="slide"><img src="${sl.src}" alt="${(sl.caption || con.title).replace(/"/g, '&quot;')}" loading="${i < 2 ? 'eager' : 'lazy'}" draggable="false"></div>`).join('')}</div>
       <button class="arrow prev" id="prev" aria-label="Previous"><svg viewBox="0 0 16 16"><path d="M10.5 2 4.5 8l6 6 1.4-1.4L7.3 8l4.6-4.6z"/></svg></button>
@@ -114,7 +115,7 @@ function renderStage(){
     </div>
     <div class="foot"><div class="cap" id="cap"></div><span class="count" id="count"></span><div class="dots" id="dots">${con.slides.map((_, i) => `<button type="button" data-i="${i}" aria-label="Slide ${i + 1}"></button>`).join('')}</div></div>
     ${n > 1 ? `<div class="thumbs" id="thumbs">${con.slides.map((sl, i) => `<button type="button" data-i="${i}" aria-label="Slide ${i + 1}"><img src="${sl.src}" alt="" loading="lazy"></button>`).join('')}</div>` : ''}
-    <p class="keys"><kbd>←</kbd> <kbd>→</kbd> change slide, swipe on touch screens.</p>`;
+    <p class="keys"><kbd>←</kbd> <kbd>→</kbd> to change slides, or swipe on touch screens.</p>`;
   $('prev').onclick = () => go(cur.s - 1);
   $('next').onclick = () => go(cur.s + 1);
   S.querySelectorAll('#dots button, #thumbs button').forEach(b => b.onclick = () => go(+b.dataset.i));
